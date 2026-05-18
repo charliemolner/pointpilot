@@ -1328,6 +1328,9 @@ export default function Results() {
           <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '14px', marginBottom: '8px' }}>
             {from?.city} to {to?.city}
           </p>
+          <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '12px', lineHeight: 1.6, marginBottom: '12px' }}>
+            Results assume availability from a major hub. If your departure airport has limited international service, consider departing from a nearby gateway airport.
+          </p>
           <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '17px', lineHeight: 1.6 }}>
             Here's your best redemption with <span style={{ color: 'white', fontWeight: '700' }}>{points} {pointsLabel(program)}</span>
           </p>
