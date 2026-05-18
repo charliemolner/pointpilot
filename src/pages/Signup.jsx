@@ -38,6 +38,8 @@ export default function Signup() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [focusedField, setFocusedField] = useState(null)
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
+  const [termsError, setTermsError] = useState(false)
 
   const inputStyle = (field, readOnly = false) => ({
     background: readOnly ? 'rgba(255,255,255,0.03)' : ELEVATED,
@@ -58,6 +60,12 @@ export default function Signup() {
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
+    setTermsError(false)
+
+    if (!agreedToTerms) {
+      setTermsError(true)
+      return
+    }
 
     if (!existingMode) {
       if (password !== confirmPassword) {
@@ -345,6 +353,61 @@ export default function Signup() {
             )}
 
             {existingMode && <div style={{ marginBottom: '20px' }} />}
+
+            {/* Terms of Service checkbox */}
+            <label style={{
+              display: 'flex', alignItems: 'flex-start', gap: '10px',
+              marginBottom: termsError ? '8px' : '20px',
+              cursor: 'pointer',
+            }}>
+              <div style={{ position: 'relative', flexShrink: 0, marginTop: '1px' }}>
+                <input
+                  type="checkbox"
+                  checked={agreedToTerms}
+                  onChange={e => { setAgreedToTerms(e.target.checked); if (e.target.checked) setTermsError(false) }}
+                  style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }}
+                />
+                <div style={{
+                  width: '16px', height: '16px',
+                  borderRadius: '4px',
+                  border: `1.5px solid ${termsError ? 'rgba(248,113,113,0.6)' : agreedToTerms ? 'rgba(99,102,241,0.7)' : BORDER_MID}`,
+                  background: agreedToTerms ? 'rgba(99,102,241,0.18)' : ELEVATED,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: 'border-color 0.15s, background 0.15s',
+                  boxShadow: agreedToTerms ? '0 0 0 3px rgba(99,102,241,0.1)' : 'none',
+                }}>
+                  {agreedToTerms && (
+                    <svg width="9" height="7" viewBox="0 0 9 7" fill="none">
+                      <path d="M1 3.5L3.5 6L8 1" stroke="#818cf8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  )}
+                </div>
+              </div>
+              <span style={{ fontSize: '13px', color: MUTED, lineHeight: 1.55, userSelect: 'none' }}>
+                By creating an account, you agree to our{' '}
+                <a
+                  href="/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={e => e.stopPropagation()}
+                  style={{ color: ACCENT_LT, textDecoration: 'none', fontWeight: '500' }}
+                  onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
+                  onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}
+                >
+                  Terms of Service
+                </a>.
+              </span>
+            </label>
+
+            {termsError && (
+              <p style={{
+                color: '#f87171', fontSize: '12px',
+                marginBottom: '14px', marginTop: '-2px',
+                letterSpacing: '-0.1px',
+              }}>
+                Please agree to the Terms of Service to continue.
+              </p>
+            )}
 
             {error && (
               <p style={{
