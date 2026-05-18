@@ -305,4 +305,4 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const PORT = process.env.PORT || 3001
-app.listen(PORT, () => console.log(`PointPilot API running on port ${PORT}`))
+app.listen(PORT, '0.0.0.0', () => console.log(`PointPilot API running on port ${PORT}`))
