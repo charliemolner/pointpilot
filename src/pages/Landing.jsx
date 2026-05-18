@@ -193,17 +193,17 @@ export default function Landing() {
           background: 'radial-gradient(ellipse 70% 55% at 50% 0%, rgba(99,102,241,0.13) 0%, transparent 70%)',
         }} />
 
-        <Section style={{ paddingTop: '88px', paddingBottom: '80px', textAlign: 'center', position: 'relative' }}>
+        <Section style={{ paddingTop: '60px', paddingBottom: '56px', textAlign: 'center', position: 'relative' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Eyebrow>✦ Award travel, simplified</Eyebrow>
 
             {/* Gradient headline */}
             <h1 style={{
-              fontSize: 'clamp(44px, 8vw, 88px)',
+              fontSize: 'clamp(40px, 7vw, 80px)',
               fontWeight: '700',
               letterSpacing: '-0.04em',
               lineHeight: '1.04',
-              marginBottom: '24px',
+              marginBottom: '20px',
               background: `linear-gradient(180deg, ${TEXT} 30%, ${MUTED} 100%)`,
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
@@ -218,7 +218,7 @@ export default function Landing() {
               color: MUTED,
               lineHeight: '1.6',
               maxWidth: '480px',
-              marginBottom: '36px',
+              marginBottom: '28px',
               letterSpacing: '-0.2px',
             }}>
               Enter your rewards card and balance.
@@ -247,13 +247,13 @@ export default function Landing() {
               <div
                 key={s.label}
                 style={{
-                  padding: '28px 20px',
+                  padding: '20px 16px',
                   textAlign: 'center',
                   borderRight: i < 2 ? `1px solid ${BORDER}` : 'none',
                 }}
               >
                 <div style={{
-                  fontSize: 'clamp(26px, 4vw, 40px)',
+                  fontSize: 'clamp(22px, 3.5vw, 32px)',
                   fontWeight: '700',
                   letterSpacing: '-0.04em',
                   lineHeight: '1',
@@ -272,22 +272,22 @@ export default function Landing() {
       </div>
 
       {/* ── How it works ─────────────────────────────────── */}
-      <Section id="how-it-works" style={{ paddingTop: '80px', paddingBottom: '80px' }}>
+      <Section id="how-it-works" style={{ paddingTop: '48px', paddingBottom: '48px' }}>
         <p style={{
           fontSize: '11px', fontWeight: '600',
           letterSpacing: '0.1em', textTransform: 'uppercase',
-          color: SUBTLE, marginBottom: '14px',
+          color: SUBTLE, marginBottom: '10px',
         }}>
           How it works
         </p>
 
         <h2 style={{
-          fontSize: 'clamp(28px, 4.5vw, 48px)',
+          fontSize: 'clamp(24px, 3.5vw, 38px)',
           fontWeight: '700',
           letterSpacing: '-0.035em',
           lineHeight: '1.08',
           color: TEXT,
-          marginBottom: '48px',
+          marginBottom: '28px',
           maxWidth: '480px',
         }}>
           From card to cabin
@@ -306,7 +306,7 @@ export default function Landing() {
             <div
               key={n}
               style={{
-                padding: '32px 28px',
+                padding: '24px 22px',
                 borderRight: i < STEPS.length - 1 ? `1px solid ${BORDER}` : 'none',
                 background: ELEVATED,
                 transition: 'background 0.2s',
@@ -347,7 +347,7 @@ export default function Landing() {
 
       {/* ── Supported cards band ─────────────────────────── */}
       <div style={{ borderTop: `1px solid ${BORDER}`, background: SURFACE }}>
-        <div style={{ maxWidth: '960px', margin: '0 auto', padding: '32px 24px' }}>
+        <div style={{ maxWidth: '960px', margin: '0 auto', padding: '20px 24px' }}>
           <div style={{
             display: 'flex', flexWrap: 'wrap',
             alignItems: 'center', justifyContent: 'space-between', gap: '16px',
@@ -390,9 +390,9 @@ export default function Landing() {
           background: 'radial-gradient(ellipse 60% 60% at 50% 100%, rgba(99,102,241,0.12) 0%, transparent 70%)',
         }} />
 
-        <Section style={{ paddingTop: '88px', paddingBottom: '100px', textAlign: 'center', position: 'relative' }}>
+        <Section style={{ paddingTop: '56px', paddingBottom: '64px', textAlign: 'center', position: 'relative' }}>
           <h2 style={{
-            fontSize: 'clamp(32px, 5.5vw, 64px)',
+            fontSize: 'clamp(28px, 4.5vw, 52px)',
             fontWeight: '700',
             letterSpacing: '-0.04em',
             lineHeight: '1.06',
@@ -407,9 +407,9 @@ export default function Landing() {
           </h2>
 
           <p style={{
-            fontSize: '17px',
+            fontSize: '16px',
             color: SUBTLE,
-            marginBottom: '36px',
+            marginBottom: '28px',
             letterSpacing: '-0.2px',
           }}>
             Find out how many points it takes.
