@@ -1,7 +1,13 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { Button } from '@/components/ui/button'
+import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Plane, Sparkles, CreditCard, Route, Trophy } from 'lucide-react'
 
 const NAVY = '#1a3a6b'
+
+// ── Boarding-pass illustration ─────────────────────────────
 
 function CreditCardIcon() {
   return (
@@ -46,25 +52,17 @@ function BoardingPass() {
         flexShrink: 0,
       }}
     >
-      {/* Top section */}
       <div style={{ padding: '22px 24px 20px' }}>
-        {/* Card label */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
           <CreditCardIcon />
           <span style={{ color: NAVY, fontSize: '12px', fontWeight: '600', letterSpacing: '0.01em', opacity: 0.75 }}>
             Chase Sapphire Preferred
           </span>
         </div>
-
-        {/* Thin divider */}
         <div style={{ height: '1px', background: '#e5e7eb', marginBottom: '18px' }} />
-
-        {/* Route */}
         <div style={{ color: NAVY, fontSize: '30px', fontWeight: '800', letterSpacing: '-1.5px', lineHeight: 1, marginBottom: '10px' }}>
           JFK → NRT
         </div>
-
-        {/* Details */}
         <div style={{ color: NAVY, fontSize: '14px', fontWeight: '600', marginBottom: '5px', opacity: 0.8 }}>
           ANA Business Class
         </div>
@@ -76,28 +74,11 @@ function BoardingPass() {
           Est. value $4,200
         </div>
       </div>
-
-      {/* Perforation divider */}
       <div style={{ position: 'relative', margin: '0 -1px' }}>
-        {/* Left notch */}
-        <div style={{
-          position: 'absolute', left: '-13px', top: '-13px',
-          width: '26px', height: '26px', borderRadius: '50%',
-          background: NAVY,
-        }} />
-        {/* Right notch */}
-        <div style={{
-          position: 'absolute', right: '-13px', top: '-13px',
-          width: '26px', height: '26px', borderRadius: '50%',
-          background: NAVY,
-        }} />
-        <div style={{
-          borderTop: '2px dashed #d1d5db',
-          margin: '0 16px',
-        }} />
+        <div style={{ position: 'absolute', left: '-13px', top: '-13px', width: '26px', height: '26px', borderRadius: '50%', background: NAVY }} />
+        <div style={{ position: 'absolute', right: '-13px', top: '-13px', width: '26px', height: '26px', borderRadius: '50%', background: NAVY }} />
+        <div style={{ borderTop: '2px dashed #d1d5db', margin: '0 16px' }} />
       </div>
-
-      {/* Barcode section */}
       <div style={{ padding: '18px 24px 20px' }}>
         <Barcode />
         <div style={{ color: '#9ca3af', fontSize: '10px', textAlign: 'center', marginTop: '6px', letterSpacing: '0.15em' }}>
@@ -108,99 +89,117 @@ function BoardingPass() {
   )
 }
 
-function PilotButton({ onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      style={{
-        background: 'white',
-        color: NAVY,
-        fontWeight: '700',
-        fontSize: '17px',
-        padding: '16px 40px',
-        borderRadius: '50px',
-        border: 'none',
-        cursor: 'pointer',
-        boxShadow: '0 6px 28px rgba(0,0,0,0.20), 0 2px 6px rgba(0,0,0,0.10)',
-        transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-      }}
-      onMouseEnter={e => {
-        e.currentTarget.style.transform = 'translateY(-2px)'
-        e.currentTarget.style.boxShadow = '0 10px 36px rgba(0,0,0,0.24), 0 4px 10px rgba(0,0,0,0.12)'
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.transform = 'translateY(0)'
-        e.currentTarget.style.boxShadow = '0 6px 28px rgba(0,0,0,0.20), 0 2px 6px rgba(0,0,0,0.10)'
-      }}
-    >
-      Pilot My Points
-    </button>
-  )
-}
+// ── How it works steps ─────────────────────────────────────
+
+const STEPS = [
+  {
+    icon: CreditCard,
+    step: '01',
+    title: 'Enter your card & balance',
+    description: 'Tell us which rewards card you have and how many points or miles you\'ve earned.',
+  },
+  {
+    icon: Route,
+    step: '02',
+    title: 'Choose your route',
+    description: 'Search any origin and destination — domestic or international. We handle the routing.',
+  },
+  {
+    icon: Trophy,
+    step: '03',
+    title: 'Get your best redemption',
+    description: 'We surface the highest-value transfer partner for your specific card and route — both luxury and budget options.',
+  },
+]
+
+// ── Social proof stats ─────────────────────────────────────
+
+const STATS = [
+  { value: '20+', label: 'Transfer partners analyzed' },
+  { value: '8.8¢', label: 'Best value per point found' },
+  { value: '2 min', label: 'Average time to find a deal' },
+]
+
+// ─────────────────────────────────────────────────────────
+// PAGE
+// ─────────────────────────────────────────────────────────
 
 export default function Landing() {
   const navigate = useNavigate()
   const { user, isPro } = useAuth()
 
   return (
-    <div style={{ backgroundColor: NAVY }} className="dot-bg min-h-screen flex flex-col text-white">
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: NAVY }}>
 
-      {/* Navbar */}
-      <nav style={{ height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 40px', flexShrink: 0 }}>
-        <span style={{ color: 'white', fontSize: '18px', fontWeight: '700', letterSpacing: '-0.02em', userSelect: 'none' }}>
+      {/* ── Navbar ───────────────────────────────────────── */}
+      <nav
+        className="flex items-center justify-between px-8 md:px-12"
+        style={{ height: '64px', flexShrink: 0 }}
+      >
+        <span className="text-white font-bold text-lg tracking-tight select-none">
           PointPilot™
         </span>
 
-        {/* Log in link — hidden when Pro badge is already showing */}
         {!(user && isPro) && (
-          <button
+          <Button
+            variant="white-outline"
+            size="sm"
             onClick={() => navigate('/login')}
-            style={{
-              background: 'transparent',
-              color: 'white',
-              border: '1px solid rgba(255,255,255,0.45)',
-              borderRadius: '50px',
-              padding: '7px 18px',
-              fontSize: '13px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              letterSpacing: '0.01em',
-              transition: 'border-color 0.15s, background 0.15s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.85)'; e.currentTarget.style.background = 'rgba(255,255,255,0.08)' }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.45)'; e.currentTarget.style.background = 'transparent' }}
           >
             Log in
-          </button>
+          </Button>
         )}
       </nav>
 
-
-      {/* Hero — full viewport height, true side-by-side on md+ */}
-      <section className="hero-section">
+      {/* ── Hero ─────────────────────────────────────────── */}
+      <section className="hero-section dot-bg">
         {/* Left: copy */}
         <div className="hero-left">
-          <h1
-            style={{ color: 'white', fontSize: 'clamp(36px, 4.5vw, 58px)', fontWeight: '800', lineHeight: 1.08, letterSpacing: '-2px', marginBottom: '24px' }}
-          >
+
+          <Badge variant="white-subtle" className="mb-6 gap-1.5">
+            <Sparkles size={11} />
+            Award travel made simple
+          </Badge>
+
+          <h1 className="text-white font-extrabold leading-[1.06] tracking-[-2px] mb-6"
+              style={{ fontSize: 'clamp(36px, 4.5vw, 60px)' }}>
             Simplify your journey.<br />
             We'll pilot your points.
           </h1>
 
-          <p
-            style={{
-              color: 'rgba(255,255,255,0.65)',
-              fontSize: '18px',
-              lineHeight: 1.65,
-              maxWidth: '520px',
-              marginBottom: '36px',
-            }}
-          >
+          <p className="mb-8 leading-relaxed"
+             style={{ color: 'rgba(255,255,255,0.65)', fontSize: '18px', maxWidth: '500px' }}>
             Enter your card and points balance. Find the cheapest redemptions
             or the most luxurious upgrades — we'll show you both.
           </p>
 
-          <PilotButton onClick={() => navigate('/search')} />
+          <div className="flex items-center gap-3 flex-wrap">
+            <Button
+              variant="white"
+              size="lg"
+              onClick={() => navigate('/search')}
+            >
+              <Plane size={17} />
+              Pilot My Points
+            </Button>
+            <Button
+              variant="white-outline"
+              size="lg"
+              onClick={() => navigate('/search')}
+            >
+              See an example →
+            </Button>
+          </div>
+
+          {/* Mini stats row */}
+          <div className="flex items-center gap-6 mt-10 flex-wrap">
+            {STATS.map(s => (
+              <div key={s.label}>
+                <div className="text-white font-bold text-xl tracking-tight">{s.value}</div>
+                <div className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.45)' }}>{s.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Right: boarding pass */}
@@ -211,15 +210,92 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Footer CTA */}
-      <section style={{ padding: '60px 32px 80px', textAlign: 'center' }}>
-        <p style={{ color: 'white', fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: '800', letterSpacing: '-1px', lineHeight: 1.1, marginBottom: '12px' }}>
+      {/* ── How it works ─────────────────────────────────── */}
+      <section className="bg-background py-20 px-6 md:px-12">
+        <div className="max-w-5xl mx-auto">
+
+          <div className="text-center mb-14">
+            <Badge variant="muted" className="mb-4 text-primary font-semibold">
+              How it works
+            </Badge>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-primary tracking-tight leading-tight">
+              From card to cabin in three steps
+            </h2>
+            <p className="text-muted-foreground mt-3 text-base max-w-md mx-auto">
+              No spreadsheets. No guesswork. Just the best redemption for your exact situation.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {STEPS.map(({ icon: Icon, step, title, description }) => (
+              <Card key={step} className="relative overflow-hidden hover:shadow-md transition-shadow">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between mb-3">
+                    <div
+                      className="w-10 h-10 rounded-xl flex items-center justify-center"
+                      style={{ background: `${NAVY}12` }}
+                    >
+                      <Icon size={18} style={{ color: NAVY }} />
+                    </div>
+                    <span
+                      className="text-4xl font-black leading-none"
+                      style={{ color: `${NAVY}10` }}
+                    >
+                      {step}
+                    </span>
+                  </div>
+                  <CardTitle>{title}</CardTitle>
+                </CardHeader>
+                <CardDescription className="px-6 pb-6">{description}</CardDescription>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Value prop band ───────────────────────────────── */}
+      <section className="py-10 px-6" style={{ background: '#f0f4ff' }}>
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <p className="text-primary font-bold text-lg text-center md:text-left">
+            Supports Chase, Amex, Citi, Capital One, Bilt, United, Delta, American & more
+          </p>
+          <Button
+            variant="default"
+            size="lg"
+            onClick={() => navigate('/search')}
+          >
+            Find my redemption →
+          </Button>
+        </div>
+      </section>
+
+      {/* ── Footer CTA ───────────────────────────────────── */}
+      <section
+        className="dot-bg py-24 px-6 text-center flex flex-col items-center"
+        style={{ background: NAVY }}
+      >
+        <Badge variant="white-subtle" className="mb-6 gap-1.5">
+          <Sparkles size={11} />
+          No account required to search
+        </Badge>
+
+        <h2
+          className="text-white font-extrabold tracking-tight leading-tight mb-4"
+          style={{ fontSize: 'clamp(28px, 4vw, 44px)' }}
+        >
           Your next adventure is already paid for.
+        </h2>
+        <p className="mb-10 font-semibold text-lg" style={{ color: 'rgba(255,255,255,0.6)' }}>
+          Find out how many points it actually costs.
         </p>
-        <p style={{ color: '#ffffff', fontSize: '1.3rem', fontWeight: '600', marginBottom: '36px' }}>
-          See how.
-        </p>
-        <PilotButton onClick={() => navigate('/search')} />
+        <Button
+          variant="white"
+          size="xl"
+          onClick={() => navigate('/search')}
+        >
+          <Plane size={19} />
+          Pilot My Points
+        </Button>
       </section>
 
     </div>
