@@ -41,36 +41,94 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), async (req, 
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret)
   } catch (err) {
-    console.error('Webhook signature error:', err.message)
+    console.error('[webhook] signature error:', err.message)
     return res.status(400).send(`Webhook Error: ${err.message}`)
   }
 
+  console.log('[webhook] received event:', event.type)
+
+  // ── checkout.session.completed ──────────────────────────
+  // Payment succeeded → upsert an active subscription row.
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object
     const userId = session.metadata?.user_id
     const customerId = session.customer
     const subscriptionId = session.subscription
 
-    // Determine plan from price
+    if (!userId) {
+      console.error('[webhook] checkout.session.completed missing user_id in metadata')
+      return res.json({ received: true })
+    }
+
+    // Determine plan from the Stripe subscription's price
     let plan = 'monthly'
     try {
       const sub = await stripe.subscriptions.retrieve(subscriptionId)
       const priceId = sub.items.data[0].price.id
       if (priceId === process.env.STRIPE_ANNUAL_PRICE_ID) plan = 'annual'
-    } catch { /* use default */ }
+    } catch (e) {
+      console.error('[webhook] could not retrieve subscription for plan check:', e.message)
+    }
+
+    // Upsert on stripe_subscription_id so replayed events are idempotent
+    const { error } = await supabase
+      .from('subscriptions')
+      .upsert(
+        {
+          user_id: userId,
+          stripe_customer_id: customerId,
+          stripe_subscription_id: subscriptionId,
+          plan,
+          status: 'active',
+        },
+        { onConflict: 'stripe_subscription_id' }
+      )
+
+    if (error) console.error('[webhook] subscription upsert error:', error.message)
+    else console.log('[webhook] subscription activated for user:', userId, '| plan:', plan)
+  }
+
+  // ── customer.subscription.deleted ──────────────────────
+  // Subscription was deleted outright → mark canceled.
+  else if (event.type === 'customer.subscription.deleted') {
+    const sub = event.data.object
+    const subscriptionId = sub.id
+    const customerId = sub.customer
 
     const { error } = await supabase
       .from('subscriptions')
-      .insert({
-        user_id: userId,
-        stripe_customer_id: customerId,
-        stripe_subscription_id: subscriptionId,
-        plan,
-        status: 'active',
-      })
+      .update({ status: 'canceled' })
+      .eq('stripe_subscription_id', subscriptionId)
 
-    if (error) console.error('Subscription insert error:', error.message)
-    else console.log('[webhook] subscription recorded for user:', userId)
+    if (error) {
+      console.error('[webhook] subscription.deleted DB update error:', error.message)
+    } else {
+      console.log('[webhook] subscription deleted — marked canceled | sub:', subscriptionId, '| customer:', customerId)
+    }
+  }
+
+  // ── customer.subscription.updated ──────────────────────
+  // Subscription status changed (e.g. active → past_due, canceled, unpaid).
+  // Downgrade the user whenever the subscription is no longer active.
+  else if (event.type === 'customer.subscription.updated') {
+    const sub = event.data.object
+    const subscriptionId = sub.id
+    const stripeStatus = sub.status // 'active' | 'past_due' | 'canceled' | 'unpaid' | 'trialing' | etc.
+
+    // Treat only 'active' and 'trialing' as Pro-worthy
+    const isActive = stripeStatus === 'active' || stripeStatus === 'trialing'
+    const newStatus = isActive ? 'active' : 'canceled'
+
+    const { error } = await supabase
+      .from('subscriptions')
+      .update({ status: newStatus })
+      .eq('stripe_subscription_id', subscriptionId)
+
+    if (error) {
+      console.error('[webhook] subscription.updated DB update error:', error.message)
+    } else {
+      console.log(`[webhook] subscription updated | sub: ${subscriptionId} | stripe_status: ${stripeStatus} → db_status: ${newStatus}`)
+    }
   }
 
   res.json({ received: true })
