@@ -1177,7 +1177,7 @@ function ResultCard({ badge, isLuxury, result, userPoints }) {
     }}>
       {/* Card header strip */}
       <div style={{
-        padding: '20px 24px',
+        padding: '13px 18px',
         borderBottom: `1px solid ${BORDER}`,
         display: 'flex',
         alignItems: 'center',
@@ -1204,7 +1204,7 @@ function ResultCard({ badge, isLuxury, result, userPoints }) {
       </div>
 
       {/* Card body */}
-      <div style={{ padding: '24px' }}>
+      <div style={{ padding: '18px 20px' }}>
         {/* Transfer partner */}
         <p style={{
           fontSize: '11px', fontWeight: '500',
@@ -1216,9 +1216,9 @@ function ResultCard({ badge, isLuxury, result, userPoints }) {
 
         {/* Airline */}
         <h3 style={{
-          color: TEXT, fontSize: '22px',
+          color: TEXT, fontSize: '20px',
           fontWeight: '700', letterSpacing: '-0.4px',
-          lineHeight: 1.15, marginBottom: '20px',
+          lineHeight: 1.15, marginBottom: '14px',
         }}>
           {result.airline}
         </h3>
@@ -1226,7 +1226,7 @@ function ResultCard({ badge, isLuxury, result, userPoints }) {
         {/* Metrics row */}
         <div style={{
           display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '10px', marginBottom: '20px',
+          gap: '8px', marginBottom: '14px',
         }}>
           {[
             { label: 'Points required', value: result.points.toLocaleString() },
@@ -1236,16 +1236,16 @@ function ResultCard({ badge, isLuxury, result, userPoints }) {
             <div key={m.label} style={{
               background: ELEVATED,
               border: `1px solid ${BORDER}`,
-              borderRadius: '10px', padding: '12px',
+              borderRadius: '8px', padding: '9px 10px',
             }}>
               <div style={{
                 color: SUBTLE, fontSize: '10px',
                 fontWeight: '600', textTransform: 'uppercase',
-                letterSpacing: '0.08em', marginBottom: '5px',
+                letterSpacing: '0.08em', marginBottom: '3px',
               }}>{m.label}</div>
               <div style={{
                 color: isLuxury ? ACCENT_LT : TEXT,
-                fontSize: '16px', fontWeight: '700',
+                fontSize: '14px', fontWeight: '700',
                 letterSpacing: '-0.3px',
               }}>{m.value}</div>
             </div>
@@ -1270,8 +1270,8 @@ function ResultCard({ badge, isLuxury, result, userPoints }) {
 
         {/* Note */}
         <p style={{
-          color: MUTED, fontSize: '14px',
-          lineHeight: 1.65, marginBottom: '24px',
+          color: MUTED, fontSize: '13px',
+          lineHeight: 1.6, marginBottom: '16px',
           fontStyle: 'italic',
         }}>
           {result.note}
@@ -1280,20 +1280,20 @@ function ResultCard({ badge, isLuxury, result, userPoints }) {
         {/* How to book */}
         <div style={{
           borderTop: `1px solid ${BORDER}`,
-          paddingTop: '20px', marginBottom: '20px',
+          paddingTop: '14px', marginBottom: '14px',
         }}>
           <p style={{
             color: SUBTLE, fontSize: '11px',
             fontWeight: '600', textTransform: 'uppercase',
-            letterSpacing: '0.08em', marginBottom: '16px',
+            letterSpacing: '0.08em', marginBottom: '10px',
           }}>
             How to book this
           </p>
           <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {result.steps.map((step, i) => (
               <li key={i} style={{
-                display: 'flex', gap: '12px',
-                marginBottom: '10px', alignItems: 'flex-start',
+                display: 'flex', gap: '10px',
+                marginBottom: '7px', alignItems: 'flex-start',
               }}>
                 <span style={{
                   flexShrink: 0,
@@ -1308,7 +1308,7 @@ function ResultCard({ badge, isLuxury, result, userPoints }) {
                 }}>
                   {i + 1}
                 </span>
-                <span style={{ color: MUTED, fontSize: '14px', lineHeight: 1.55 }}>{step}</span>
+                <span style={{ color: MUTED, fontSize: '13px', lineHeight: 1.5 }}>{step}</span>
               </li>
             ))}
           </ol>
@@ -1456,7 +1456,7 @@ export default function Results() {
         {/* ── Route header ── */}
         <div style={{
           textAlign: 'center',
-          paddingTop: '48px', paddingBottom: '40px',
+          paddingTop: '32px', paddingBottom: '24px',
           position: 'relative',
         }}>
           {/* Subtle glow */}
@@ -1468,7 +1468,7 @@ export default function Results() {
           <p style={{
             fontSize: '11px', fontWeight: '600',
             letterSpacing: '0.1em', textTransform: 'uppercase',
-            color: SUBTLE, marginBottom: '14px',
+            color: SUBTLE, marginBottom: '10px',
           }}>
             {card.name} · {program} · {haulLabel}
           </p>
@@ -1478,7 +1478,7 @@ export default function Results() {
             fontWeight: '700',
             letterSpacing: '-0.04em',
             lineHeight: 1.0,
-            marginBottom: '14px',
+            marginBottom: '10px',
             background: `linear-gradient(180deg, ${TEXT} 30%, ${MUTED} 100%)`,
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -1505,7 +1505,7 @@ export default function Results() {
         <p style={{
           textAlign: 'center', color: SUBTLE,
           fontSize: '12px', lineHeight: 1.6,
-          marginBottom: '28px',
+          marginBottom: '20px',
         }}>
           Results show average award pricing across dates. Sign up for full access to search specific dates and see live availability.
         </p>
@@ -1541,7 +1541,7 @@ export default function Results() {
         )}
 
         {/* ── Result cards ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '56px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '40px' }}>
           <ResultCard badge="Luxury Option" isLuxury={true}  result={luxury} userPoints={points} />
           <ResultCard badge="Budget Option" isLuxury={false} result={budget} userPoints={points} />
         </div>
@@ -1550,8 +1550,8 @@ export default function Results() {
         {(() => {
           const visibleCards = PROMO_CARDS.filter(rec => rec.name !== card?.name)
           return (
-            <div style={{ marginBottom: '56px' }}>
-              <div style={{ marginBottom: '24px' }}>
+            <div style={{ marginBottom: '40px' }}>
+              <div style={{ marginBottom: '16px' }}>
                 <h2 style={{
                   color: TEXT, fontSize: '20px',
                   fontWeight: '700', letterSpacing: '-0.35px',
@@ -1621,8 +1621,8 @@ export default function Results() {
         {/* ── Upgrade CTA — hidden for Pro users ── */}
         {!isPro && (
           <div style={{
-            textAlign: 'center', marginBottom: '32px',
-            padding: '36px 24px',
+            textAlign: 'center', marginBottom: '28px',
+            padding: '28px 24px',
             background: SURFACE,
             border: `1px solid ${BORDER_MID}`,
             borderRadius: '16px',
