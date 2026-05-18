@@ -1,302 +1,389 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { Button } from '@/components/ui/button'
-import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Plane, Sparkles, CreditCard, Route, Trophy } from 'lucide-react'
 
-const NAVY = '#1a3a6b'
+// ── Design tokens ──────────────────────────────────────────
+const APPLE_DARK    = '#1d1d1f'
+const APPLE_MID     = '#6e6e73'
+const APPLE_LIGHT   = '#f5f5f7'
+const APPLE_BLUE    = '#0071e3'
+const APPLE_BORDER  = 'rgba(0,0,0,0.08)'
 
-// ── Boarding-pass illustration ─────────────────────────────
-
-function CreditCardIcon() {
-  return (
-    <svg width="22" height="16" viewBox="0 0 22 16" fill="none" aria-hidden="true">
-      <rect x="0.5" y="0.5" width="21" height="15" rx="2.5" stroke={NAVY} strokeWidth="1.2" fill="white" />
-      <rect x="0" y="4" width="22" height="3.5" fill={NAVY} opacity="0.15" />
-      <rect x="2.5" y="10" width="7" height="2" rx="1" fill={NAVY} opacity="0.35" />
-      <rect x="11.5" y="10" width="4" height="2" rx="1" fill={NAVY} opacity="0.2" />
-    </svg>
-  )
-}
-
-function Barcode() {
-  const bars = [3,1,2,4,1,3,2,1,4,2,3,1,2,3,1,4,2,1,3,2,4,1,2,3,1,2,4,3,1,2,3,1,4,2,1,3,2,4,1,3]
-  let x = 0
-  const rects = bars.map((w, i) => {
-    const rect = { x, w, draw: i % 2 === 0 }
-    x += w + 1
-    return rect
-  })
-  const totalW = x
-  return (
-    <svg width="100%" height="36" viewBox={`0 0 ${totalW} 36`} preserveAspectRatio="none" aria-hidden="true">
-      {rects.filter(r => r.draw).map((r, i) => (
-        <rect key={i} x={r.x} y={0} width={r.w} height={36} fill={NAVY} opacity="0.55" />
-      ))}
-    </svg>
-  )
-}
-
-function BoardingPass() {
-  return (
-    <div
-      className="boarding-pass-float"
-      style={{
-        width: '300px',
-        background: 'white',
-        borderRadius: '18px',
-        boxShadow: '0 24px 64px rgba(0,0,0,0.32), 0 4px 16px rgba(0,0,0,0.12)',
-        overflow: 'hidden',
-        transform: 'rotate(6deg)',
-        flexShrink: 0,
-      }}
-    >
-      <div style={{ padding: '22px 24px 20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-          <CreditCardIcon />
-          <span style={{ color: NAVY, fontSize: '12px', fontWeight: '600', letterSpacing: '0.01em', opacity: 0.75 }}>
-            Chase Sapphire Preferred
-          </span>
-        </div>
-        <div style={{ height: '1px', background: '#e5e7eb', marginBottom: '18px' }} />
-        <div style={{ color: NAVY, fontSize: '30px', fontWeight: '800', letterSpacing: '-1.5px', lineHeight: 1, marginBottom: '10px' }}>
-          JFK → NRT
-        </div>
-        <div style={{ color: NAVY, fontSize: '14px', fontWeight: '600', marginBottom: '5px', opacity: 0.8 }}>
-          ANA Business Class
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-          <span style={{ color: NAVY, fontSize: '14px', fontWeight: '700' }}>47,500 pts</span>
-          <span style={{ color: '#16a34a', fontSize: '13px', fontWeight: '700' }}>✓</span>
-        </div>
-        <div style={{ color: '#6b7280', fontSize: '13px', fontWeight: '500' }}>
-          Est. value $4,200
-        </div>
-      </div>
-      <div style={{ position: 'relative', margin: '0 -1px' }}>
-        <div style={{ position: 'absolute', left: '-13px', top: '-13px', width: '26px', height: '26px', borderRadius: '50%', background: NAVY }} />
-        <div style={{ position: 'absolute', right: '-13px', top: '-13px', width: '26px', height: '26px', borderRadius: '50%', background: NAVY }} />
-        <div style={{ borderTop: '2px dashed #d1d5db', margin: '0 16px' }} />
-      </div>
-      <div style={{ padding: '18px 24px 20px' }}>
-        <Barcode />
-        <div style={{ color: '#9ca3af', fontSize: '10px', textAlign: 'center', marginTop: '6px', letterSpacing: '0.15em' }}>
-          PP-2026-JFK-NRT-0042
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ── How it works steps ─────────────────────────────────────
-
+// ── How it works data ──────────────────────────────────────
 const STEPS = [
   {
-    icon: CreditCard,
-    step: '01',
-    title: 'Enter your card & balance',
-    description: 'Tell us which rewards card you have and how many points or miles you\'ve earned.',
+    n: '01',
+    title: 'Enter your card',
+    body: 'Tell us which rewards card you carry and how many points or miles you\'ve accumulated.',
   },
   {
-    icon: Route,
-    step: '02',
-    title: 'Choose your route',
-    description: 'Search any origin and destination — domestic or international. We handle the routing.',
+    n: '02',
+    title: 'Pick your route',
+    body: 'Search any origin and destination. Domestic weekend getaway or transatlantic upgrade — we handle both.',
   },
   {
-    icon: Trophy,
-    step: '03',
-    title: 'Get your best redemption',
-    description: 'We surface the highest-value transfer partner for your specific card and route — both luxury and budget options.',
+    n: '03',
+    title: 'Get your redemption',
+    body: 'We surface the highest-value transfer partner for your card and route. Every time.',
   },
 ]
-
-// ── Social proof stats ─────────────────────────────────────
 
 const STATS = [
-  { value: '20+', label: 'Transfer partners analyzed' },
-  { value: '8.8¢', label: 'Best value per point found' },
-  { value: '2 min', label: 'Average time to find a deal' },
+  { value: '20+',   label: 'Transfer partners' },
+  { value: '8.8¢',  label: 'Peak value per point' },
+  { value: '< 2 min', label: 'Time to an answer' },
 ]
+
+// ── Shared section wrapper ────────────────────────────────
+function Section({ children, style, className = '', id }) {
+  return (
+    <section
+      id={id}
+      className={className}
+      style={{ width: '100%', ...style }}
+    >
+      <div style={{ maxWidth: '980px', margin: '0 auto', padding: '0 24px' }}>
+        {children}
+      </div>
+    </section>
+  )
+}
 
 // ─────────────────────────────────────────────────────────
 // PAGE
 // ─────────────────────────────────────────────────────────
-
 export default function Landing() {
   const navigate = useNavigate()
   const { user, isPro } = useAuth()
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: NAVY }}>
+    <div style={{ background: '#ffffff', color: APPLE_DARK, minHeight: '100vh' }}>
 
-      {/* ── Navbar ───────────────────────────────────────── */}
-      <nav
-        className="flex items-center justify-between px-8 md:px-12"
-        style={{ height: '64px', flexShrink: 0 }}
-      >
-        <span className="text-white font-bold text-lg tracking-tight select-none">
-          PointPilot™
-        </span>
+      {/* ── Navbar ──────────────────────────────────────── */}
+      <nav style={{
+        position: 'sticky', top: 0, zIndex: 100,
+        height: '52px',
+        background: 'rgba(255,255,255,0.85)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        borderBottom: `1px solid ${APPLE_BORDER}`,
+        display: 'flex', alignItems: 'center',
+      }}>
+        <div style={{
+          maxWidth: '980px', margin: '0 auto', padding: '0 24px',
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }}>
+          <span style={{
+            fontSize: '17px', fontWeight: '600',
+            letterSpacing: '-0.3px', color: APPLE_DARK,
+            userSelect: 'none',
+          }}>
+            PointPilot
+          </span>
 
-        {!(user && isPro) && (
-          <Button
-            variant="white-outline"
-            size="sm"
-            onClick={() => navigate('/login')}
-          >
-            Log in
-          </Button>
-        )}
+          {!(user && isPro) && (
+            <button
+              onClick={() => navigate('/login')}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                fontSize: '13px', color: APPLE_BLUE,
+                fontWeight: '400', letterSpacing: '-0.1px',
+                padding: '4px 0',
+              }}
+            >
+              Sign in
+            </button>
+          )}
+        </div>
       </nav>
 
-      {/* ── Hero ─────────────────────────────────────────── */}
-      <section className="hero-section dot-bg">
-        {/* Left: copy */}
-        <div className="hero-left">
+      {/* ── Hero ────────────────────────────────────────── */}
+      <Section style={{ paddingTop: '120px', paddingBottom: '100px', textAlign: 'center' }}>
+        <div>
+          {/* Eyebrow */}
+          <p style={{
+            fontSize: '17px', fontWeight: '400',
+            color: APPLE_BLUE, marginBottom: '16px',
+            letterSpacing: '-0.2px',
+          }}>
+            Award travel, demystified.
+          </p>
 
-          <Badge variant="white-subtle" className="mb-6 gap-1.5">
-            <Sparkles size={11} />
-            Award travel made simple
-          </Badge>
-
-          <h1 className="text-white font-extrabold leading-[1.06] tracking-[-2px] mb-6"
-              style={{ fontSize: 'clamp(36px, 4.5vw, 60px)' }}>
-            Simplify your journey.<br />
-            We'll pilot your points.
+          {/* Headline */}
+          <h1 style={{
+            fontSize: 'clamp(48px, 8vw, 96px)',
+            fontWeight: '700',
+            letterSpacing: '-0.03em',
+            lineHeight: '1.05',
+            color: APPLE_DARK,
+            marginBottom: '28px',
+          }}>
+            Your points.<br />Maximum value.
           </h1>
 
-          <p className="mb-8 leading-relaxed"
-             style={{ color: 'rgba(255,255,255,0.65)', fontSize: '18px', maxWidth: '500px' }}>
-            Enter your card and points balance. Find the cheapest redemptions
-            or the most luxurious upgrades — we'll show you both.
+          {/* Subhead */}
+          <p style={{
+            fontSize: 'clamp(17px, 2vw, 21px)',
+            fontWeight: '400',
+            color: APPLE_MID,
+            lineHeight: '1.6',
+            maxWidth: '540px',
+            margin: '0 auto 44px',
+            letterSpacing: '-0.2px',
+          }}>
+            Enter your rewards card and point balance.
+            We'll find the smartest redemption — from budget economy to lie-flat business class.
           </p>
 
-          <div className="flex items-center gap-3 flex-wrap">
-            <Button
-              variant="white"
-              size="lg"
+          {/* CTAs */}
+          <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
+            <button
               onClick={() => navigate('/search')}
+              style={{
+                background: APPLE_BLUE,
+                color: '#fff',
+                border: 'none',
+                borderRadius: '980px',
+                padding: '14px 28px',
+                fontSize: '17px',
+                fontWeight: '400',
+                letterSpacing: '-0.2px',
+                cursor: 'pointer',
+                transition: 'opacity 0.2s',
+              }}
+              onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
+              onMouseLeave={e => e.currentTarget.style.opacity = '1'}
             >
-              <Plane size={17} />
-              Pilot My Points
-            </Button>
-            <Button
-              variant="white-outline"
-              size="lg"
-              onClick={() => navigate('/search')}
+              Get started
+            </button>
+            <button
+              onClick={() => {
+                document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })
+              }}
+              style={{
+                background: 'none',
+                color: APPLE_BLUE,
+                border: 'none',
+                borderRadius: '980px',
+                padding: '14px 4px',
+                fontSize: '17px',
+                fontWeight: '400',
+                letterSpacing: '-0.2px',
+                cursor: 'pointer',
+              }}
             >
-              See an example →
-            </Button>
+              Learn more ↓
+            </button>
           </div>
+        </div>
+      </Section>
 
-          {/* Mini stats row */}
-          <div className="flex items-center gap-6 mt-10 flex-wrap">
-            {STATS.map(s => (
-              <div key={s.label}>
-                <div className="text-white font-bold text-xl tracking-tight">{s.value}</div>
-                <div className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.45)' }}>{s.label}</div>
+      {/* ── Stats strip ─────────────────────────────────── */}
+      <div style={{ borderTop: `1px solid ${APPLE_BORDER}`, borderBottom: `1px solid ${APPLE_BORDER}`, background: APPLE_LIGHT }}>
+        <div style={{
+          maxWidth: '980px', margin: '0 auto', padding: '0 24px',
+          display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)',
+        }}>
+          {STATS.map((s, i) => (
+            <div
+              key={s.label}
+              style={{
+                padding: '36px 24px',
+                textAlign: 'center',
+                borderRight: i < STATS.length - 1 ? `1px solid ${APPLE_BORDER}` : 'none',
+              }}
+            >
+              <div style={{
+                fontSize: 'clamp(32px, 4vw, 48px)',
+                fontWeight: '700',
+                letterSpacing: '-0.03em',
+                color: APPLE_DARK,
+                lineHeight: '1',
+                marginBottom: '8px',
+              }}>
+                {s.value}
               </div>
-            ))}
-          </div>
+              <div style={{
+                fontSize: '14px',
+                color: APPLE_MID,
+                letterSpacing: '-0.1px',
+                fontWeight: '400',
+              }}>
+                {s.label}
+              </div>
+            </div>
+          ))}
         </div>
-
-        {/* Right: boarding pass */}
-        <div className="hero-right">
-          <div style={{ marginRight: '60px' }}>
-            <BoardingPass />
-          </div>
-        </div>
-      </section>
+      </div>
 
       {/* ── How it works ─────────────────────────────────── */}
-      <section className="bg-background py-20 px-6 md:px-12">
-        <div className="max-w-5xl mx-auto">
-
-          <div className="text-center mb-14">
-            <Badge variant="muted" className="mb-4 text-primary font-semibold">
-              How it works
-            </Badge>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-primary tracking-tight leading-tight">
-              From card to cabin in three steps
-            </h2>
-            <p className="text-muted-foreground mt-3 text-base max-w-md mx-auto">
-              No spreadsheets. No guesswork. Just the best redemption for your exact situation.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {STEPS.map(({ icon: Icon, step, title, description }) => (
-              <Card key={step} className="relative overflow-hidden hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between mb-3">
-                    <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center"
-                      style={{ background: `${NAVY}12` }}
-                    >
-                      <Icon size={18} style={{ color: NAVY }} />
-                    </div>
-                    <span
-                      className="text-4xl font-black leading-none"
-                      style={{ color: `${NAVY}10` }}
-                    >
-                      {step}
-                    </span>
-                  </div>
-                  <CardTitle>{title}</CardTitle>
-                </CardHeader>
-                <CardDescription className="px-6 pb-6">{description}</CardDescription>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Value prop band ───────────────────────────────── */}
-      <section className="py-10 px-6" style={{ background: '#f0f4ff' }}>
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
-          <p className="text-primary font-bold text-lg text-center md:text-left">
-            Supports Chase, Amex, Citi, Capital One, Bilt, United, Delta, American & more
-          </p>
-          <Button
-            variant="default"
-            size="lg"
-            onClick={() => navigate('/search')}
-          >
-            Find my redemption →
-          </Button>
-        </div>
-      </section>
-
-      {/* ── Footer CTA ───────────────────────────────────── */}
-      <section
-        className="dot-bg py-24 px-6 text-center flex flex-col items-center"
-        style={{ background: NAVY }}
+      <Section
+        id="how-it-works"
+        style={{ paddingTop: '100px', paddingBottom: '100px' }}
       >
-        <Badge variant="white-subtle" className="mb-6 gap-1.5">
-          <Sparkles size={11} />
-          No account required to search
-        </Badge>
-
-        <h2
-          className="text-white font-extrabold tracking-tight leading-tight mb-4"
-          style={{ fontSize: 'clamp(28px, 4vw, 44px)' }}
-        >
-          Your next adventure is already paid for.
-        </h2>
-        <p className="mb-10 font-semibold text-lg" style={{ color: 'rgba(255,255,255,0.6)' }}>
-          Find out how many points it actually costs.
+        {/* Section label */}
+        <p style={{
+          fontSize: '13px', fontWeight: '600',
+          letterSpacing: '0.06em', textTransform: 'uppercase',
+          color: APPLE_MID, marginBottom: '16px',
+        }}>
+          How it works
         </p>
-        <Button
-          variant="white"
-          size="xl"
+
+        <h2 style={{
+          fontSize: 'clamp(32px, 5vw, 56px)',
+          fontWeight: '700',
+          letterSpacing: '-0.03em',
+          lineHeight: '1.07',
+          color: APPLE_DARK,
+          marginBottom: '64px',
+          maxWidth: '560px',
+        }}>
+          From card to cabin
+          in three steps.
+        </h2>
+
+        {/* Steps grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+          gap: '1px',
+          background: APPLE_BORDER,
+          borderRadius: '18px',
+          overflow: 'hidden',
+          border: `1px solid ${APPLE_BORDER}`,
+        }}>
+          {STEPS.map(({ n, title, body }) => (
+            <div
+              key={n}
+              style={{
+                background: '#fff',
+                padding: '40px 36px',
+              }}
+            >
+              <div style={{
+                fontSize: '13px',
+                fontWeight: '500',
+                color: APPLE_BLUE,
+                letterSpacing: '-0.1px',
+                marginBottom: '20px',
+              }}>
+                {n}
+              </div>
+              <h3 style={{
+                fontSize: '21px',
+                fontWeight: '600',
+                letterSpacing: '-0.4px',
+                color: APPLE_DARK,
+                marginBottom: '12px',
+                lineHeight: '1.2',
+              }}>
+                {title}
+              </h3>
+              <p style={{
+                fontSize: '15px',
+                color: APPLE_MID,
+                lineHeight: '1.6',
+                letterSpacing: '-0.1px',
+              }}>
+                {body}
+              </p>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      {/* ── Supported cards ──────────────────────────────── */}
+      <div style={{ background: APPLE_LIGHT, borderTop: `1px solid ${APPLE_BORDER}` }}>
+        <Section style={{ paddingTop: '56px', paddingBottom: '56px' }}>
+          <div style={{
+            display: 'flex', flexWrap: 'wrap',
+            alignItems: 'center', justifyContent: 'space-between', gap: '24px',
+          }}>
+            <p style={{
+              fontSize: '17px', fontWeight: '400',
+              color: APPLE_MID, letterSpacing: '-0.2px',
+              maxWidth: '600px', lineHeight: '1.55',
+            }}>
+              Works with{' '}
+              {['Chase', 'Amex', 'Citi', 'Capital One', 'Bilt', 'United', 'Delta', 'American'].map((name, i, arr) => (
+                <span key={name}>
+                  <span style={{ color: APPLE_DARK, fontWeight: '500' }}>{name}</span>
+                  {i < arr.length - 1 ? ', ' : '.'}
+                </span>
+              ))}
+            </p>
+            <button
+              onClick={() => navigate('/search')}
+              style={{
+                background: 'none', border: 'none',
+                color: APPLE_BLUE, fontSize: '17px',
+                fontWeight: '400', cursor: 'pointer',
+                letterSpacing: '-0.2px', whiteSpace: 'nowrap',
+                padding: '0',
+              }}
+            >
+              Find my redemption →
+            </button>
+          </div>
+        </Section>
+      </div>
+
+      {/* ── Final CTA ────────────────────────────────────── */}
+      <Section style={{ paddingTop: '120px', paddingBottom: '140px', textAlign: 'center' }}>
+        <h2 style={{
+          fontSize: 'clamp(36px, 6vw, 72px)',
+          fontWeight: '700',
+          letterSpacing: '-0.03em',
+          lineHeight: '1.05',
+          color: APPLE_DARK,
+          marginBottom: '20px',
+        }}>
+          Your next trip
+          <br />
+          is already paid for.
+        </h2>
+        <p style={{
+          fontSize: '19px',
+          color: APPLE_MID,
+          marginBottom: '44px',
+          letterSpacing: '-0.2px',
+        }}>
+          Find out how many points it takes.
+        </p>
+        <button
           onClick={() => navigate('/search')}
+          style={{
+            background: APPLE_BLUE,
+            color: '#fff',
+            border: 'none',
+            borderRadius: '980px',
+            padding: '16px 36px',
+            fontSize: '19px',
+            fontWeight: '400',
+            letterSpacing: '-0.2px',
+            cursor: 'pointer',
+            transition: 'opacity 0.2s',
+          }}
+          onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
+          onMouseLeave={e => e.currentTarget.style.opacity = '1'}
         >
-          <Plane size={19} />
-          Pilot My Points
-        </Button>
-      </section>
+          Get started
+        </button>
+      </Section>
+
+      {/* ── Footer ───────────────────────────────────────── */}
+      <footer style={{
+        borderTop: `1px solid ${APPLE_BORDER}`,
+        background: APPLE_LIGHT,
+        padding: '20px 24px',
+        textAlign: 'center',
+      }}>
+        <p style={{ fontSize: '12px', color: APPLE_MID, letterSpacing: '-0.1px' }}>
+          Copyright © 2026 PointPilot. Results are estimates. Always verify award availability before transferring points.
+        </p>
+      </footer>
 
     </div>
   )

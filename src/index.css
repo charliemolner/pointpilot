@@ -4,22 +4,24 @@
    These become utility classes: bg-primary, text-muted-foreground, etc.
 */
 @theme inline {
+  /* Apple-inspired palette */
   --color-background:          #ffffff;
-  --color-foreground:          #111827;
-  --color-primary:             #1a3a6b;
+  --color-surface:             #f5f5f7;
+  --color-foreground:          #1d1d1f;
+  --color-primary:             #1d1d1f;
   --color-primary-foreground:  #ffffff;
-  --color-secondary:           #f59e0b;
-  --color-secondary-foreground:#1c1917;
-  --color-muted:               #f9fafb;
-  --color-muted-foreground:    #6b7280;
-  --color-accent:              #f3f4f6;
-  --color-accent-foreground:   #1a3a6b;
+  --color-secondary:           #f5f5f7;
+  --color-secondary-foreground:#1d1d1f;
+  --color-muted:               #f5f5f7;
+  --color-muted-foreground:    #6e6e73;
+  --color-accent:              #0071e3;
+  --color-accent-foreground:   #ffffff;
   --color-card:                #ffffff;
-  --color-card-foreground:     #111827;
-  --color-border:              #e5e7eb;
-  --color-input:               #e5e7eb;
-  --color-ring:                #1a3a6b;
-  --color-destructive:         #dc2626;
+  --color-card-foreground:     #1d1d1f;
+  --color-border:              rgba(0,0,0,0.08);
+  --color-input:               rgba(0,0,0,0.08);
+  --color-ring:                #0071e3;
+  --color-destructive:         #ff3b30;
   --color-destructive-foreground: #ffffff;
   --radius:                    0.75rem;
 }
@@ -31,9 +33,12 @@
 }
 
 body {
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: -apple-system, 'SF Pro Display', 'SF Pro Text', BlinkMacSystemFont,
+               system-ui, 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: #1d1d1f;
+  background: #ffffff;
 }
 
 #root {
