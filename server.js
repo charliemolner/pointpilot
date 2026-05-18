@@ -297,10 +297,8 @@ if (process.env.NODE_ENV === 'production') {
   app.use(express.static(distPath))
 
   // All non-API routes serve index.html so React Router handles them
-  app.get('*', (req, res) => {
-    if (!req.path.startsWith('/api')) {
-      res.sendFile(path.join(distPath, 'index.html'))
-    }
+  app.get('/{*splat}', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist', 'index.html'))
   })
 }
 
