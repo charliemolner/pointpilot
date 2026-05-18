@@ -856,7 +856,14 @@ function getResults(program, fromAirport, toAirport) {
 
   // Airline co-branded cards book directly — use airline-specific recommendations
   if (AIRLINE_PROGRAM_KEYS.has(program)) {
-    return { isDefault: false, ...AIRLINE_DIRECT[program] }
+    return { isDefault: false, isDomestic: false, ...AIRLINE_DIRECT[program] }
+  }
+
+  // Domestic US routes — skip international partners entirely and use domestic-optimized picks
+  // (Air France Flying Blue, Aeroplan, Virgin Atlantic etc. are poor fits for domestic)
+  if (isDomesticUS(fromCode, toCode)) {
+    const domestic = DOMESTIC_FALLBACKS[program] || DOMESTIC_FALLBACKS['Ultimate Rewards']
+    return { isDefault: false, isDomestic: true, luxury: domestic.luxury, budget: domestic.budget }
   }
 
   // Build both orderings of the route key
@@ -867,7 +874,7 @@ function getResults(program, fromAirport, toAirport) {
   // Route not in database — show default fallback
   if (!route) {
     const fallback = DEFAULT_FALLBACKS[program] || DEFAULT_FALLBACKS['Ultimate Rewards']
-    return { isDefault: true, ...fallback }
+    return { isDefault: true, isDomestic: false, ...fallback }
   }
 
   // Find first luxury and budget option compatible with user's card program
@@ -877,10 +884,239 @@ function getResults(program, fromAirport, toAirport) {
   // Program not compatible with any option on this route — use fallback
   if (!luxury || !budget) {
     const fallback = DEFAULT_FALLBACKS[program] || DEFAULT_FALLBACKS['Ultimate Rewards']
-    return { isDefault: true, ...fallback }
+    return { isDefault: true, isDomestic: false, ...fallback }
   }
 
-  return { isDefault: false, luxury, budget }
+  return { isDefault: false, isDomestic: false, luxury, budget }
+}
+
+// ── US airport codes for domestic route detection ──────────
+const US_AIRPORTS = new Set([
+  // Major hubs (required)
+  'JFK', 'LGA', 'EWR', 'LAX', 'SFO', 'ORD', 'ATL', 'DFW', 'DEN', 'SEA',
+  'MIA', 'BOS', 'LAS', 'PHX', 'IAH', 'IAD', 'DCA', 'BWI', 'SAN', 'MSP',
+  'DTW', 'PHL', 'CLT', 'SLC', 'PDX', 'HNL', 'ANC',
+  // Additional major US airports
+  'MCO', 'TPA', 'FLL', 'RSW', 'PBI', 'JAX', 'SAV', 'CHS', 'RDU', 'ORF',
+  'RIC', 'PIT', 'BUF', 'ROC', 'SYR', 'ALB', 'BDL', 'PVD', 'MHT', 'PWM',
+  'BTV', 'CLE', 'CMH', 'IND', 'CVG', 'MDW', 'MKE', 'MSN', 'DSM', 'OMA',
+  'MCI', 'STL', 'BNA', 'MEM', 'MSY', 'BHM', 'HSV', 'MOB', 'JAN', 'LIT',
+  'TUL', 'OKC', 'AUS', 'SAT', 'HOU', 'DAL', 'ELP', 'TUS', 'ABQ', 'OAK',
+  'SJC', 'SMF', 'BUR', 'LGB', 'ONT', 'SNA', 'FAT', 'RNO', 'BOI', 'GEG',
+  'ABQ', 'GSP', 'GSO',
+])
+
+function isDomesticUS(fromCode, toCode) {
+  return US_AIRPORTS.has(fromCode) && US_AIRPORTS.has(toCode)
+}
+
+// ── Domestic US redemption recommendations by card program ──
+// International partners (Flying Blue, Aeroplan, Virgin Atlantic, etc.) are
+// poor fits for domestic US routes — prioritize domestic airline partners instead.
+const DOMESTIC_FALLBACKS = {
+  // Chase UR → United MileagePlus is the natural domestic fit
+  'Ultimate Rewards': {
+    luxury: {
+      airline: 'United First Class',
+      partner: 'Transfer to United MileagePlus · 1:1 ratio',
+      points: 30000, cashValue: 450, cpp: 1.5,
+      note: "United MileagePlus is the best use of Chase Ultimate Rewards on domestic routes. Saver first class awards include premium seating, full meal service on longer routes, and priority boarding — for a fraction of what a cash first class ticket costs. Instant transfers mean you can jump on award availability the moment it opens.",
+      warning: null,
+      steps: [
+        'Log into Chase and go to "Transfer to Travel Partners"',
+        'Select United MileagePlus (1:1, instant transfer)',
+        'Go to united.com and search Award Travel, selecting First Class',
+        'Use the award calendar to compare prices across dates',
+        'Look for "Saver" labeled first class awards — the lowest mileage tier',
+        'Pay only ~$5–$15 in carrier fees at checkout',
+      ],
+    },
+    budget: {
+      airline: 'United Economy Saver',
+      partner: 'Transfer to United MileagePlus · 1:1 ratio',
+      points: 12500, cashValue: 200, cpp: 1.6,
+      note: "United Saver economy awards are the most consistent domestic value in the Chase UR ecosystem. Starting at 12,500 miles, wide availability across United's domestic network, no fuel surcharges, and instant transfers so you can book as soon as you spot availability.",
+      warning: null,
+      steps: [
+        'Log into Chase and go to "Transfer to Travel Partners"',
+        'Select United MileagePlus (1:1, instant transfer)',
+        'Go to united.com and search Award Travel in Economy class',
+        'Look for "Saver" labeled economy awards — lowest mileage tier',
+        'Best availability on weekdays and off-peak dates',
+        'Pay only ~$5–$15 in carrier fees at checkout',
+      ],
+    },
+  },
+
+  // Amex MR → Delta SkyMiles is the natural domestic fit
+  'Membership Rewards': {
+    luxury: {
+      airline: 'Delta First Class',
+      partner: 'Transfer to Delta SkyMiles · 1:1 ratio',
+      points: 50000, cashValue: 500, cpp: 1.0,
+      note: "Delta SkyMiles is the best domestic transfer partner for Amex Membership Rewards. Delta uses dynamic pricing — first class awards typically run 30,000–60,000 SkyMiles depending on the route and date. Use the award calendar on delta.com to find the lowest price before transferring.",
+      warning: 'Delta uses dynamic pricing — award costs vary by date and demand. Always check the award calendar across multiple dates on delta.com before transferring points.',
+      steps: [
+        'Log into your Amex account and go to "Transfer Points"',
+        'Select Delta SkyMiles as your transfer partner (1:1, typically instant)',
+        'Before transferring, go to delta.com and use the award calendar to find lowest pricing',
+        'Look for First Class availability — mid-week and off-peak dates are cheapest',
+        'Transfer only after confirming the award is bookable',
+        'Pay only taxes (~$5–$15) at checkout',
+      ],
+    },
+    budget: {
+      airline: 'Delta Economy',
+      partner: 'Transfer to Delta SkyMiles · 1:1 ratio',
+      points: 12500, cashValue: 200, cpp: 1.6,
+      note: "Delta SkyMiles domestic economy is the top domestic play for Amex Gold cardholders. Dynamic pricing can yield excellent value — especially on off-peak dates and shorter routes. Use the award calendar to compare costs across multiple dates before transferring.",
+      warning: null,
+      steps: [
+        'Log into your Amex account and go to "Transfer Points"',
+        'Select Delta SkyMiles as your transfer partner (1:1, typically instant)',
+        'Before transferring, go to delta.com and use the award calendar view',
+        'Compare prices across multiple dates — weekdays typically show fewer miles',
+        'Transfer after confirming your award seat is available',
+        'Pay only taxes (~$5–$15) at checkout',
+      ],
+    },
+  },
+
+  // Citi ThankYou → American Airlines via Avianca LifeMiles (LifeMiles books AA metal)
+  'ThankYou Points': {
+    luxury: {
+      airline: 'American Airlines First Class',
+      partner: 'Transfer to Avianca LifeMiles · 1:1 ratio',
+      points: 20000, cashValue: 400, cpp: 2.0,
+      note: "Avianca LifeMiles books American Airlines flights at some of the lowest mileage rates for oneworld partners — making it the best domestic play for Citi ThankYou points. American First Class on domestic routes features wider seats, premium dining on longer routes, and priority boarding, all bookable through LifeMiles.",
+      warning: null,
+      steps: [
+        'Log into your Citi account and go to "Transfer Points"',
+        'Select Avianca LifeMiles as your transfer partner (1:1)',
+        'Allow 1–2 business days for the transfer to complete',
+        'Go to lifemiles.com and search for American Airlines (AA) flights on your route',
+        'Look for First Class oneworld partner award space',
+        'Pay only carrier fees (~$5–$20) at checkout',
+      ],
+    },
+    budget: {
+      airline: 'American Airlines Economy',
+      partner: 'Transfer to Avianca LifeMiles · 1:1 ratio',
+      points: 7500, cashValue: 175, cpp: 2.3,
+      note: "Avianca LifeMiles offers the lowest published rates for American Airlines economy on domestic routes — as low as 7,500 miles for short hops. This is the best-kept domestic redemption secret in the Citi ThankYou partner lineup.",
+      warning: null,
+      steps: [
+        'Log into your Citi account and go to "Transfer Points"',
+        'Select Avianca LifeMiles as your transfer partner (1:1)',
+        'Allow 1–2 business days for the transfer to complete',
+        'Go to lifemiles.com and search for American Airlines (AA) economy on your route',
+        'Look for the lowest-tier economy award space',
+        'Pay only carrier fees (~$5–$20) at checkout',
+      ],
+    },
+  },
+
+  // Capital One → Avianca LifeMiles is best for domestic (books United at low rates)
+  'Capital One Miles': {
+    luxury: {
+      airline: 'United First Class via Avianca LifeMiles',
+      partner: 'Transfer to Avianca LifeMiles · 1:1 ratio',
+      points: 25000, cashValue: 400, cpp: 1.6,
+      note: "Avianca LifeMiles is the strongest domestic option for Capital One miles — it books Star Alliance partners including United at some of the lowest published rates. Domestic United first class runs ~20,000–25,000 LifeMiles, significantly cheaper than booking through United directly.",
+      warning: null,
+      steps: [
+        'Log into Capital One and go to "Transfer Miles"',
+        'Select Avianca LifeMiles (1:1)',
+        'Allow 1–2 business days for the transfer to complete',
+        'Go to lifemiles.com and search for United (UA) First Class on your route',
+        'Look for Star Alliance first class availability',
+        'Pay only carrier fees (~$5–$20) at checkout',
+      ],
+    },
+    budget: {
+      airline: 'United Economy via Avianca LifeMiles',
+      partner: 'Transfer to Avianca LifeMiles · 1:1 ratio',
+      points: 7500, cashValue: 150, cpp: 2.0,
+      note: "Avianca LifeMiles has some of the lowest rates for Star Alliance domestic economy — as low as 7,500 miles for shorter routes on United. One of the best-value domestic redemptions available in the Capital One transfer partner lineup.",
+      warning: null,
+      steps: [
+        'Log into Capital One and go to "Transfer Miles"',
+        'Select Avianca LifeMiles (1:1)',
+        'Allow 1–2 business days for the transfer to complete',
+        'Go to lifemiles.com and search for United (UA) economy on your domestic route',
+        'Look for the lowest-tier Star Alliance economy availability',
+        'Pay only carrier fees (~$5–$15) at checkout',
+      ],
+    },
+  },
+
+  // Bilt → United MileagePlus (instant transfer, best domestic partner)
+  'Bilt Points': {
+    luxury: {
+      airline: 'United First Class',
+      partner: 'Transfer to United MileagePlus · 1:1 ratio',
+      points: 30000, cashValue: 450, cpp: 1.5,
+      note: "Bilt transfers to United MileagePlus instantly at 1:1 — making it one of the fastest domestic upgrade plays. United Saver first class awards start around 30,000 miles and include full meal service, premium seating, and priority boarding on domestic routes.",
+      warning: null,
+      steps: [
+        'Log into Bilt and go to "Transfer Points"',
+        'Select United MileagePlus (1:1, instant)',
+        'Go to united.com and search Award Travel in First Class',
+        'Use the award calendar to find the lowest price across dates',
+        'Look for "Saver" labeled first class awards',
+        'Pay only ~$5–$15 in carrier fees at checkout',
+      ],
+    },
+    budget: {
+      airline: 'United Economy Saver',
+      partner: 'Transfer to United MileagePlus · 1:1 ratio',
+      points: 12500, cashValue: 200, cpp: 1.6,
+      note: "Bilt transfers to United MileagePlus instantly — the fastest way to book a domestic award. Saver economy on domestic routes starts at 12,500 miles, no fuel surcharges, and the instant transfer means you can lock in award space before it disappears.",
+      warning: null,
+      steps: [
+        'Log into Bilt and go to "Transfer Points"',
+        'Select United MileagePlus (1:1, instant)',
+        'Go to united.com and search Award Travel in Economy class',
+        'Look for "Saver" labeled economy awards — lowest mileage tier',
+        'Best availability on weekdays and off-peak dates',
+        'Pay only ~$5–$15 in carrier fees at checkout',
+      ],
+    },
+  },
+
+  // Wells Fargo → Avianca LifeMiles (best domestic option in their partner lineup)
+  'Wells Fargo Rewards': {
+    luxury: {
+      airline: 'United First Class via Avianca LifeMiles',
+      partner: 'Transfer to Avianca LifeMiles · 1:1 ratio',
+      points: 25000, cashValue: 400, cpp: 1.6,
+      note: "Avianca LifeMiles is the strongest domestic play in the Wells Fargo Autograph Journey partner lineup — it books Star Alliance partners including United at low fixed rates. Domestic first class on United runs ~20,000–25,000 LifeMiles.",
+      warning: null,
+      steps: [
+        'Log into Wells Fargo and go to "Transfer Points"',
+        'Select Avianca LifeMiles (1:1)',
+        'Allow 1–2 business days for the transfer to complete',
+        'Go to lifemiles.com and search for United (UA) First Class on your domestic route',
+        'Look for Star Alliance first class availability',
+        'Pay only carrier fees (~$5–$20) at checkout',
+      ],
+    },
+    budget: {
+      airline: 'United Economy via Avianca LifeMiles',
+      partner: 'Transfer to Avianca LifeMiles · 1:1 ratio',
+      points: 7500, cashValue: 150, cpp: 2.0,
+      note: "Avianca LifeMiles has the lowest domestic economy rates of any Wells Fargo Autograph Journey transfer partner — as low as 7,500 miles for short United hops. Most travelers overlook this; it's one of the best domestic redemption values in the lineup.",
+      warning: null,
+      steps: [
+        'Log into Wells Fargo and go to "Transfer Points"',
+        'Select Avianca LifeMiles (1:1)',
+        'Allow 1–2 business days for the transfer to complete',
+        'Go to lifemiles.com and search for United (UA) economy on your domestic route',
+        'Look for the lowest-tier Star Alliance economy availability',
+        'Pay only carrier fees (~$5–$15) at checkout',
+      ],
+    },
+  },
 }
 
 // ── Haul detection (display label only) ──
@@ -1060,9 +1296,11 @@ export default function Results() {
   }
 
   const program  = card.program || card.miles || 'Ultimate Rewards'
-  const { isDefault, luxury, budget } = getResults(program, from, to)
+  const { isDefault, isDomestic, luxury, budget } = getResults(program, from, to)
   const haul     = detectHaul(from, to)
-  const haulLabel = haul === 'long' ? 'Long-haul route' : haul === 'medium' ? 'Medium-haul route' : 'Short-haul route'
+  const haulLabel = isDomestic
+    ? 'Domestic route'
+    : haul === 'long' ? 'Long-haul route' : haul === 'medium' ? 'Medium-haul route' : 'Short-haul route'
   const userPts = parseInt((points || '0').replace(/\D/g, ''), 10) || 0
   const luxuryShortfall = luxury.points - userPts
   const hasEnoughForLuxury = userPts >= luxury.points
@@ -1100,8 +1338,16 @@ export default function Results() {
           Results show average award pricing across dates. Sign up for full access to search specific dates and see live availability.
         </p>
 
-        {/* Default route notice */}
-        {isDefault && (
+        {/* Route notice */}
+        {isDomestic && (
+          <div style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '14px', padding: '16px 20px', marginBottom: '28px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+            <span style={{ fontSize: '16px', flexShrink: 0 }}>🇺🇸</span>
+            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
+              Domestic route detected. We've prioritized the best domestic airline partners for your card — international programs like Air France Flying Blue or Aeroplan are excluded since they offer poor value on US domestic awards.
+            </p>
+          </div>
+        )}
+        {!isDomestic && isDefault && (
           <div style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '14px', padding: '16px 20px', marginBottom: '28px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
             <span style={{ fontSize: '16px', flexShrink: 0 }}>🗺️</span>
             <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
