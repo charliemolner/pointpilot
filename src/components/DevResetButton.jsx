@@ -1,4 +1,4 @@
-// Only renders on localhost — never visible in production
+// Only renders on localhost - never visible in production
 export default function DevResetButton() {
   if (typeof window === 'undefined') return null
   if (window.location.hostname !== 'localhost') return null
@@ -7,7 +7,7 @@ export default function DevResetButton() {
     try {
       await fetch('/api/reset-searches', { method: 'DELETE' })
     } catch {
-      // server may be down — still clear client storage
+      // server may be down - still clear client storage
     }
     localStorage.removeItem('pp_search_count')
     localStorage.removeItem('pp_search_date')

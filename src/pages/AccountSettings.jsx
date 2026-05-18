@@ -43,7 +43,7 @@ const fieldValue = {
 }
 
 function formatDate(isoString) {
-  if (!isoString) return '—'
+  if (!isoString) return '-'
   return new Date(isoString).toLocaleDateString('en-US', {
     year: 'numeric', month: 'long', day: 'numeric',
   })
@@ -283,7 +283,7 @@ export default function AccountSettings() {
                 fontSize: '13px', fontWeight: '500',
                 letterSpacing: '-0.1px',
               }}>
-                ✦ Pro — {plan === 'annual' ? 'Annual' : 'Monthly'}
+                ✦ Pro · {plan === 'annual' ? 'Annual' : 'Monthly'}
               </span>
             ) : (
               <span style={{
@@ -392,7 +392,7 @@ export default function AccountSettings() {
               color: '#4ade80', fontSize: '14px',
               fontWeight: '500', letterSpacing: '-0.1px',
             }}>
-              ✓ Reset email sent — check your inbox.
+              ✓ Reset email sent. Check your inbox.
             </p>
           )}
         </div>

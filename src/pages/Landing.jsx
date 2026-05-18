@@ -7,9 +7,9 @@ const SURFACE   = '#0f1629'           // slightly lifted
 const ELEVATED  = '#141d35'           // cards / inputs
 const TEXT      = '#f1f5f9'           // near-white
 const MUTED     = '#94a3b8'           // slate-400
-const SUBTLE    = '#475569'           // slate-600 — tertiary
+const SUBTLE    = '#475569'           // slate-600 - tertiary
 const ACCENT    = '#6366f1'           // indigo-500
-const ACCENT_LT = '#818cf8'           // indigo-400 — hover / lighter
+const ACCENT_LT = '#818cf8'           // indigo-400 - hover / lighter
 const BORDER    = 'rgba(255,255,255,0.07)'
 const GLOW      = 'rgba(99,102,241,0.35)'
 
@@ -117,7 +117,7 @@ const STEPS = [
   {
     n: '02',
     title: 'Choose your route',
-    body: 'Any origin, any destination — domestic hop or transatlantic upgrade.',
+    body: 'Any origin, any destination, domestic hop or transatlantic upgrade.',
   },
   {
     n: '03',
@@ -222,7 +222,7 @@ export default function Landing() {
               letterSpacing: '-0.2px',
             }}>
               Enter your rewards card and balance.
-              We find the smartest redemption — from budget economy to lie-flat business class.
+              We find the smartest redemption, from budget economy to lie-flat business class.
             </p>
 
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -294,7 +294,7 @@ export default function Landing() {
           in three steps.
         </h2>
 
-        {/* Steps — hairline bordered grid */}
+        {/* Steps - hairline bordered grid */}
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',

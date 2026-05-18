@@ -60,7 +60,7 @@ export default function Login() {
       if (isPro) {
         navigate('/search')
       } else {
-        // Account exists but no subscription — send to signup to complete payment
+        // Account exists but no subscription - send to signup to complete payment
         const msg = encodeURIComponent("Your account exists but you don't have an active subscription. Complete your signup below.")
         navigate(`/signup?email=${encodeURIComponent(email)}&message=${msg}&plan=annual`)
       }

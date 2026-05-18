@@ -29,31 +29,31 @@ const CARD_DETAILS = {
   'Chase Sapphire Preferred': {
     tagline: '14+ transfer partners · $95/yr · 60k bonus offer',
     highlight: 'Best all-around travel card for beginners and experts alike',
-    bonus: '75,000 point welcome bonus after $5,000 spend in 3 months — worth up to $1,500 in travel',
+    bonus: '75,000 point welcome bonus after $5,000 spend in 3 months, worth up to $1,500 in travel',
   },
   'Capital One Venture X': {
     tagline: '15+ transfer partners · $395/yr · $300 travel credit',
     highlight: 'Premium travel card that effectively pays for itself every year',
-    bonus: '75,000 mile welcome bonus after $4,000 spend in 3 months — worth up to $1,400 in travel',
+    bonus: '75,000 mile welcome bonus after $4,000 spend in 3 months, worth up to $1,400 in travel',
   },
   'Citi Strata Premier': {
     tagline: '15+ transfer partners · $95/yr · Singapore & Turkish access',
     highlight: "Hidden gem with access to some of the world's best programs",
-    bonus: '60,000 point welcome bonus after $4,000 spend in 3 months — worth up to $1,100 in travel',
+    bonus: '60,000 point welcome bonus after $4,000 spend in 3 months, worth up to $1,100 in travel',
   },
   'Amex Gold': {
     tagline: '20+ partners · $325/yr · 4x dining & groceries',
     highlight: 'Strongest earner for everyday spend with world-class transfer partners',
-    bonus: '60,000–100,000 point welcome bonus after $8,000 spend in 6 months — worth up to $2,000 in travel',
+    bonus: '60,000–100,000 point welcome bonus after $8,000 spend in 6 months, worth up to $2,000 in travel',
   },
   'Wells Fargo Autograph Journey': {
     tagline: 'Flying Blue & Aeroplan · $95/yr · 60k bonus offer',
     highlight: 'Underrated card with powerful airline partners at a low annual fee',
-    bonus: '60,000 point welcome bonus after $3,000 spend in 3 months — worth up to $1,000 in travel',
+    bonus: '60,000 point welcome bonus after $3,000 spend in 3 months, worth up to $1,000 in travel',
   },
 }
 
-// ── Points label — avoid "ThankYou Points points" etc. ──
+// ── Points label - avoid "ThankYou Points points" etc. ──
 function pointsLabel(program) {
   if (/miles|points|mileage|plan/i.test(program)) return program
   return program + ' points'
@@ -79,7 +79,7 @@ function getSearchData() {
 function incrementSearchCount() {
   // Only count if the user arrived from a real search submission
   const isFresh = sessionStorage.getItem('pp_fresh_search') === 'true'
-  if (!isFresh) return getSearchData().count  // refresh / back / new tab — don't count
+  if (!isFresh) return getSearchData().count  // refresh / back / new tab - don't count
   sessionStorage.removeItem('pp_fresh_search')  // clear the flag immediately
   const today = new Date().toISOString().slice(0, 10)
   const { count } = getSearchData()
@@ -116,7 +116,7 @@ function getMetro(code) { return METRO_MAP[code] || code }
 
 // ── Route database ──
 // Each option: airline, partner, points, cashValue, cpp, note, warning?, steps[], programs[]
-// programs[] = card programs that can access this partner — pick the first match for the user's card
+// programs[] = card programs that can access this partner - pick the first match for the user's card
 const ROUTE_DB = {
   'NYC-LON': {
     luxury: [
@@ -129,7 +129,7 @@ const ROUTE_DB = {
         steps: [
           'Log into your card account and navigate to "Transfer Points"',
           'Select Virgin Atlantic Flying Club as your transfer partner (1:1)',
-          'Transfers to Virgin Atlantic Flying Club are instant — points appear in your account within minutes',
+          'Transfers to Virgin Atlantic Flying Club are instant. Points appear in your account within minutes.',
           'Search for Upper Class award availability at virginatlantic.com',
           'Look for "Reward" Upper Class flights between New York and London',
           'Pay only ~$200–$400 in taxes and carrier fees at checkout',
@@ -142,7 +142,7 @@ const ROUTE_DB = {
         airline: 'British Airways Economy',
         partner: 'Transfer to British Airways Executive Club · 1:1 ratio',
         points: 26000, cashValue: 650, cpp: 2.5,
-        note: 'British Airways Avios can be excellent value for transatlantic economy — but BA charges significant fuel surcharges on its own flights. Factor in $150–$350 in fees on top of your Avios.',
+        note: 'British Airways Avios can be excellent value for transatlantic economy, but BA charges significant fuel surcharges on its own flights. Factor in $150–$350 in fees on top of your Avios.',
         warning: 'British Airways charges fuel surcharges on its own flights. Expect $150–$350 in fees on top of the Avios cost.',
         steps: [
           'Log into your card account and navigate to "Transfer Points"',
@@ -150,7 +150,7 @@ const ROUTE_DB = {
           'Avios typically arrive within minutes',
           'Search for economy "Reward" availability at britishairways.com',
           'Look for Avios-labeled economy seats on the JFK/EWR/LGA → LHR/LGW route',
-          'Book — note the $150–$350 fuel surcharge BA adds on its own flights',
+          'Book. Note the $150–$350 fuel surcharge BA adds on its own flights.',
         ],
         programs: ['Ultimate Rewards', 'Membership Rewards', 'Capital One Miles', 'Bilt Points'],
       },
@@ -202,12 +202,12 @@ const ROUTE_DB = {
         airline: 'ANA Business Class via Virgin Atlantic',
         partner: 'Transfer to Virgin Atlantic Flying Club · 1:1 ratio',
         points: 47500, cashValue: 4200, cpp: 8.8,
-        note: "Virgin Atlantic Flying Club's 47,500-mile rate for ANA's The Room business class is one of the single best sweet spots in all of points and miles. ANA is consistently rated the world's #1 airline — fully flat suites with direct aisle access.",
-        warning: 'ANA partner awards via Virgin Atlantic must be booked by phone — call Virgin Atlantic Flying Club at 1-800-365-9500 after transferring points.',
+        note: "Virgin Atlantic Flying Club's 47,500-mile rate for ANA's The Room business class is one of the single best sweet spots in all of points and miles. ANA is consistently rated the world's #1 airline, with fully flat suites and direct aisle access.",
+        warning: 'ANA partner awards via Virgin Atlantic must be booked by phone. Call Virgin Atlantic Flying Club at 1-800-365-9500 after transferring points.',
         steps: [
           'Log into your card account and navigate to "Transfer Points"',
           'Select Virgin Atlantic Flying Club as your transfer partner (1:1)',
-          'Transfers to Virgin Atlantic Flying Club are instant — points appear in your account within minutes',
+          'Transfers to Virgin Atlantic Flying Club are instant. Points appear in your account within minutes.',
           'Call Virgin Atlantic Flying Club at 1-800-365-9500 to book the ANA award',
           'Confirm ANA business class availability on your JFK/EWR → NRT/HND dates',
           'Pay ~$100–$200 in taxes and carrier fees at time of booking',
@@ -252,7 +252,7 @@ const ROUTE_DB = {
         airline: 'Economy via Turkish Miles&Smiles',
         partner: 'Transfer to Turkish Airlines Miles&Smiles · 1:1 ratio',
         points: 25000, cashValue: 850, cpp: 3.4,
-        note: "Turkish Miles&Smiles offers some of the lowest published mileage rates for Star Alliance partners including ANA — often 20–30% fewer miles than booking through other programs.",
+        note: "Turkish Miles&Smiles offers some of the lowest published mileage rates for Star Alliance partners including ANA, often 20–30% fewer miles than booking through other programs.",
         warning: null,
         steps: [
           'Log into your card account and navigate to "Transfer Points"',
@@ -312,7 +312,7 @@ const ROUTE_DB = {
         airline: 'Iberia Business Class',
         partner: 'Transfer to Iberia Plus · 1:1 ratio',
         points: 34000, cashValue: 2500, cpp: 7.3,
-        note: "Iberia Avios on Iberia's own metal to Madrid is one of the all-time best sweet spots in points and miles. At 34,000 Avios for business class from NYC to Spain — on a fully lie-flat product with no fuel surcharges — this is a redemption experienced travelers save specifically for this route.",
+        note: "Iberia Avios on Iberia's own metal to Madrid is one of the all-time best sweet spots in points and miles. At 34,000 Avios for business class from NYC to Spain, on a fully lie-flat product with no fuel surcharges, this is a redemption experienced travelers save specifically for this route.",
         warning: null,
         steps: [
           'Log into your card account and navigate to "Transfer Points"',
@@ -320,7 +320,7 @@ const ROUTE_DB = {
           'Allow 1–3 business days for the transfer to complete',
           'Search for Iberia business class awards at iberia.com/avios',
           'Look for direct JFK-MAD service or connecting via Madrid for BCN',
-          'Book — no fuel surcharges on Iberia-operated flights',
+          'Book. No fuel surcharges on Iberia-operated flights.',
         ],
         programs: ['Ultimate Rewards', 'Membership Rewards', 'Capital One Miles', 'Bilt Points'],
       },
@@ -337,8 +337,8 @@ const ROUTE_DB = {
           'Select Iberia Plus as your transfer partner (1:1)',
           'Allow 1–3 business days for the transfer to complete',
           'Search for Iberia economy awards at iberia.com/avios',
-          'Look for direct JFK-MAD service — typically 17,000 Avios one-way',
-          'Book — Iberia does not add fuel surcharges on its own flights',
+          'Look for direct JFK-MAD service, typically 17,000 Avios one-way',
+          'Book. Iberia does not add fuel surcharges on its own flights.',
         ],
         programs: ['Ultimate Rewards', 'Membership Rewards', 'Capital One Miles', 'Bilt Points'],
       },
@@ -351,7 +351,7 @@ const ROUTE_DB = {
         airline: 'Emirates Business Class via Aeroplan',
         partner: 'Transfer to Air Canada Aeroplan · 1:1 ratio',
         points: 75000, cashValue: 5500, cpp: 7.3,
-        note: "Air Canada Aeroplan lets you book Emirates Business Class at fixed Saver rates — one of the best ways to experience the Emirates Business Suite without needing Emirates Skywards miles. Emirates connects to Dubai via major international hubs.",
+        note: "Air Canada Aeroplan lets you book Emirates Business Class at fixed Saver rates, one of the best ways to experience the Emirates Business Suite without needing Emirates Skywards miles. Emirates connects to Dubai via major international hubs.",
         warning: null,
         steps: [
           'Log into your card account and navigate to "Transfer Points"',
@@ -397,7 +397,7 @@ const ROUTE_DB = {
           'Select Singapore Airlines KrisFlyer as your partner (1:1)',
           'Allow 1–3 business days for the transfer to complete',
           'Search for Saver business class availability at singaporeair.com',
-          'Look for the "Saver" mileage tier — this is where the value is',
+          'Look for the "Saver" mileage tier. This is where the value is.',
           'Book and pay ~$80–$200 in taxes and carrier fees',
         ],
         programs: ['Ultimate Rewards', 'Membership Rewards', 'Capital One Miles', 'ThankYou Points', 'Bilt Points'],
@@ -446,11 +446,11 @@ const ROUTE_DB = {
         partner: 'Transfer to Virgin Atlantic Flying Club · 1:1 ratio',
         points: 47500, cashValue: 4000, cpp: 8.4,
         note: "Virgin Atlantic Flying Club's 47,500-mile rate for ANA business class from the West Coast is one of the best sweet spots in aviation. ANA flies direct from LAX and SFO to NRT/HND and is rated the world's #1 airline.",
-        warning: 'ANA partner awards via Virgin Atlantic must be booked by phone — call Virgin Atlantic Flying Club at 1-800-365-9500 after transferring points.',
+        warning: 'ANA partner awards via Virgin Atlantic must be booked by phone. Call Virgin Atlantic Flying Club at 1-800-365-9500 after transferring points.',
         steps: [
           'Log into your card account and navigate to "Transfer Points"',
           'Select Virgin Atlantic Flying Club as your transfer partner (1:1)',
-          'Transfers to Virgin Atlantic Flying Club are instant — points appear in your account within minutes',
+          'Transfers to Virgin Atlantic Flying Club are instant. Points appear in your account within minutes.',
           'Call Virgin Atlantic Flying Club at 1-800-365-9500 to book the ANA award',
           'Confirm ANA business class availability on your LAX/SFO → NRT/HND dates',
           'Pay ~$100–$200 in taxes and carrier fees at time of booking',
@@ -470,7 +470,7 @@ const ROUTE_DB = {
           'Select United MileagePlus as your transfer partner (1:1, instant)',
           'Search for Saver economy on united.com for your West Coast → Tokyo route',
           'Filter for United (UA) direct flights or ANA (NH) partner awards',
-          'Look for the "Saver" labeled awards — best availability 3–4 weeks out',
+          'Look for the "Saver" labeled awards, best availability 3–4 weeks out',
           'Book and pay ~$50–$100 in carrier fees at checkout',
         ],
         programs: ['Ultimate Rewards', 'Bilt Points'],
@@ -495,7 +495,7 @@ const ROUTE_DB = {
         airline: 'Economy via Turkish Miles&Smiles',
         partner: 'Transfer to Turkish Airlines Miles&Smiles · 1:1 ratio',
         points: 25000, cashValue: 650, cpp: 2.6,
-        note: "Turkish Miles&Smiles has some of the lowest mileage rates for Star Alliance economy — including ANA and United on the West Coast to Tokyo route. Often 20–30% fewer miles than competing programs.",
+        note: "Turkish Miles&Smiles has some of the lowest mileage rates for Star Alliance economy, including ANA and United on the West Coast to Tokyo route. Often 20–30% fewer miles than competing programs.",
         warning: null,
         steps: [
           'Log into your card account and navigate to "Transfer Points"',
@@ -521,7 +521,7 @@ const ROUTE_DB = {
         steps: [
           'Log into your card account and navigate to "Transfer Points"',
           'Select Virgin Atlantic Flying Club as your transfer partner (1:1)',
-          'Transfers to Virgin Atlantic Flying Club are instant — points appear in your account within minutes',
+          'Transfers to Virgin Atlantic Flying Club are instant. Points appear in your account within minutes.',
           'Search for Upper Class award availability at virginatlantic.com',
           'Look for "Reward" Upper Class flights from LAX or SFO to LHR',
           'Book and pay ~$200–$400 in taxes and carrier fees',
@@ -534,7 +534,7 @@ const ROUTE_DB = {
         airline: 'British Airways Economy',
         partner: 'Transfer to British Airways Executive Club · 1:1 ratio',
         points: 30000, cashValue: 700, cpp: 2.3,
-        note: 'British Airways Avios for West Coast to London includes direct service on BA metal from LAX and SFO. Note that BA charges significant fuel surcharges on its own flights — factor in $150–$350 in fees.',
+        note: 'British Airways Avios for West Coast to London includes direct service on BA metal from LAX and SFO. Note that BA charges significant fuel surcharges on its own flights. Factor in $150–$350 in fees.',
         warning: 'British Airways charges fuel surcharges on its own flights. Expect $150–$350 in fees on top of the Avios cost.',
         steps: [
           'Log into your card account and navigate to "Transfer Points"',
@@ -542,7 +542,7 @@ const ROUTE_DB = {
           'Avios typically arrive within minutes',
           'Search for economy "Reward" availability at britishairways.com',
           'Look for Avios-labeled economy seats from LAX or SFO to LHR',
-          'Book — factor in the $150–$350 in BA fuel surcharges added at checkout',
+          'Book and note the $150–$350 in BA fuel surcharges added at checkout',
         ],
         programs: ['Ultimate Rewards', 'Membership Rewards', 'Capital One Miles', 'Bilt Points'],
       },
@@ -557,14 +557,14 @@ const DEFAULT_FALLBACKS = {
       airline: 'Business Class via United MileagePlus',
       partner: 'Transfer to United MileagePlus · 1:1 ratio',
       points: 60000, cashValue: 2800, cpp: 4.7,
-      note: 'United MileagePlus gives you access to 40+ Star Alliance partner airlines for business class worldwide. Availability and pricing varies by route — search united.com for Saver business availability on your specific dates.',
+      note: 'United MileagePlus gives you access to 40+ Star Alliance partner airlines for business class worldwide. Availability and pricing varies by route. Search united.com for Saver business availability on your specific dates.',
       warning: null,
       steps: [
         'Log into Chase and go to "Transfer to Travel Partners"',
         'Select United MileagePlus (1:1, instant transfer)',
         'Search for Saver business class availability on united.com',
         'Filter for partner airlines on your specific route',
-        'Look for the "Saver" label — the lowest mileage tier',
+        'Look for the "Saver" label, the lowest mileage tier',
         'Book and pay only taxes and carrier fees at checkout',
       ],
     },
@@ -604,7 +604,7 @@ const DEFAULT_FALLBACKS = {
       airline: 'Economy via Air Canada Aeroplan',
       partner: 'Transfer to Air Canada Aeroplan · 1:1 ratio',
       points: 30000, cashValue: 700, cpp: 2.3,
-      note: 'Aeroplan covers Star Alliance worldwide with no fuel surcharges on most partners. Amex transfers to Aeroplan at 1:1 instantly — one of the most versatile economy options.',
+      note: 'Aeroplan covers Star Alliance worldwide with no fuel surcharges on most partners. Amex transfers to Aeroplan at 1:1 instantly, one of the most versatile economy options.',
       warning: null,
       steps: [
         'Log into your Amex account and go to "Transfer Points"',
@@ -621,7 +621,7 @@ const DEFAULT_FALLBACKS = {
       airline: 'Business Class via Air France Flying Blue',
       partner: 'Transfer to Air France Flying Blue · 1:1 ratio',
       points: 55000, cashValue: 2800, cpp: 5.1,
-      note: 'Air France Flying Blue is a Capital One transfer partner at 1:1. Monthly Promo Rewards can cut costs by 25–50% — check on the 1st of each month.',
+      note: 'Air France Flying Blue is a Capital One transfer partner at 1:1. Monthly Promo Rewards can cut costs by 25–50%. Check on the 1st of each month.',
       warning: null,
       steps: [
         'Log into your Capital One account and go to "Transfer Miles"',
@@ -653,7 +653,7 @@ const DEFAULT_FALLBACKS = {
       airline: 'Business Class via Air France Flying Blue',
       partner: 'Transfer to Air France Flying Blue · 1:1 ratio',
       points: 55000, cashValue: 2800, cpp: 5.1,
-      note: 'Air France Flying Blue is a Citi ThankYou partner at 1:1. Monthly Promo Rewards can significantly reduce the points cost — check the 1st of each month.',
+      note: 'Air France Flying Blue is a Citi ThankYou partner at 1:1. Monthly Promo Rewards can significantly reduce the points cost. Check on the 1st of each month.',
       warning: null,
       steps: [
         'Log into your Citi account and go to "Transfer Points"',
@@ -685,14 +685,14 @@ const DEFAULT_FALLBACKS = {
       airline: 'Business Class via United MileagePlus',
       partner: 'Transfer to United MileagePlus · 1:1 ratio',
       points: 60000, cashValue: 2800, cpp: 4.7,
-      note: 'Bilt transfers to United instantly at 1:1. United Polaris business class and 40+ Star Alliance partner airlines are accessible — search united.com for Saver business availability.',
+      note: 'Bilt transfers to United instantly at 1:1. United Polaris business class and 40+ Star Alliance partner airlines are accessible. Search united.com for Saver business availability.',
       warning: null,
       steps: [
         'Log into your Bilt account and go to "Transfer Points"',
         'Select United MileagePlus (1:1, instant)',
         'Search for Saver business class availability on united.com',
         'Filter for partner airlines on your specific route',
-        'Look for the "Saver" label — the lowest mileage tier',
+        'Look for the "Saver" label, the lowest mileage tier',
         'Book and pay only taxes and carrier fees at checkout',
       ],
     },
@@ -746,20 +746,20 @@ const DEFAULT_FALLBACKS = {
   },
 }
 
-// Airline card programs — these earn miles directly, no transfer needed
+// Airline card programs - these earn miles directly, no transfer needed
 const AIRLINE_DIRECT = {
   'United MileagePlus': {
     luxury: {
       airline: 'United Polaris Business Class',
-      partner: 'Book directly — no transfer needed',
+      partner: 'Book directly - no transfer needed',
       points: 57500, cashValue: 3000, cpp: 5.2,
-      note: 'United Polaris features lie-flat beds, amenity kits, and premium dining. Search united.com for Saver business availability on your specific route — availability varies significantly by dates and routing.',
+      note: 'United Polaris features lie-flat beds, amenity kits, and premium dining. Search united.com for Saver business availability on your specific route. Availability varies significantly by dates and routing.',
       warning: null,
       steps: ['Log into your United MileagePlus account at united.com', 'Search Award Travel and select Business class', 'Filter by "Saver" to find the lowest mileage tier', 'Look for Polaris cabin availability on your route', 'Book directly with your MileagePlus miles', 'Pay only taxes and carrier fees at checkout'],
     },
     budget: {
       airline: 'United Economy Saver',
-      partner: 'Book directly — no transfer needed',
+      partner: 'Book directly - no transfer needed',
       points: 20000, cashValue: 450, cpp: 2.3,
       note: 'United Saver economy awards offer wide availability on United\'s own metal and 40+ Star Alliance partners. Search by "Saver" tier on united.com for the lowest mileage rates.',
       warning: null,
@@ -769,17 +769,17 @@ const AIRLINE_DIRECT = {
   'Delta SkyMiles': {
     luxury: {
       airline: 'Delta One Business Class',
-      partner: 'Book directly — no transfer needed',
+      partner: 'Book directly - no transfer needed',
       points: 80000, cashValue: 3000, cpp: 3.8,
-      note: "Delta uses dynamic pricing — award costs vary by date and demand. Use the award calendar on delta.com to find the lowest price across flexible dates. Delta One features lie-flat suites on wide-body international routes.",
+      note: "Delta uses dynamic pricing. Award costs vary by date and demand. Use the award calendar on delta.com to find the lowest price across flexible dates. Delta One features lie-flat suites on wide-body international routes.",
       warning: null,
       steps: ['Log into your SkyMiles account at delta.com', 'Search Award Travel and select Business class', 'Use the calendar view to compare prices across dates', 'Look for Delta One cabin availability on your route', 'Book directly with your SkyMiles miles', 'Pay only taxes at checkout'],
     },
     budget: {
       airline: 'Delta Economy',
-      partner: 'Book directly — no transfer needed',
+      partner: 'Book directly - no transfer needed',
       points: 20000, cashValue: 400, cpp: 2.0,
-      note: "Delta's dynamic pricing means award costs fluctuate — the calendar view is your best tool. Mid-week departures and off-peak dates typically show the lowest SkyMiles prices.",
+      note: "Delta's dynamic pricing means award costs fluctuate. The calendar view is your best tool. Mid-week departures and off-peak dates typically show the lowest SkyMiles prices.",
       warning: null,
       steps: ['Log into delta.com and search Award Travel', 'Use the award calendar to compare prices across dates', 'Mid-week departures are often 20–30% cheaper in miles', 'Book directly with your SkyMiles balance', 'Cancel free within 24 hours if plans change', 'Pay only carrier fees at checkout'],
     },
@@ -787,17 +787,17 @@ const AIRLINE_DIRECT = {
   'AAdvantage Miles': {
     luxury: {
       airline: 'American Airlines Business Class',
-      partner: 'Book directly — no transfer needed',
+      partner: 'Book directly - no transfer needed',
       points: 57500, cashValue: 2800, cpp: 4.9,
       note: "American's MilesAAver awards are available at fixed rates on AA's own metal and oneworld partners. Search aa.com for MilesAAver business class availability on your specific route.",
       warning: null,
-      steps: ['Log into your AAdvantage account at aa.com', 'Search for Award Flights and select Business class', "Look for 'MilesAAver' labeled awards — the lowest mileage tier", 'Check availability on American-operated or oneworld partner flights', 'Book directly with your AAdvantage miles', 'Pay only carrier fees at checkout'],
+      steps: ['Log into your AAdvantage account at aa.com', 'Search for Award Flights and select Business class', "Look for 'MilesAAver' labeled awards, the lowest mileage tier", 'Check availability on American-operated or oneworld partner flights', 'Book directly with your AAdvantage miles', 'Pay only carrier fees at checkout'],
     },
     budget: {
       airline: 'American Airlines Economy Saver',
-      partner: 'Book directly — no transfer needed',
+      partner: 'Book directly - no transfer needed',
       points: 15000, cashValue: 350, cpp: 2.3,
-      note: "AAdvantage MilesAAver economy awards start at fixed rates. No change fees on AAdvantage award tickets — you can re-book if better availability opens up.",
+      note: "AAdvantage MilesAAver economy awards start at fixed rates. No change fees on AAdvantage award tickets, so you can re-book if better availability opens up.",
       warning: null,
       steps: ['Log into aa.com and search for Award Flights', "Look for 'MilesAAver' labeled economy awards", 'Check availability on American and oneworld partner carriers', 'Book directly with your AAdvantage miles', 'No change fees if you need to reschedule', 'Pay only carrier fees at checkout'],
     },
@@ -805,33 +805,33 @@ const AIRLINE_DIRECT = {
   'Rapid Rewards': {
     luxury: {
       airline: 'Southwest Business Select',
-      partner: 'Book directly — no transfer needed',
+      partner: 'Book directly - no transfer needed',
       points: 25000, cashValue: 750, cpp: 3.0,
-      note: "Southwest Business Select is the premium fare tier — priority A1–A15 boarding, premium snacks, and a fully refundable fare. Southwest flies primarily domestic US, Mexico, Caribbean, and Central America.",
+      note: "Southwest Business Select is the premium fare tier with priority A1–A15 boarding, premium snacks, and a fully refundable fare. Southwest flies primarily domestic US, Mexico, Caribbean, and Central America.",
       warning: null,
-      steps: ['Log into southwest.com and search for your route', "Select 'Business Select' fare tier", 'Southwest is revenue-based — all seats available at all times', 'Apply your Rapid Rewards points at checkout', 'A1–A15 boarding gives you first pick of seats', 'Fully refundable — cancel to reusable travel funds anytime'],
+      steps: ['Log into southwest.com and search for your route', "Select 'Business Select' fare tier", 'Southwest is revenue-based. All seats available at all times.', 'Apply your Rapid Rewards points at checkout', 'A1–A15 boarding gives you first pick of seats', 'Fully refundable. Cancel to reusable travel funds anytime.'],
     },
     budget: {
       airline: 'Southwest Wanna Get Away',
-      partner: 'Book directly — no transfer needed',
+      partner: 'Book directly - no transfer needed',
       points: 10000, cashValue: 300, cpp: 3.0,
-      note: "Southwest Wanna Get Away is the best-value tier — revenue-based redemptions with no blackout dates, no change fees, and 2 free checked bags. Points never expire.",
+      note: "Southwest Wanna Get Away is the best-value tier with revenue-based redemptions with no blackout dates, no change fees, and 2 free checked bags. Points never expire.",
       warning: null,
-      steps: ['Log into southwest.com and search for your route', "Select 'Wanna Get Away' fare tier for lowest points cost", 'All seats available — no blackout dates ever', 'Apply your Rapid Rewards points at checkout', '2 free checked bags included', 'Cancel to reusable travel funds with no fees'],
+      steps: ['Log into southwest.com and search for your route', "Select 'Wanna Get Away' fare tier for lowest points cost", 'All seats available, no blackout dates ever', 'Apply your Rapid Rewards points at checkout', '2 free checked bags included', 'Cancel to reusable travel funds with no fees'],
     },
   },
   'Alaska Mileage Plan': {
     luxury: {
       airline: 'Alaska Airlines First Class',
-      partner: 'Book directly — no transfer needed',
+      partner: 'Book directly - no transfer needed',
       points: 25000, cashValue: 650, cpp: 2.6,
-      note: "Alaska first class with Saver awards is one of the most consistent values in US aviation — wide seats, complimentary meal service, and exceptional on-time performance.",
+      note: "Alaska first class with Saver awards is one of the most consistent values in US aviation: wide seats, complimentary meal service, and exceptional on-time performance.",
       warning: null,
       steps: ['Log into your Mileage Plan account at alaskaair.com', 'Search Award Travel and select First Class', "Look for 'Saver' labeled first class awards", 'Book directly with your Mileage Plan miles', 'Pay only carrier fees (~$5–$25) at checkout', 'Priority boarding included for first class passengers'],
     },
     budget: {
       airline: 'Alaska Airlines Economy Saver',
-      partner: 'Book directly — no transfer needed',
+      partner: 'Book directly - no transfer needed',
       points: 10000, cashValue: 250, cpp: 2.5,
       note: "Alaska Mileage Plan has a clean award chart with consistent Saver rates. Alaska miles never expire with account activity, and the carrier has the best on-time performance of any major US airline.",
       warning: null,
@@ -841,19 +841,19 @@ const AIRLINE_DIRECT = {
   'TrueBlue Points': {
     luxury: {
       airline: 'JetBlue Mint Business Class',
-      partner: 'Book directly — no transfer needed',
+      partner: 'Book directly - no transfer needed',
       points: 30000, cashValue: 900, cpp: 3.0,
-      note: "JetBlue Mint is the most accessible lie-flat business class in the US. Revenue-based pricing means all Mint seats are always available — no blackout dates, no award charts to navigate.",
+      note: "JetBlue Mint is the most accessible lie-flat business class in the US. Revenue-based pricing means all Mint seats are always available. No blackout dates, no award charts to navigate.",
       warning: null,
       steps: ['Log into jetblue.com and search for Mint cabin availability', "Mint available on JFK/BOS to LHR, LAX, SFO, and select international routes", 'All Mint seats available as TrueBlue awards at all times', 'Apply your TrueBlue points at checkout', 'Mint includes private suites, lie-flat beds, and full meal service', 'Pay remaining fare balance if any'],
     },
     budget: {
       airline: 'JetBlue Economy',
-      partner: 'Book directly — no transfer needed',
+      partner: 'Book directly - no transfer needed',
       points: 8000, cashValue: 130, cpp: 1.6,
-      note: "JetBlue is revenue-based with no blackout dates — all seats available at all times. Economy includes the most legroom of any US carrier and complimentary snacks on every flight.",
+      note: "JetBlue is revenue-based with no blackout dates. All seats available at all times. Economy includes the most legroom of any US carrier and complimentary snacks on every flight.",
       warning: null,
-      steps: ['Search any route on jetblue.com', 'All fares available as TrueBlue awards — no blackout dates', "Choose the lowest fare tier for fewest points", 'Apply TrueBlue points at checkout', 'Free carry-on and complimentary snacks included', 'Points never expire with account activity'],
+      steps: ['Search any route on jetblue.com', 'All fares available as TrueBlue awards, no blackout dates', "Choose the lowest fare tier for fewest points", 'Apply TrueBlue points at checkout', 'Free carry-on and complimentary snacks included', 'Points never expire with account activity'],
     },
   },
 }
@@ -864,12 +864,12 @@ function getResults(program, fromAirport, toAirport) {
   const fromCode = fromAirport?.code || ''
   const toCode   = toAirport?.code  || ''
 
-  // Airline co-branded cards book directly — use airline-specific recommendations
+  // Airline co-branded cards book directly - use airline-specific recommendations
   if (AIRLINE_PROGRAM_KEYS.has(program)) {
     return { isDefault: false, isDomestic: false, ...AIRLINE_DIRECT[program] }
   }
 
-  // Domestic US routes — skip international partners entirely and use domestic-optimized picks
+  // Domestic US routes - skip international partners entirely and use domestic-optimized picks
   if (isDomesticUS(fromCode, toCode)) {
     const domestic = DOMESTIC_FALLBACKS[program] || DOMESTIC_FALLBACKS['Ultimate Rewards']
     return { isDefault: false, isDomestic: true, luxury: domestic.luxury, budget: domestic.budget }
@@ -880,7 +880,7 @@ function getResults(program, fromAirport, toAirport) {
   const toMetro   = getMetro(toCode)
   const route = ROUTE_DB[`${fromMetro}-${toMetro}`] || ROUTE_DB[`${toMetro}-${fromMetro}`]
 
-  // Route not in database — show default fallback
+  // Route not in database - show default fallback
   if (!route) {
     const fallback = DEFAULT_FALLBACKS[program] || DEFAULT_FALLBACKS['Ultimate Rewards']
     return { isDefault: true, isDomestic: false, ...fallback }
@@ -890,7 +890,7 @@ function getResults(program, fromAirport, toAirport) {
   const luxury = route.luxury.find(opt => opt.programs.includes(program))
   const budget = route.budget.find(opt => opt.programs.includes(program))
 
-  // Program not compatible with any option on this route — use fallback
+  // Program not compatible with any option on this route - use fallback
   if (!luxury || !budget) {
     const fallback = DEFAULT_FALLBACKS[program] || DEFAULT_FALLBACKS['Ultimate Rewards']
     return { isDefault: true, isDomestic: false, ...fallback }
@@ -924,14 +924,14 @@ const DOMESTIC_FALLBACKS = {
       airline: 'United First Class',
       partner: 'Transfer to United MileagePlus · 1:1 ratio',
       points: 30000, cashValue: 450, cpp: 1.5,
-      note: "United MileagePlus is the best use of Chase Ultimate Rewards on domestic routes. Saver first class awards include premium seating, full meal service on longer routes, and priority boarding — for a fraction of what a cash first class ticket costs. Instant transfers mean you can jump on award availability the moment it opens.",
+      note: "United MileagePlus is the best use of Chase Ultimate Rewards on domestic routes. Saver first class awards include premium seating, full meal service on longer routes, and priority boarding, for a fraction of what a cash first class ticket costs. Instant transfers mean you can jump on award availability the moment it opens.",
       warning: null,
       steps: [
         'Log into Chase and go to "Transfer to Travel Partners"',
         'Select United MileagePlus (1:1, instant transfer)',
         'Go to united.com and search Award Travel, selecting First Class',
         'Use the award calendar to compare prices across dates',
-        'Look for "Saver" labeled first class awards — the lowest mileage tier',
+        'Look for "Saver" labeled first class awards, the lowest mileage tier',
         'Pay only ~$5–$15 in carrier fees at checkout',
       ],
     },
@@ -945,7 +945,7 @@ const DOMESTIC_FALLBACKS = {
         'Log into Chase and go to "Transfer to Travel Partners"',
         'Select United MileagePlus (1:1, instant transfer)',
         'Go to united.com and search Award Travel in Economy class',
-        'Look for "Saver" labeled economy awards — lowest mileage tier',
+        'Look for "Saver" labeled economy awards, the lowest mileage tier',
         'Best availability on weekdays and off-peak dates',
         'Pay only ~$5–$15 in carrier fees at checkout',
       ],
@@ -956,13 +956,13 @@ const DOMESTIC_FALLBACKS = {
       airline: 'Delta First Class',
       partner: 'Transfer to Delta SkyMiles · 1:1 ratio',
       points: 50000, cashValue: 500, cpp: 1.0,
-      note: "Delta SkyMiles is the best domestic transfer partner for Amex Membership Rewards. Delta uses dynamic pricing — first class awards typically run 30,000–60,000 SkyMiles depending on the route and date. Use the award calendar on delta.com to find the lowest price before transferring.",
-      warning: 'Delta uses dynamic pricing — award costs vary by date and demand. Always check the award calendar across multiple dates on delta.com before transferring points.',
+      note: "Delta SkyMiles is the best domestic transfer partner for Amex Membership Rewards. Delta uses dynamic pricing. First class awards typically run 30,000–60,000 SkyMiles depending on the route and date. Use the award calendar on delta.com to find the lowest price before transferring.",
+      warning: 'Delta uses dynamic pricing. Award costs vary by date and demand. Always check the award calendar across multiple dates on delta.com before transferring points.',
       steps: [
         'Log into your Amex account and go to "Transfer Points"',
         'Select Delta SkyMiles as your transfer partner (1:1, typically instant)',
         'Before transferring, go to delta.com and use the award calendar to find lowest pricing',
-        'Look for First Class availability — mid-week and off-peak dates are cheapest',
+        'Look for First Class availability. Mid-week and off-peak dates are cheapest.',
         'Transfer only after confirming the award is bookable',
         'Pay only taxes (~$5–$15) at checkout',
       ],
@@ -971,13 +971,13 @@ const DOMESTIC_FALLBACKS = {
       airline: 'Delta Economy',
       partner: 'Transfer to Delta SkyMiles · 1:1 ratio',
       points: 12500, cashValue: 200, cpp: 1.6,
-      note: "Delta SkyMiles domestic economy is the top domestic play for Amex Gold cardholders. Dynamic pricing can yield excellent value — especially on off-peak dates and shorter routes. Use the award calendar to compare costs across multiple dates before transferring.",
+      note: "Delta SkyMiles domestic economy is the top domestic play for Amex Gold cardholders. Dynamic pricing can yield excellent value, especially on off-peak dates and shorter routes. Use the award calendar to compare costs across multiple dates before transferring.",
       warning: null,
       steps: [
         'Log into your Amex account and go to "Transfer Points"',
         'Select Delta SkyMiles as your transfer partner (1:1, typically instant)',
         'Before transferring, go to delta.com and use the award calendar view',
-        'Compare prices across multiple dates — weekdays typically show fewer miles',
+        'Compare prices across multiple dates. Weekdays typically show fewer miles.',
         'Transfer after confirming your award seat is available',
         'Pay only taxes (~$5–$15) at checkout',
       ],
@@ -988,14 +988,14 @@ const DOMESTIC_FALLBACKS = {
       airline: 'American Airlines First Class',
       partner: 'Transfer to American AAdvantage · 1:1 ratio',
       points: 30000, cashValue: 450, cpp: 1.5,
-      note: "Citi ThankYou transfers directly to American AAdvantage at 1:1 — making it the cleanest domestic play in the ThankYou lineup. American First Class on domestic routes features wider seats, premium dining on longer routes, and priority boarding. No change fees on AAdvantage award tickets.",
+      note: "Citi ThankYou transfers directly to American AAdvantage at 1:1, making it the cleanest domestic play in the ThankYou lineup. American First Class on domestic routes features wider seats, premium dining on longer routes, and priority boarding. No change fees on AAdvantage award tickets.",
       warning: null,
       steps: [
         'Log into your Citi account and go to "Transfer Points"',
         'Select American AAdvantage as your transfer partner (1:1)',
         'Allow up to 24–48 hours for the transfer to complete',
         'Go to aa.com and search for Award Flights, selecting First class',
-        "Look for 'MilesAAver' labeled first class awards — the lowest mileage tier",
+        "Look for 'MilesAAver' labeled first class awards, the lowest mileage tier",
         'Pay only carrier fees (~$5–$20) at checkout',
       ],
     },
@@ -1003,14 +1003,14 @@ const DOMESTIC_FALLBACKS = {
       airline: 'American Airlines Economy',
       partner: 'Transfer to American AAdvantage · 1:1 ratio',
       points: 12500, cashValue: 200, cpp: 1.6,
-      note: "Citi ThankYou transfers directly to American AAdvantage at 1:1. MilesAAver economy awards start at 12,500 miles on domestic routes with wide availability across American's network. No change fees — you can re-book if better award space opens up.",
+      note: "Citi ThankYou transfers directly to American AAdvantage at 1:1. MilesAAver economy awards start at 12,500 miles on domestic routes with wide availability across American's network. No change fees, so you can re-book if better award space opens up.",
       warning: null,
       steps: [
         'Log into your Citi account and go to "Transfer Points"',
         'Select American AAdvantage as your transfer partner (1:1)',
         'Allow up to 24–48 hours for the transfer to complete',
         'Go to aa.com and search for Award Flights in Economy class',
-        "Look for 'MilesAAver' labeled economy awards — lowest mileage tier",
+        "Look for 'MilesAAver' labeled economy awards, the lowest mileage tier",
         'Pay only carrier fees (~$5–$20) at checkout',
       ],
     },
@@ -1020,7 +1020,7 @@ const DOMESTIC_FALLBACKS = {
       airline: 'United First Class via Avianca LifeMiles',
       partner: 'Transfer to Avianca LifeMiles · 1:1 ratio',
       points: 25000, cashValue: 400, cpp: 1.6,
-      note: "Avianca LifeMiles is the strongest domestic option for Capital One miles — it books Star Alliance partners including United at some of the lowest published rates. Domestic United first class runs ~20,000–25,000 LifeMiles, significantly cheaper than booking through United directly.",
+      note: "Avianca LifeMiles is the strongest domestic option for Capital One miles. It books Star Alliance partners including United at some of the lowest published rates. Domestic United first class runs ~20,000–25,000 LifeMiles, significantly cheaper than booking through United directly.",
       warning: null,
       steps: [
         'Log into Capital One and go to "Transfer Miles"',
@@ -1035,7 +1035,7 @@ const DOMESTIC_FALLBACKS = {
       airline: 'United Economy via Avianca LifeMiles',
       partner: 'Transfer to Avianca LifeMiles · 1:1 ratio',
       points: 7500, cashValue: 150, cpp: 2.0,
-      note: "Avianca LifeMiles has some of the lowest rates for Star Alliance domestic economy — as low as 7,500 miles for shorter routes on United. One of the best-value domestic redemptions available in the Capital One transfer partner lineup.",
+      note: "Avianca LifeMiles has some of the lowest rates for Star Alliance domestic economy, as low as 7,500 miles for shorter routes on United. One of the best-value domestic redemptions available in the Capital One transfer partner lineup.",
       warning: null,
       steps: [
         'Log into Capital One and go to "Transfer Miles"',
@@ -1052,7 +1052,7 @@ const DOMESTIC_FALLBACKS = {
       airline: 'United First Class',
       partner: 'Transfer to United MileagePlus · 1:1 ratio',
       points: 30000, cashValue: 450, cpp: 1.5,
-      note: "Bilt transfers to United MileagePlus instantly at 1:1 — making it one of the fastest domestic upgrade plays. United Saver first class awards start around 30,000 miles and include full meal service, premium seating, and priority boarding on domestic routes.",
+      note: "Bilt transfers to United MileagePlus instantly at 1:1, making it one of the fastest domestic upgrade plays. United Saver first class awards start around 30,000 miles and include full meal service, premium seating, and priority boarding on domestic routes.",
       warning: null,
       steps: [
         'Log into Bilt and go to "Transfer Points"',
@@ -1067,13 +1067,13 @@ const DOMESTIC_FALLBACKS = {
       airline: 'United Economy Saver',
       partner: 'Transfer to United MileagePlus · 1:1 ratio',
       points: 12500, cashValue: 200, cpp: 1.6,
-      note: "Bilt transfers to United MileagePlus instantly — the fastest way to book a domestic award. Saver economy on domestic routes starts at 12,500 miles, no fuel surcharges, and the instant transfer means you can lock in award space before it disappears.",
+      note: "Bilt transfers to United MileagePlus instantly. It's the fastest way to book a domestic award. Saver economy on domestic routes starts at 12,500 miles, no fuel surcharges, and the instant transfer means you can lock in award space before it disappears.",
       warning: null,
       steps: [
         'Log into Bilt and go to "Transfer Points"',
         'Select United MileagePlus (1:1, instant)',
         'Go to united.com and search Award Travel in Economy class',
-        'Look for "Saver" labeled economy awards — lowest mileage tier',
+        'Look for "Saver" labeled economy awards, the lowest mileage tier',
         'Best availability on weekdays and off-peak dates',
         'Pay only ~$5–$15 in carrier fees at checkout',
       ],
@@ -1084,7 +1084,7 @@ const DOMESTIC_FALLBACKS = {
       airline: 'United First Class via Avianca LifeMiles',
       partner: 'Transfer to Avianca LifeMiles · 1:1 ratio',
       points: 25000, cashValue: 400, cpp: 1.6,
-      note: "Avianca LifeMiles is the strongest domestic play in the Wells Fargo Autograph Journey partner lineup — it books Star Alliance partners including United at low fixed rates. Domestic first class on United runs ~20,000–25,000 LifeMiles.",
+      note: "Avianca LifeMiles is the strongest domestic play in the Wells Fargo Autograph Journey partner lineup. It books Star Alliance partners including United at low fixed rates. Domestic first class on United runs ~20,000–25,000 LifeMiles.",
       warning: null,
       steps: [
         'Log into Wells Fargo and go to "Transfer Points"',
@@ -1099,7 +1099,7 @@ const DOMESTIC_FALLBACKS = {
       airline: 'United Economy via Avianca LifeMiles',
       partner: 'Transfer to Avianca LifeMiles · 1:1 ratio',
       points: 7500, cashValue: 150, cpp: 2.0,
-      note: "Avianca LifeMiles has the lowest domestic economy rates of any Wells Fargo Autograph Journey transfer partner — as low as 7,500 miles for short United hops. Most travelers overlook this; it's one of the best domestic redemption values in the lineup.",
+      note: "Avianca LifeMiles has the lowest domestic economy rates of any Wells Fargo Autograph Journey transfer partner, as low as 7,500 miles for short United hops. Most travelers overlook this; it's one of the best domestic redemption values in the lineup.",
       warning: null,
       steps: [
         'Log into Wells Fargo and go to "Transfer Points"',
@@ -1326,7 +1326,7 @@ function ResultCard({ badge, isLuxury, result, userPoints }) {
             color: MUTED, fontSize: '12px',
             lineHeight: 1.55, margin: 0, fontWeight: '400',
           }}>
-            Always verify award availability before transferring points — transfers are typically irreversible.
+            Always verify award availability before transferring points. Transfers are typically irreversible.
           </p>
         </div>
       </div>
@@ -1349,7 +1349,7 @@ export default function Results() {
   const from   = state?.from   || null
   const to     = state?.to     || null
 
-  // Increment search counter — skip entirely for Pro users
+  // Increment search counter - skip entirely for Pro users
   useEffect(() => {
     if (!isPro) incrementSearchCount()
   }, [isPro])
@@ -1543,7 +1543,7 @@ export default function Results() {
           }}>
             <span style={{ fontSize: '15px', flexShrink: 0 }}>🇺🇸</span>
             <p style={{ color: MUTED, fontSize: '13px', lineHeight: 1.6, margin: 0 }}>
-              Domestic route detected. We've prioritized the best domestic airline partners for your card — international programs like Air France Flying Blue or Aeroplan are excluded since they offer poor value on US domestic awards.
+              Domestic route detected. We've prioritized the best domestic airline partners for your card. International programs like Air France Flying Blue or Aeroplan are excluded since they offer poor value on US domestic awards.
             </p>
           </div>
         )}
@@ -1557,7 +1557,7 @@ export default function Results() {
           }}>
             <span style={{ fontSize: '15px', flexShrink: 0 }}>🗺️</span>
             <p style={{ color: MUTED, fontSize: '13px', lineHeight: 1.6, margin: 0 }}>
-              We're building out more routes every week. Here's the best general redemption strategy for your card — availability varies by route and dates.
+              We're building out more routes every week. Here's the best general redemption strategy for your card. Availability varies by route and dates.
             </p>
           </div>
         )}
@@ -1640,7 +1640,7 @@ export default function Results() {
           )
         })()}
 
-        {/* ── Upgrade CTA — hidden for Pro users ── */}
+        {/* ── Upgrade CTA - hidden for Pro users ── */}
         {!isPro && (
           <div style={{
             textAlign: 'center', marginBottom: '28px',

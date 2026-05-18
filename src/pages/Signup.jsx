@@ -26,7 +26,7 @@ export default function Signup() {
   const [searchParams] = useSearchParams()
   const initialPlan = searchParams.get('plan') === 'monthly' ? 'monthly' : 'annual'
 
-  // "existing account" mode — arrived from Login with a pre-filled email
+  // "existing account" mode - arrived from Login with a pre-filled email
   const prefillEmail   = searchParams.get('email') || ''
   const bannerMessage  = searchParams.get('message') || ''
   const existingMode   = Boolean(prefillEmail)
@@ -213,7 +213,7 @@ export default function Signup() {
                 </span>
                 <div>
                   <span style={{ color: TEXT, fontWeight: '500', fontSize: '13px' }}>{f.title}</span>
-                  <span style={{ color: SUBTLE, fontSize: '13px' }}> — {f.desc}</span>
+                  <span style={{ color: SUBTLE, fontSize: '13px' }}>: {f.desc}</span>
                 </div>
               </div>
             ))}
@@ -314,7 +314,7 @@ export default function Signup() {
               />
             </div>
 
-            {/* Password fields — hidden in existing-account mode */}
+            {/* Password fields - hidden in existing-account mode */}
             {!existingMode && (
               <>
                 <div style={{ marginBottom: '12px' }}>
