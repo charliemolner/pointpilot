@@ -2,21 +2,18 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
-const NAVY = '#1a3a6b'
-const AMBER = '#f59e0b'
-
-const INPUT_STYLE = {
-  background: 'white',
-  border: '1px solid #e5e7eb',
-  borderRadius: '12px',
-  padding: '12px 16px',
-  fontSize: '15px',
-  color: NAVY,
-  width: '100%',
-  outline: 'none',
-  fontFamily: 'inherit',
-  boxSizing: 'border-box',
-}
+// ── Design tokens ──────────────────────────────────────────
+const BG        = '#0a0f1e'
+const SURFACE   = '#0f1629'
+const ELEVATED  = '#141d35'
+const TEXT      = '#f1f5f9'
+const MUTED     = '#94a3b8'
+const SUBTLE    = '#475569'
+const ACCENT    = '#6366f1'
+const ACCENT_LT = '#818cf8'
+const BORDER    = 'rgba(255,255,255,0.07)'
+const BORDER_MID = 'rgba(255,255,255,0.10)'
+const GLOW      = 'rgba(99,102,241,0.35)'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -24,6 +21,22 @@ export default function Login() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [focusedField, setFocusedField] = useState(null)
+
+  const inputStyle = (field) => ({
+    background: ELEVATED,
+    border: `1px solid ${focusedField === field ? 'rgba(99,102,241,0.6)' : BORDER_MID}`,
+    borderRadius: '10px',
+    padding: '11px 14px',
+    fontSize: '15px',
+    color: TEXT,
+    width: '100%',
+    outline: 'none',
+    fontFamily: 'inherit',
+    boxSizing: 'border-box',
+    transition: 'border-color 0.15s',
+    boxShadow: focusedField === field ? `0 0 0 3px rgba(99,102,241,0.12)` : 'none',
+  })
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -57,40 +70,89 @@ export default function Login() {
   }
 
   return (
-    <div style={{ backgroundColor: NAVY, minHeight: '100vh', color: 'white' }}>
+    <div style={{ background: BG, minHeight: '100vh', color: TEXT }}>
+
       {/* Navbar */}
-      <nav style={{ height: '64px', display: 'flex', alignItems: 'center', padding: '0 40px' }}>
+      <nav style={{
+        height: '52px',
+        background: 'rgba(10,15,30,0.75)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        borderBottom: `1px solid ${BORDER}`,
+        display: 'flex', alignItems: 'center',
+        padding: '0 24px',
+      }}>
         <span
           onClick={() => navigate('/')}
-          style={{ color: 'white', fontSize: '18px', fontWeight: '700', letterSpacing: '-0.02em', cursor: 'pointer', userSelect: 'none' }}
+          style={{
+            fontSize: '16px', fontWeight: '600',
+            letterSpacing: '-0.3px', color: TEXT,
+            cursor: 'pointer', userSelect: 'none',
+          }}
         >
-          PointPilot™
+          PointPilot
         </span>
       </nav>
 
-      {/* Card */}
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '32px 24px 80px' }}>
+      {/* Centered layout */}
+      <div style={{
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        minHeight: 'calc(100vh - 52px)',
+        padding: '32px 24px',
+      }}>
+
+        {/* Wordmark above card */}
+        <div style={{ marginBottom: '24px', textAlign: 'center' }}>
+          <span style={{
+            fontSize: '28px', fontWeight: '700',
+            letterSpacing: '-0.5px',
+            background: `linear-gradient(180deg, ${TEXT} 30%, ${MUTED} 100%)`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}>
+            PointPilot
+          </span>
+        </div>
+
+        {/* Card */}
         <div style={{
-          background: 'white',
-          borderRadius: '24px',
-          padding: '40px 32px',
-          maxWidth: '420px',
+          background: SURFACE,
+          border: `1px solid ${BORDER_MID}`,
+          borderRadius: '16px',
+          padding: '32px 28px',
           width: '100%',
-          boxShadow: '0 32px 80px rgba(0,0,0,0.45)',
+          maxWidth: '400px',
+          boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
         }}>
-          <h1 style={{ color: NAVY, fontSize: '28px', fontWeight: '800', lineHeight: 1.2, letterSpacing: '-0.4px', marginBottom: '28px', textAlign: 'center' }}>
+          <h1 style={{
+            fontSize: '22px', fontWeight: '700',
+            letterSpacing: '-0.4px', lineHeight: 1.2,
+            color: TEXT, marginBottom: '6px',
+            textAlign: 'center',
+          }}>
             Welcome back
           </h1>
+          <p style={{
+            color: MUTED, fontSize: '14px',
+            textAlign: 'center', marginBottom: '28px',
+            letterSpacing: '-0.1px',
+          }}>
+            Sign in to your account
+          </p>
 
           <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: '14px' }}>
+            <div style={{ marginBottom: '12px' }}>
               <input
                 type="email"
                 placeholder="Email address"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
+                onFocus={() => setFocusedField('email')}
+                onBlur={() => setFocusedField(null)}
                 required
-                style={INPUT_STYLE}
+                style={inputStyle('email')}
               />
             </div>
             <div style={{ marginBottom: '20px' }}>
@@ -99,13 +161,19 @@ export default function Login() {
                 placeholder="Password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
+                onFocus={() => setFocusedField('password')}
+                onBlur={() => setFocusedField(null)}
                 required
-                style={INPUT_STYLE}
+                style={inputStyle('password')}
               />
             </div>
 
             {error && (
-              <p style={{ color: '#ef4444', fontSize: '13px', marginBottom: '14px', textAlign: 'center' }}>
+              <p style={{
+                color: '#f87171', fontSize: '13px',
+                marginBottom: '14px', textAlign: 'center',
+                lineHeight: 1.5,
+              }}>
                 {error}
               </p>
             )}
@@ -115,26 +183,29 @@ export default function Login() {
               disabled={loading}
               style={{
                 width: '100%',
-                background: loading ? '#d1d5db' : AMBER,
-                color: '#1c1917',
-                fontWeight: '800',
-                fontSize: '16px',
-                padding: '16px',
-                borderRadius: '50px',
-                border: 'none',
+                background: loading ? ELEVATED : ACCENT,
+                color: loading ? MUTED : '#fff',
+                fontWeight: '500',
+                fontSize: '15px',
+                padding: '13px',
+                borderRadius: '999px',
+                border: `1px solid ${loading ? BORDER_MID : 'transparent'}`,
                 cursor: loading ? 'not-allowed' : 'pointer',
                 marginBottom: '16px',
-                boxShadow: loading ? 'none' : '0 4px 20px rgba(245,158,11,0.35)',
-                transition: 'all 0.15s',
+                letterSpacing: '-0.2px',
+                boxShadow: loading ? 'none' : `0 0 0 1px rgba(99,102,241,0.4), 0 4px 20px ${GLOW}`,
+                transition: 'background 0.15s, box-shadow 0.15s, transform 0.12s',
               }}
+              onMouseEnter={e => { if (!loading) { e.currentTarget.style.background = '#4f46e5'; e.currentTarget.style.transform = 'translateY(-1px)' }}}
+              onMouseLeave={e => { if (!loading) { e.currentTarget.style.background = ACCENT; e.currentTarget.style.transform = 'translateY(0)' }}}
             >
-              {loading ? 'Logging in…' : 'Log In'}
+              {loading ? 'Signing in…' : 'Sign in'}
             </button>
           </form>
 
-          <p style={{ textAlign: 'center', fontSize: '14px', color: '#6b7280' }}>
+          <p style={{ textAlign: 'center', fontSize: '13px', color: SUBTLE }}>
             Don't have an account?{' '}
-            <Link to="/signup" style={{ color: NAVY, fontWeight: '700', textDecoration: 'none' }}>
+            <Link to="/signup" style={{ color: ACCENT_LT, fontWeight: '500', textDecoration: 'none' }}>
               Get Pro →
             </Link>
           </p>
