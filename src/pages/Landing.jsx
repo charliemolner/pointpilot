@@ -427,8 +427,21 @@ export default function Landing() {
         padding: '20px 24px',
         textAlign: 'center',
       }}>
-        <p style={{ fontSize: '12px', color: SUBTLE, letterSpacing: '-0.1px' }}>
+        <p style={{ fontSize: '12px', color: SUBTLE, letterSpacing: '-0.1px', marginBottom: '8px' }}>
           Copyright © 2026 PointPilot. Results are estimates. Always verify award availability before transferring points.
+        </p>
+        <p style={{ fontSize: '12px' }}>
+          <span
+            onClick={() => navigate('/terms')}
+            style={{
+              color: SUBTLE, cursor: 'pointer', textDecoration: 'none',
+              transition: 'color 0.15s',
+            }}
+            onMouseEnter={e => e.currentTarget.style.color = MUTED}
+            onMouseLeave={e => e.currentTarget.style.color = SUBTLE}
+          >
+            Terms of Service
+          </span>
         </p>
       </footer>
 
