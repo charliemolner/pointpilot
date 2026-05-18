@@ -1437,17 +1437,39 @@ export default function Results() {
           >
             PointPilot
           </span>
-          <button
-            onClick={handleNewSearch}
-            style={{
-              background: 'none', border: 'none',
-              color: ACCENT_LT, fontSize: '13px',
-              fontWeight: '400', cursor: 'pointer',
-              letterSpacing: '-0.1px', padding: '4px 0',
-            }}
-          >
-            ← New search
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button
+              onClick={handleNewSearch}
+              style={{
+                background: ACCENT, color: '#fff',
+                fontWeight: '500', fontSize: '13px',
+                padding: '7px 16px', borderRadius: '999px',
+                border: 'none', cursor: 'pointer',
+                letterSpacing: '-0.1px',
+                boxShadow: `0 0 0 1px rgba(99,102,241,0.4), 0 2px 10px ${GLOW}`,
+                transition: 'background 0.15s, transform 0.12s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#4f46e5'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = ACCENT; e.currentTarget.style.transform = 'translateY(0)' }}
+            >
+              ← New search
+            </button>
+            <button
+              onClick={() => navigate('/')}
+              style={{
+                background: 'none', color: MUTED,
+                fontWeight: '400', fontSize: '13px',
+                padding: '7px 14px', borderRadius: '999px',
+                border: `1px solid ${BORDER_MID}`,
+                cursor: 'pointer', letterSpacing: '-0.1px',
+                transition: 'color 0.15s, border-color 0.15s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = TEXT; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)' }}
+              onMouseLeave={e => { e.currentTarget.style.color = MUTED; e.currentTarget.style.borderColor = BORDER_MID }}
+            >
+              Home
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -1653,42 +1675,6 @@ export default function Results() {
             </button>
           </div>
         )}
-
-        {/* ── Navigation ── */}
-        <div style={{
-          textAlign: 'center',
-          display: 'flex', gap: '10px', justifyContent: 'center',
-        }}>
-          <button
-            onClick={handleNewSearch}
-            style={{
-              background: ACCENT, color: '#fff',
-              fontWeight: '500', padding: '11px 24px',
-              borderRadius: '999px', border: 'none',
-              cursor: 'pointer', fontSize: '14px',
-              letterSpacing: '-0.2px',
-              boxShadow: `0 0 0 1px rgba(99,102,241,0.4), 0 4px 16px ${GLOW}`,
-            }}
-          >
-            ← New search
-          </button>
-          <button
-            onClick={() => navigate('/')}
-            style={{
-              background: 'none', color: MUTED,
-              fontWeight: '400', padding: '11px 20px',
-              borderRadius: '999px',
-              border: `1px solid ${BORDER_MID}`,
-              cursor: 'pointer', fontSize: '14px',
-              letterSpacing: '-0.2px',
-              transition: 'color 0.15s, border-color 0.15s',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.color = TEXT; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)' }}
-            onMouseLeave={e => { e.currentTarget.style.color = MUTED; e.currentTarget.style.borderColor = BORDER_MID }}
-          >
-            Home
-          </button>
-        </div>
 
       </main>
 
