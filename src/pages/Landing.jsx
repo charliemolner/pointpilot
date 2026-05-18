@@ -287,7 +287,7 @@ export default function Landing() {
           letterSpacing: '-0.035em',
           lineHeight: '1.08',
           color: TEXT,
-          marginBottom: '28px',
+          marginBottom: '16px',
           maxWidth: '480px',
         }}>
           From card to cabin
