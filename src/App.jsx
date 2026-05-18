@@ -6,6 +6,7 @@ import Results from './pages/Results'
 import Signup from './pages/Signup'
 import Login from './pages/Login'
 import ProSuccess from './pages/ProSuccess'
+import AccountSettings from './pages/AccountSettings'
 import DevResetButton from './components/DevResetButton'
 import ProBadge from './components/ProBadge'
 
@@ -20,6 +21,7 @@ export default function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
           <Route path="/pro-success" element={<ProSuccess />} />
+          <Route path="/account" element={<AccountSettings />} />
         </Routes>
         <ProBadge />
         <DevResetButton />

@@ -239,11 +239,11 @@ app.post('/api/create-checkout', async (req, res) => {
 app.get('/api/pro-status', async (req, res) => {
   const { user_id } = req.query
   console.log('[/api/pro-status] checking user_id:', user_id ?? '(none)')
-  if (!user_id) return res.json({ isPro: false, plan: null })
+  if (!user_id) return res.json({ isPro: false, plan: null, renewalDate: null })
 
   const { data, error } = await supabase
     .from('subscriptions')
-    .select('plan, status')
+    .select('plan, status, stripe_subscription_id')
     .eq('user_id', user_id)
     .eq('status', 'active')
     .order('created_at', { ascending: false })
@@ -252,14 +252,74 @@ app.get('/api/pro-status', async (req, res) => {
 
   if (error) {
     console.error('  subscriptions query error:', error.message)
-    return res.json({ isPro: false, plan: null })
+    return res.json({ isPro: false, plan: null, renewalDate: null })
   }
   if (!data) {
     console.log('  no active subscription found → isPro: false')
-    return res.json({ isPro: false, plan: null })
+    return res.json({ isPro: false, plan: null, renewalDate: null })
   }
-  console.log('  subscription found → isPro: true | plan:', data.plan, '| status:', data.status)
-  return res.json({ isPro: true, plan: data.plan })
+
+  // Fetch renewal date from Stripe
+  let renewalDate = null
+  if (data.stripe_subscription_id) {
+    try {
+      const sub = await stripe.subscriptions.retrieve(data.stripe_subscription_id)
+      renewalDate = new Date(sub.current_period_end * 1000).toISOString()
+    } catch (e) {
+      console.error('  stripe renewal date error:', e.message)
+    }
+  }
+
+  console.log('  subscription found → isPro: true | plan:', data.plan, '| renewalDate:', renewalDate)
+  return res.json({ isPro: true, plan: data.plan, renewalDate })
+})
+
+// ── POST /api/cancel-subscription ────────────────────────
+app.post('/api/cancel-subscription', async (req, res) => {
+  const { user_id } = req.body
+  console.log('[/api/cancel-subscription] user_id:', user_id)
+  if (!user_id) return res.status(400).json({ error: 'user_id required' })
+
+  // Look up active subscription
+  const { data, error } = await supabase
+    .from('subscriptions')
+    .select('id, stripe_subscription_id')
+    .eq('user_id', user_id)
+    .eq('status', 'active')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error) {
+    console.error('  lookup error:', error.message)
+    return res.status(500).json({ error: 'Could not look up subscription.' })
+  }
+  if (!data) {
+    return res.status(404).json({ error: 'No active subscription found.' })
+  }
+
+  // Cancel in Stripe
+  try {
+    await stripe.subscriptions.cancel(data.stripe_subscription_id)
+    console.log('  Stripe subscription canceled:', data.stripe_subscription_id)
+  } catch (e) {
+    console.error('  Stripe cancel error:', e.message)
+    return res.status(500).json({ error: `Stripe error: ${e.message}` })
+  }
+
+  // Update status in DB
+  const { error: updateError } = await supabase
+    .from('subscriptions')
+    .update({ status: 'canceled' })
+    .eq('id', data.id)
+
+  if (updateError) {
+    console.error('  DB update error:', updateError.message)
+    // Stripe already canceled — still return success
+  }
+
+  console.log('  → subscription canceled for user:', user_id)
+  return res.json({ success: true })
 })
 
 // ── DELETE /api/reset-searches ───────────────────────────

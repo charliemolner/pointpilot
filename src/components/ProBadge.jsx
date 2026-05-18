@@ -19,18 +19,18 @@ export default function ProBadge() {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  if (!user || !isPro) return null
+  if (!user) return null
 
   return (
     <div ref={ref} style={{ position: 'fixed', top: '14px', right: '16px', zIndex: 500 }}>
       <button
         onClick={() => setOpen(o => !o)}
         style={{
-          background: 'rgba(26,58,107,0.85)',
-          border: `1px solid ${AMBER}`,
+          background: isPro ? 'rgba(26,58,107,0.85)' : 'rgba(255,255,255,0.9)',
+          border: isPro ? `1px solid ${AMBER}` : `1px solid rgba(26,58,107,0.3)`,
           borderRadius: '50px',
           padding: '5px 12px',
-          color: AMBER,
+          color: isPro ? AMBER : NAVY,
           fontSize: '12px',
           fontWeight: '800',
           cursor: 'pointer',
@@ -38,7 +38,7 @@ export default function ProBadge() {
           backdropFilter: 'blur(8px)',
         }}
       >
-        ✦ Pro
+        {isPro ? '✦ Pro' : '⊙ Account'}
       </button>
 
       {open && (
@@ -53,11 +53,22 @@ export default function ProBadge() {
             <span style={{ color: NAVY, fontWeight: '700', wordBreak: 'break-all' }}>{user.email}</span>
           </p>
           <button
-            onClick={async () => { await logout(); setOpen(false); navigate('/') }}
+            onClick={() => { setOpen(false); navigate('/account') }}
             style={{
               width: '100%', background: '#f3f4f6', border: 'none',
               borderRadius: '8px', padding: '8px', color: NAVY,
               fontSize: '13px', fontWeight: '700', cursor: 'pointer',
+              marginBottom: '6px',
+            }}
+          >
+            Account settings
+          </button>
+          <button
+            onClick={async () => { await logout(); setOpen(false); navigate('/') }}
+            style={{
+              width: '100%', background: '#f3f4f6', border: 'none',
+              borderRadius: '8px', padding: '8px', color: '#6b7280',
+              fontSize: '13px', fontWeight: '600', cursor: 'pointer',
             }}
           >
             Log out
