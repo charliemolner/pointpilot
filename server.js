@@ -235,8 +235,8 @@ app.post('/api/create-account', async (req, res) => {
       mode: 'subscription',
       customer: customer.id,
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `http://localhost:5174/pro-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `http://localhost:5174/`,
+      success_url: `${process.env.FRONTEND_URL || 'https://web-production-6c9849.up.railway.app'}/pro-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL || 'https://web-production-6c9849.up.railway.app'}/`,
       metadata: { user_id: userId },
     })
 
@@ -280,8 +280,8 @@ app.post('/api/create-checkout', async (req, res) => {
       mode: 'subscription',
       customer: customer.id,
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `http://localhost:5174/pro-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `http://localhost:5174/`,
+      success_url: `${process.env.FRONTEND_URL || 'https://web-production-6c9849.up.railway.app'}/pro-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL || 'https://web-production-6c9849.up.railway.app'}/`,
       metadata: { user_id: userId },
     })
 
