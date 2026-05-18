@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* ---------- Hero layout ---------- */
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  min-height: auto;
+  padding: 40px 32px 60px;
+  background: linear-gradient(180deg, #1e4580 0%, #1a3a6b 100%);
+}
+
+@media (min-width: 768px) {
+  .hero-section {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 60px 60px 80px 60px;
+  }
+}
+
+.hero-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .hero-left {
+    width: 50%;
+    padding-left: 60px;
+    padding-right: 40px;
+  }
+}
+
+.hero-right {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 56px;
+}
+
+@media (min-width: 768px) {
+  .hero-right {
+    width: 45%;
+    padding-top: 0;
+  }
+}
+
+/* ---------- Floating animation ---------- */
+@keyframes float {
+  0%, 100% { transform: rotate(6deg) translateY(0px); }
+  50%       { transform: rotate(6deg) translateY(-16px); }
+}
+
+.boarding-pass-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* ---------- Dot grid background texture ---------- */
+.dot-bg {
+  background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ---------- Search page step reveal ---------- */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.step-reveal {
+  animation: fadeSlideIn 0.45s ease forwards;
+  scroll-margin-top: 32px;
+}
+
+/* Remove number input spinners */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] { -moz-appearance: textfield; }
+
+/* Suppress autofill yellow */
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #1a3a6b !important;
+}
