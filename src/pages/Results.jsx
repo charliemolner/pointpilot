@@ -3,8 +3,18 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import UpgradeModal from '../components/UpgradeModal'
 import { useAuth } from '../context/AuthContext'
 
-const NAVY = '#1a3a6b'
-const AMBER = '#f59e0b'
+// ── Design tokens ──────────────────────────────────────────
+const BG        = '#0a0f1e'
+const SURFACE   = '#0f1629'
+const ELEVATED  = '#141d35'
+const TEXT      = '#f1f5f9'
+const MUTED     = '#94a3b8'
+const SUBTLE    = '#475569'
+const ACCENT    = '#6366f1'
+const ACCENT_LT = '#818cf8'
+const BORDER    = 'rgba(255,255,255,0.07)'
+const BORDER_MID = 'rgba(255,255,255,0.10)'
+const GLOW      = 'rgba(99,102,241,0.35)'
 
 // TODO: Replace with real affiliate links from FlexOffers
 const AFFILIATE_LINKS = {
@@ -860,7 +870,6 @@ function getResults(program, fromAirport, toAirport) {
   }
 
   // Domestic US routes — skip international partners entirely and use domestic-optimized picks
-  // (Air France Flying Blue, Aeroplan, Virgin Atlantic etc. are poor fits for domestic)
   if (isDomesticUS(fromCode, toCode)) {
     const domestic = DOMESTIC_FALLBACKS[program] || DOMESTIC_FALLBACKS['Ultimate Rewards']
     return { isDefault: false, isDomestic: true, luxury: domestic.luxury, budget: domestic.budget }
@@ -892,18 +901,16 @@ function getResults(program, fromAirport, toAirport) {
 
 // ── US airport codes for domestic route detection ──────────
 const US_AIRPORTS = new Set([
-  // Major hubs (required)
   'JFK', 'LGA', 'EWR', 'LAX', 'SFO', 'ORD', 'ATL', 'DFW', 'DEN', 'SEA',
   'MIA', 'BOS', 'LAS', 'PHX', 'IAH', 'IAD', 'DCA', 'BWI', 'SAN', 'MSP',
   'DTW', 'PHL', 'CLT', 'SLC', 'PDX', 'HNL', 'ANC',
-  // Additional major US airports
   'MCO', 'TPA', 'FLL', 'RSW', 'PBI', 'JAX', 'SAV', 'CHS', 'RDU', 'ORF',
   'RIC', 'PIT', 'BUF', 'ROC', 'SYR', 'ALB', 'BDL', 'PVD', 'MHT', 'PWM',
   'BTV', 'CLE', 'CMH', 'IND', 'CVG', 'MDW', 'MKE', 'MSN', 'DSM', 'OMA',
   'MCI', 'STL', 'BNA', 'MEM', 'MSY', 'BHM', 'HSV', 'MOB', 'JAN', 'LIT',
   'TUL', 'OKC', 'AUS', 'SAT', 'HOU', 'DAL', 'ELP', 'TUS', 'ABQ', 'OAK',
   'SJC', 'SMF', 'BUR', 'LGB', 'ONT', 'SNA', 'FAT', 'RNO', 'BOI', 'GEG',
-  'ABQ', 'GSP', 'GSO',
+  'GSP', 'GSO',
 ])
 
 function isDomesticUS(fromCode, toCode) {
@@ -911,10 +918,7 @@ function isDomesticUS(fromCode, toCode) {
 }
 
 // ── Domestic US redemption recommendations by card program ──
-// International partners (Flying Blue, Aeroplan, Virgin Atlantic, etc.) are
-// poor fits for domestic US routes — prioritize domestic airline partners instead.
 const DOMESTIC_FALLBACKS = {
-  // Chase UR → United MileagePlus is the natural domestic fit
   'Ultimate Rewards': {
     luxury: {
       airline: 'United First Class',
@@ -947,8 +951,6 @@ const DOMESTIC_FALLBACKS = {
       ],
     },
   },
-
-  // Amex MR → Delta SkyMiles is the natural domestic fit
   'Membership Rewards': {
     luxury: {
       airline: 'Delta First Class',
@@ -981,8 +983,6 @@ const DOMESTIC_FALLBACKS = {
       ],
     },
   },
-
-  // Citi ThankYou → American AAdvantage directly at 1:1
   'ThankYou Points': {
     luxury: {
       airline: 'American Airlines First Class',
@@ -1015,8 +1015,6 @@ const DOMESTIC_FALLBACKS = {
       ],
     },
   },
-
-  // Capital One → Avianca LifeMiles is best for domestic (books United at low rates)
   'Capital One Miles': {
     luxury: {
       airline: 'United First Class via Avianca LifeMiles',
@@ -1049,8 +1047,6 @@ const DOMESTIC_FALLBACKS = {
       ],
     },
   },
-
-  // Bilt → United MileagePlus (instant transfer, best domestic partner)
   'Bilt Points': {
     luxury: {
       airline: 'United First Class',
@@ -1083,8 +1079,6 @@ const DOMESTIC_FALLBACKS = {
       ],
     },
   },
-
-  // Wells Fargo → Avianca LifeMiles (best domestic option in their partner lineup)
   'Wells Fargo Rewards': {
     luxury: {
       airline: 'United First Class via Avianca LifeMiles',
@@ -1133,7 +1127,7 @@ function detectHaul(from, to) {
 // COMPONENTS
 // ─────────────────────────────────────────────────────────
 
-function AmberButton({ children, href }) {
+function ApplyButton({ children, href }) {
   return (
     <a
       href={href}
@@ -1141,14 +1135,24 @@ function AmberButton({ children, href }) {
       rel="noopener noreferrer"
       style={{
         display: 'inline-block',
-        background: AMBER,
-        color: '#1c1917',
-        fontWeight: '700',
-        fontSize: '14px',
-        padding: '12px 28px',
-        borderRadius: '50px',
+        background: ACCENT,
+        color: '#fff',
+        fontWeight: '500',
+        fontSize: '13px',
+        padding: '9px 20px',
+        borderRadius: '999px',
         textDecoration: 'none',
-        boxShadow: '0 4px 20px rgba(245,158,11,0.35)',
+        letterSpacing: '-0.1px',
+        boxShadow: `0 0 0 1px rgba(99,102,241,0.4), 0 4px 16px ${GLOW}`,
+        transition: 'background 0.15s, box-shadow 0.15s, transform 0.12s',
+      }}
+      onMouseEnter={e => {
+        e.currentTarget.style.background = '#4f46e5'
+        e.currentTarget.style.transform = 'translateY(-1px)'
+      }}
+      onMouseLeave={e => {
+        e.currentTarget.style.background = ACCENT
+        e.currentTarget.style.transform = 'translateY(0)'
       }}
     >
       {children}
@@ -1157,91 +1161,174 @@ function AmberButton({ children, href }) {
 }
 
 function ResultCard({ badge, isLuxury, result, userPoints }) {
-  const userPts  = parseInt((userPoints || '0').replace(/\D/g, ''), 10) || 0
-  const hasEnough = userPts >= result.points
-  const shortfall = result.points - userPts
-  const badgeBg   = isLuxury ? NAVY : '#374151'
-  const accentColor = isLuxury ? NAVY : '#374151'
+  const userPts    = parseInt((userPoints || '0').replace(/\D/g, ''), 10) || 0
+  const hasEnough  = userPts >= result.points
+  const shortfall  = result.points - userPts
 
   return (
     <div style={{
-      background: 'white',
-      borderRadius: '20px',
-      padding: '32px',
-      boxShadow: isLuxury ? '0 8px 40px rgba(26,58,107,0.18)' : '0 4px 24px rgba(0,0,0,0.10)',
-      border: isLuxury ? `2px solid ${NAVY}` : '1px solid #e5e7eb',
+      background: SURFACE,
+      borderRadius: '16px',
+      border: isLuxury
+        ? `1px solid rgba(99,102,241,0.3)`
+        : `1px solid ${BORDER_MID}`,
+      overflow: 'hidden',
+      boxShadow: isLuxury ? `0 0 0 1px rgba(99,102,241,0.1), 0 8px 32px rgba(0,0,0,0.3)` : 'none',
     }}>
-      {/* Badge + points check */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '8px' }}>
-        <span style={{ background: badgeBg, color: 'white', fontSize: '11px', fontWeight: '800', letterSpacing: '0.14em', padding: '5px 14px', borderRadius: '50px', textTransform: 'uppercase' }}>
+      {/* Card header strip */}
+      <div style={{
+        padding: '20px 24px',
+        borderBottom: `1px solid ${BORDER}`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '10px',
+        background: isLuxury ? 'rgba(99,102,241,0.06)' : ELEVATED,
+      }}>
+        <span style={{
+          fontSize: '11px', fontWeight: '600',
+          letterSpacing: '0.08em', textTransform: 'uppercase',
+          color: isLuxury ? ACCENT_LT : MUTED,
+          border: `1px solid ${isLuxury ? 'rgba(129,140,248,0.25)' : BORDER_MID}`,
+          borderRadius: '999px',
+          padding: '3px 10px',
+          background: isLuxury ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.04)',
+        }}>
           {badge}
         </span>
         {hasEnough
-          ? <span style={{ color: '#16a34a', fontSize: '13px', fontWeight: '700' }}>✓ You have enough points</span>
-          : <span style={{ color: '#dc2626', fontSize: '13px', fontWeight: '600' }}>{shortfall.toLocaleString()} pts short</span>
+          ? <span style={{ color: '#4ade80', fontSize: '12px', fontWeight: '500' }}>✓ You have enough</span>
+          : <span style={{ color: '#f87171', fontSize: '12px', fontWeight: '500' }}>{shortfall.toLocaleString()} pts short</span>
         }
       </div>
 
-      {/* Transfer partner */}
-      <p style={{ color: '#6b7280', fontSize: '12px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '6px' }}>
-        {result.partner}
-      </p>
-
-      {/* Airline */}
-      <h3 style={{ color: accentColor, fontSize: '22px', fontWeight: '800', letterSpacing: '-0.5px', marginBottom: '16px', lineHeight: 1.2 }}>
-        {result.airline}
-      </h3>
-
-      {/* Metrics */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '20px' }}>
-        {[
-          { label: 'Points required', value: result.points.toLocaleString() },
-          { label: 'Est. cash value',  value: `$${result.cashValue.toLocaleString()}` },
-          { label: 'Value per point',  value: `${result.cpp}¢` },
-        ].map(m => (
-          <div key={m.label} style={{ background: '#f9fafb', borderRadius: '10px', padding: '12px' }}>
-            <div style={{ color: '#9ca3af', fontSize: '10px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>{m.label}</div>
-            <div style={{ color: accentColor, fontSize: '16px', fontWeight: '800' }}>{m.value}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Warning box */}
-      {result.warning && (
-        <div style={{ background: '#fffbeb', border: '1px solid #fcd34d', borderRadius: '10px', padding: '12px 16px', marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-          <span style={{ fontSize: '14px', flexShrink: 0 }}>⚠️</span>
-          <p style={{ color: '#92400e', fontSize: '13px', lineHeight: 1.55, margin: 0 }}>{result.warning}</p>
-        </div>
-      )}
-
-      {/* Info note */}
-      <p style={{ color: '#4b5563', fontSize: '14px', lineHeight: 1.65, marginBottom: '24px', fontStyle: 'italic' }}>
-        {result.note}
-      </p>
-
-      {/* Action plan */}
-      <div style={{ borderTop: '1px solid #f3f4f6', paddingTop: '20px', marginBottom: '20px' }}>
-        <p style={{ color: accentColor, fontSize: '12px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '14px' }}>
-          How to book this
+      {/* Card body */}
+      <div style={{ padding: '24px' }}>
+        {/* Transfer partner */}
+        <p style={{
+          fontSize: '11px', fontWeight: '500',
+          color: SUBTLE, letterSpacing: '0.06em',
+          textTransform: 'uppercase', marginBottom: '6px',
+        }}>
+          {result.partner}
         </p>
-        <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-          {result.steps.map((step, i) => (
-            <li key={i} style={{ display: 'flex', gap: '12px', marginBottom: '10px', alignItems: 'flex-start' }}>
-              <span style={{ flexShrink: 0, width: '22px', height: '22px', borderRadius: '50%', background: badgeBg, color: 'white', fontSize: '11px', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '1px' }}>
-                {i + 1}
-              </span>
-              <span style={{ color: '#374151', fontSize: '14px', lineHeight: 1.55 }}>{step}</span>
-            </li>
+
+        {/* Airline */}
+        <h3 style={{
+          color: TEXT, fontSize: '22px',
+          fontWeight: '700', letterSpacing: '-0.4px',
+          lineHeight: 1.15, marginBottom: '20px',
+        }}>
+          {result.airline}
+        </h3>
+
+        {/* Metrics row */}
+        <div style={{
+          display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)',
+          gap: '10px', marginBottom: '20px',
+        }}>
+          {[
+            { label: 'Points required', value: result.points.toLocaleString() },
+            { label: 'Est. cash value',  value: `$${result.cashValue.toLocaleString()}` },
+            { label: 'Value per point',  value: `${result.cpp}¢` },
+          ].map(m => (
+            <div key={m.label} style={{
+              background: ELEVATED,
+              border: `1px solid ${BORDER}`,
+              borderRadius: '10px', padding: '12px',
+            }}>
+              <div style={{
+                color: SUBTLE, fontSize: '10px',
+                fontWeight: '600', textTransform: 'uppercase',
+                letterSpacing: '0.08em', marginBottom: '5px',
+              }}>{m.label}</div>
+              <div style={{
+                color: isLuxury ? ACCENT_LT : TEXT,
+                fontSize: '16px', fontWeight: '700',
+                letterSpacing: '-0.3px',
+              }}>{m.value}</div>
+            </div>
           ))}
-        </ol>
-      </div>
+        </div>
 
-      {/* Irreversibility warning */}
-      <div style={{ background: '#f0f4ff', borderRadius: '10px', padding: '12px 16px', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-        <span style={{ fontSize: '13px', flexShrink: 0 }}>ℹ️</span>
-        <p style={{ color: '#1e40af', fontSize: '12px', lineHeight: 1.55, margin: 0, fontWeight: '500' }}>
-          Always verify award availability before transferring points — transfers are typically irreversible.
+        {/* Warning box */}
+        {result.warning && (
+          <div style={{
+            background: 'rgba(251,191,36,0.07)',
+            border: '1px solid rgba(251,191,36,0.2)',
+            borderRadius: '10px', padding: '12px 16px',
+            marginBottom: '18px',
+            display: 'flex', gap: '10px', alignItems: 'flex-start',
+          }}>
+            <span style={{ color: '#fbbf24', fontSize: '13px', flexShrink: 0 }}>⚠</span>
+            <p style={{ color: '#fcd34d', fontSize: '13px', lineHeight: 1.55, margin: 0, fontWeight: '400' }}>
+              {result.warning}
+            </p>
+          </div>
+        )}
+
+        {/* Note */}
+        <p style={{
+          color: MUTED, fontSize: '14px',
+          lineHeight: 1.65, marginBottom: '24px',
+          fontStyle: 'italic',
+        }}>
+          {result.note}
         </p>
+
+        {/* How to book */}
+        <div style={{
+          borderTop: `1px solid ${BORDER}`,
+          paddingTop: '20px', marginBottom: '20px',
+        }}>
+          <p style={{
+            color: SUBTLE, fontSize: '11px',
+            fontWeight: '600', textTransform: 'uppercase',
+            letterSpacing: '0.08em', marginBottom: '16px',
+          }}>
+            How to book this
+          </p>
+          <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {result.steps.map((step, i) => (
+              <li key={i} style={{
+                display: 'flex', gap: '12px',
+                marginBottom: '10px', alignItems: 'flex-start',
+              }}>
+                <span style={{
+                  flexShrink: 0,
+                  width: '20px', height: '20px',
+                  borderRadius: '50%',
+                  background: isLuxury ? 'rgba(99,102,241,0.15)' : ELEVATED,
+                  border: `1px solid ${isLuxury ? 'rgba(99,102,241,0.3)' : BORDER_MID}`,
+                  color: isLuxury ? ACCENT_LT : MUTED,
+                  fontSize: '10px', fontWeight: '700',
+                  display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', marginTop: '2px',
+                }}>
+                  {i + 1}
+                </span>
+                <span style={{ color: MUTED, fontSize: '14px', lineHeight: 1.55 }}>{step}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        {/* Transfer irreversibility notice */}
+        <div style={{
+          background: 'rgba(99,102,241,0.06)',
+          border: `1px solid rgba(99,102,241,0.15)`,
+          borderRadius: '10px', padding: '12px 16px',
+          display: 'flex', gap: '10px', alignItems: 'flex-start',
+        }}>
+          <span style={{ color: ACCENT_LT, fontSize: '13px', flexShrink: 0 }}>ℹ</span>
+          <p style={{
+            color: MUTED, fontSize: '12px',
+            lineHeight: 1.55, margin: 0, fontWeight: '400',
+          }}>
+            Always verify award availability before transferring points — transfers are typically irreversible.
+          </p>
+        </div>
       </div>
     </div>
   )
@@ -1282,12 +1369,30 @@ export default function Results() {
 
   if (!card) {
     return (
-      <div style={{ backgroundColor: NAVY, minHeight: '100vh', color: 'white' }} className="dot-bg flex flex-col items-center justify-center p-6">
-        <div style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '20px', padding: '48px 40px', maxWidth: '420px', width: '100%', textAlign: 'center' }}>
-          <div style={{ fontSize: '40px', marginBottom: '16px' }}>✈️</div>
-          <h1 style={{ color: 'white', fontSize: '20px', fontWeight: '800', marginBottom: '10px' }}>No search found</h1>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', marginBottom: '28px', lineHeight: 1.6 }}>Start a search to see your personalized redemption options.</p>
-          <button onClick={() => navigate('/search')} style={{ background: 'white', color: NAVY, fontWeight: '700', padding: '12px 28px', borderRadius: '50px', border: 'none', cursor: 'pointer', fontSize: '14px' }}>
+      <div style={{ background: BG, minHeight: '100vh', color: TEXT, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+        <div style={{
+          background: SURFACE,
+          border: `1px solid ${BORDER_MID}`,
+          borderRadius: '16px', padding: '48px 40px',
+          maxWidth: '400px', width: '100%', textAlign: 'center',
+        }}>
+          <div style={{ fontSize: '36px', marginBottom: '16px' }}>✈</div>
+          <h1 style={{ color: TEXT, fontSize: '18px', fontWeight: '700', marginBottom: '10px', letterSpacing: '-0.3px' }}>
+            No search found
+          </h1>
+          <p style={{ color: MUTED, fontSize: '14px', marginBottom: '28px', lineHeight: 1.6 }}>
+            Start a search to see your personalized redemption options.
+          </p>
+          <button
+            onClick={() => navigate('/search')}
+            style={{
+              background: ACCENT, color: '#fff',
+              fontWeight: '500', padding: '11px 24px',
+              borderRadius: '999px', border: 'none',
+              cursor: 'pointer', fontSize: '14px',
+              boxShadow: `0 0 0 1px rgba(99,102,241,0.4), 0 4px 16px ${GLOW}`,
+            }}
+          >
             ← Start a search
           </button>
         </div>
@@ -1306,134 +1411,281 @@ export default function Results() {
   const hasEnoughForLuxury = userPts >= luxury.points
 
   return (
-    <div style={{ backgroundColor: NAVY, minHeight: '100vh', color: 'white' }} className="dot-bg">
+    <div style={{ background: BG, minHeight: '100vh', color: TEXT }}>
 
-      {/* Navbar */}
-      <nav style={{ height: '64px', display: 'flex', alignItems: 'center', padding: '0 40px', flexShrink: 0 }}>
-        <span onClick={() => navigate('/')} style={{ color: 'white', fontSize: '18px', fontWeight: '700', letterSpacing: '-0.02em', cursor: 'pointer', userSelect: 'none' }}>
-          PointPilot™
-        </span>
+      {/* ── Navbar ── */}
+      <nav style={{
+        position: 'sticky', top: 0, zIndex: 100,
+        height: '52px',
+        background: 'rgba(10,15,30,0.75)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        borderBottom: `1px solid ${BORDER}`,
+        display: 'flex', alignItems: 'center',
+      }}>
+        <div style={{
+          maxWidth: '740px', margin: '0 auto', padding: '0 24px',
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }}>
+          <span
+            onClick={() => navigate('/')}
+            style={{
+              fontSize: '16px', fontWeight: '600',
+              letterSpacing: '-0.3px', color: TEXT,
+              cursor: 'pointer', userSelect: 'none',
+            }}
+          >
+            PointPilot
+          </span>
+          <button
+            onClick={handleNewSearch}
+            style={{
+              background: 'none', border: 'none',
+              color: ACCENT_LT, fontSize: '13px',
+              fontWeight: '400', cursor: 'pointer',
+              letterSpacing: '-0.1px', padding: '4px 0',
+            }}
+          >
+            ← New search
+          </button>
+        </div>
       </nav>
 
       <main style={{ maxWidth: '740px', margin: '0 auto', padding: '0 24px 80px' }}>
 
-        {/* Route header */}
-        <div style={{ textAlign: 'center', paddingTop: '40px', paddingBottom: '48px' }}>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '12px' }}>
+        {/* ── Route header ── */}
+        <div style={{
+          textAlign: 'center',
+          paddingTop: '48px', paddingBottom: '40px',
+          position: 'relative',
+        }}>
+          {/* Subtle glow */}
+          <div style={{
+            position: 'absolute', inset: 0, pointerEvents: 'none',
+            background: 'radial-gradient(ellipse 60% 70% at 50% 0%, rgba(99,102,241,0.10) 0%, transparent 70%)',
+          }} />
+
+          <p style={{
+            fontSize: '11px', fontWeight: '600',
+            letterSpacing: '0.1em', textTransform: 'uppercase',
+            color: SUBTLE, marginBottom: '14px',
+          }}>
             {card.name} · {program} · {haulLabel}
           </p>
-          <h1 style={{ color: 'white', fontSize: 'clamp(30px, 5vw, 46px)', fontWeight: '800', letterSpacing: '-1.5px', lineHeight: 1.1, marginBottom: '14px' }}>
+
+          <h1 style={{
+            fontSize: 'clamp(36px, 7vw, 64px)',
+            fontWeight: '700',
+            letterSpacing: '-0.04em',
+            lineHeight: 1.0,
+            marginBottom: '14px',
+            background: `linear-gradient(180deg, ${TEXT} 30%, ${MUTED} 100%)`,
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}>
             {from?.code ?? from} → {to?.code ?? to}
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '14px', marginBottom: '8px' }}>
+
+          <p style={{ color: SUBTLE, fontSize: '14px', marginBottom: '8px', letterSpacing: '-0.1px' }}>
             {from?.city} to {to?.city}
           </p>
-          <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '12px', lineHeight: 1.6, marginBottom: '12px' }}>
+
+          <p style={{ color: SUBTLE, fontSize: '12px', lineHeight: 1.6, marginBottom: '16px', maxWidth: '480px', margin: '0 auto 16px' }}>
             Results assume availability from a major hub. If your departure airport has limited international service, consider departing from a nearby gateway airport.
           </p>
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '17px', lineHeight: 1.6 }}>
-            Here's your best redemption with <span style={{ color: 'white', fontWeight: '700' }}>{points} {pointsLabel(program)}</span>
+
+          <p style={{ color: MUTED, fontSize: '15px', lineHeight: 1.6 }}>
+            Best redemption with{' '}
+            <span style={{ color: TEXT, fontWeight: '600' }}>{points} {pointsLabel(program)}</span>
           </p>
         </div>
 
-        {/* Free tier disclaimer */}
-        <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.35)', fontSize: '12px', lineHeight: 1.6, marginBottom: '32px', marginTop: '-24px' }}>
+        {/* Free tier note */}
+        <p style={{
+          textAlign: 'center', color: SUBTLE,
+          fontSize: '12px', lineHeight: 1.6,
+          marginBottom: '28px',
+        }}>
           Results show average award pricing across dates. Sign up for full access to search specific dates and see live availability.
         </p>
 
-        {/* Route notice */}
+        {/* Route notice banners */}
         {isDomestic && (
-          <div style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '14px', padding: '16px 20px', marginBottom: '28px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-            <span style={{ fontSize: '16px', flexShrink: 0 }}>🇺🇸</span>
-            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
+          <div style={{
+            background: ELEVATED,
+            border: `1px solid ${BORDER_MID}`,
+            borderRadius: '12px', padding: '14px 18px',
+            marginBottom: '24px',
+            display: 'flex', gap: '12px', alignItems: 'flex-start',
+          }}>
+            <span style={{ fontSize: '15px', flexShrink: 0 }}>🇺🇸</span>
+            <p style={{ color: MUTED, fontSize: '13px', lineHeight: 1.6, margin: 0 }}>
               Domestic route detected. We've prioritized the best domestic airline partners for your card — international programs like Air France Flying Blue or Aeroplan are excluded since they offer poor value on US domestic awards.
             </p>
           </div>
         )}
         {!isDomestic && isDefault && (
-          <div style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '14px', padding: '16px 20px', marginBottom: '28px', display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-            <span style={{ fontSize: '16px', flexShrink: 0 }}>🗺️</span>
-            <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '14px', lineHeight: 1.6, margin: 0 }}>
+          <div style={{
+            background: ELEVATED,
+            border: `1px solid ${BORDER_MID}`,
+            borderRadius: '12px', padding: '14px 18px',
+            marginBottom: '24px',
+            display: 'flex', gap: '12px', alignItems: 'flex-start',
+          }}>
+            <span style={{ fontSize: '15px', flexShrink: 0 }}>🗺️</span>
+            <p style={{ color: MUTED, fontSize: '13px', lineHeight: 1.6, margin: 0 }}>
               We're building out more routes every week. Here's the best general redemption strategy for your card — availability varies by route and dates.
             </p>
           </div>
         )}
 
-        {/* Result cards */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '56px' }}>
+        {/* ── Result cards ── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '56px' }}>
           <ResultCard badge="Luxury Option" isLuxury={true}  result={luxury} userPoints={points} />
           <ResultCard badge="Budget Option" isLuxury={false} result={budget} userPoints={points} />
         </div>
 
-        {/* Affiliate card grid — exclude the card the user already has */}
+        {/* ── Affiliate card grid ── */}
         {(() => {
           const visibleCards = PROMO_CARDS.filter(rec => rec.name !== card?.name)
           return (
-        <div style={{ marginBottom: '56px' }}>
-          <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-            <h2 style={{ color: 'white', fontSize: '22px', fontWeight: '800', letterSpacing: '-0.4px', marginBottom: '10px', lineHeight: 1.3 }}>
-              {hasEnoughForLuxury
-                ? "Don't have enough points yet? These cards can get you there — fast."
-                : `You're ${luxuryShortfall.toLocaleString()} points short of the luxury option. These cards can close the gap:`
-              }
-            </h2>
-            <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: '14px', lineHeight: 1.6 }}>
-              Each card below comes with a sign-up bonus that could cover this entire trip on its own.
-            </p>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            {visibleCards.map(rec => (
-              <div key={rec.name} style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '16px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div style={{ flex: 1 }}>
-                  <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '10px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: '4px' }}>
-                    {rec.issuer}
-                  </p>
-                  <h3 style={{ color: 'white', fontSize: '14px', fontWeight: '800', marginBottom: '6px', lineHeight: 1.3 }}>
-                    {rec.name}
-                  </h3>
-                  <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '11px', lineHeight: 1.45, marginBottom: '8px' }}>
-                    {CARD_DETAILS[rec.name]?.tagline}
-                  </p>
-                  {CARD_DETAILS[rec.name]?.bonus && (
-                    <div style={{ background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '8px', padding: '9px 10px', marginBottom: '8px' }}>
-                      <p style={{ color: AMBER, fontSize: '11px', fontWeight: '700', lineHeight: 1.5, margin: 0 }}>
-                        🎁 {CARD_DETAILS[rec.name].bonus}
-                      </p>
-                    </div>
-                  )}
-                </div>
-                {/* TODO: Replace with real affiliate link from FlexOffers */}
-                <AmberButton href={AFFILIATE_LINKS[rec.name]}>Apply Now →</AmberButton>
+            <div style={{ marginBottom: '56px' }}>
+              <div style={{ marginBottom: '24px' }}>
+                <h2 style={{
+                  color: TEXT, fontSize: '20px',
+                  fontWeight: '700', letterSpacing: '-0.35px',
+                  marginBottom: '8px', lineHeight: 1.3,
+                }}>
+                  {hasEnoughForLuxury
+                    ? 'Earn more points for your next trip'
+                    : `${luxuryShortfall.toLocaleString()} points short of the luxury option`
+                  }
+                </h2>
+                <p style={{ color: MUTED, fontSize: '14px', lineHeight: 1.6 }}>
+                  Each card comes with a welcome bonus that could cover this entire trip.
+                </p>
               </div>
-            ))}
-          </div>
-        </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+                {visibleCards.map(rec => (
+                  <div key={rec.name} style={{
+                    background: SURFACE,
+                    border: `1px solid ${BORDER_MID}`,
+                    borderRadius: '14px', padding: '18px',
+                    display: 'flex', flexDirection: 'column', gap: '12px',
+                  }}>
+                    <div style={{ flex: 1 }}>
+                      <p style={{
+                        color: SUBTLE, fontSize: '10px',
+                        fontWeight: '600', textTransform: 'uppercase',
+                        letterSpacing: '0.1em', marginBottom: '4px',
+                      }}>
+                        {rec.issuer}
+                      </p>
+                      <h3 style={{
+                        color: TEXT, fontSize: '14px',
+                        fontWeight: '600', marginBottom: '5px',
+                        lineHeight: 1.3, letterSpacing: '-0.2px',
+                      }}>
+                        {rec.name}
+                      </h3>
+                      <p style={{ color: SUBTLE, fontSize: '11px', lineHeight: 1.5, marginBottom: '10px' }}>
+                        {CARD_DETAILS[rec.name]?.tagline}
+                      </p>
+                      {CARD_DETAILS[rec.name]?.bonus && (
+                        <div style={{
+                          background: 'rgba(255,255,255,0.04)',
+                          border: `1px solid ${BORDER_MID}`,
+                          borderRadius: '8px', padding: '9px 12px',
+                          marginBottom: '4px',
+                        }}>
+                          <p style={{
+                            color: MUTED, fontSize: '11px',
+                            fontWeight: '400', lineHeight: 1.5, margin: 0,
+                          }}>
+                            {CARD_DETAILS[rec.name].bonus}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    {/* TODO: Replace with real affiliate link from FlexOffers */}
+                    <ApplyButton href={AFFILIATE_LINKS[rec.name]}>Apply now →</ApplyButton>
+                  </div>
+                ))}
+              </div>
+            </div>
           )
         })()}
 
-        {/* Get Unlimited Access CTA — hidden for Pro users */}
+        {/* ── Upgrade CTA — hidden for Pro users ── */}
         {!isPro && (
-          <div style={{ textAlign: 'center', marginBottom: '32px', padding: '36px 24px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '20px' }}>
-            <p style={{ color: 'white', fontSize: '18px', fontWeight: '700', lineHeight: 1.4, marginBottom: '20px', letterSpacing: '-0.3px' }}>
+          <div style={{
+            textAlign: 'center', marginBottom: '32px',
+            padding: '36px 24px',
+            background: SURFACE,
+            border: `1px solid ${BORDER_MID}`,
+            borderRadius: '16px',
+          }}>
+            <p style={{
+              color: TEXT, fontSize: '17px',
+              fontWeight: '600', lineHeight: 1.45,
+              marginBottom: '20px', letterSpacing: '-0.3px',
+              maxWidth: '400px', margin: '0 auto 20px',
+            }}>
               Unlock unlimited searches, live award availability, and transfer bonus alerts.
             </p>
             <button
               onClick={() => setShowModal(true)}
-              style={{ background: 'white', color: NAVY, fontWeight: '800', fontSize: '16px', padding: '14px 36px', borderRadius: '50px', border: 'none', cursor: 'pointer', boxShadow: '0 4px 20px rgba(0,0,0,0.18)', letterSpacing: '-0.2px' }}
-              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(0,0,0,0.22)' }}
-              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.18)' }}
+              style={{
+                background: ACCENT, color: '#fff',
+                fontWeight: '500', fontSize: '15px',
+                padding: '13px 32px', borderRadius: '999px',
+                border: 'none', cursor: 'pointer',
+                letterSpacing: '-0.2px',
+                boxShadow: `0 0 0 1px rgba(99,102,241,0.4), 0 4px 24px ${GLOW}`,
+                transition: 'background 0.15s, transform 0.12s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#4f46e5'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = ACCENT; e.currentTarget.style.transform = 'translateY(0)' }}
             >
               Get Unlimited Access
             </button>
           </div>
         )}
 
-        {/* Navigation */}
-        <div style={{ textAlign: 'center', display: 'flex', gap: '12px', justifyContent: 'center' }}>
-          <button onClick={handleNewSearch} style={{ background: 'white', color: NAVY, fontWeight: '700', padding: '12px 28px', borderRadius: '50px', border: 'none', cursor: 'pointer', fontSize: '14px' }}>
+        {/* ── Navigation ── */}
+        <div style={{
+          textAlign: 'center',
+          display: 'flex', gap: '10px', justifyContent: 'center',
+        }}>
+          <button
+            onClick={handleNewSearch}
+            style={{
+              background: ACCENT, color: '#fff',
+              fontWeight: '500', padding: '11px 24px',
+              borderRadius: '999px', border: 'none',
+              cursor: 'pointer', fontSize: '14px',
+              letterSpacing: '-0.2px',
+              boxShadow: `0 0 0 1px rgba(99,102,241,0.4), 0 4px 16px ${GLOW}`,
+            }}
+          >
             ← New search
           </button>
-          <button onClick={() => navigate('/')} style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', fontWeight: '600', padding: '12px 28px', borderRadius: '50px', border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer', fontSize: '14px' }}>
+          <button
+            onClick={() => navigate('/')}
+            style={{
+              background: 'none', color: MUTED,
+              fontWeight: '400', padding: '11px 20px',
+              borderRadius: '999px',
+              border: `1px solid ${BORDER_MID}`,
+              cursor: 'pointer', fontSize: '14px',
+              letterSpacing: '-0.2px',
+              transition: 'color 0.15s, border-color 0.15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.color = TEXT; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)' }}
+            onMouseLeave={e => { e.currentTarget.style.color = MUTED; e.currentTarget.style.borderColor = BORDER_MID }}
+          >
             Home
           </button>
         </div>
