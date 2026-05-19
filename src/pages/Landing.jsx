@@ -211,9 +211,6 @@ export default function Landing() {
               <PrimaryBtn onClick={() => navigate('/search')}>
                 Get started →
               </PrimaryBtn>
-              <GhostBtn onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>
-                How it works
-              </GhostBtn>
             </div>
           </div>
         </Section>
