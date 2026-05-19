@@ -200,7 +200,7 @@ function MiniCalculator({ onSearch }) {
     : card.includes('Capital') ? 1.85
     : card.includes('Citi') ? 1.95
     : card.includes('Bilt') ? 2.05
-    : 2.05
+    : 2.0
   const value = Math.round((points * cpp) / 100)
 
   return (
@@ -229,10 +229,10 @@ function MiniCalculator({ onSearch }) {
             fontSize: 14, appearance: 'none', fontFamily: 'inherit', outline: 'none',
           }}
         >
-          <option>Chase Sapphire</option>
-          <option>Amex Platinum</option>
+          <option>Chase Sapphire Preferred</option>
+          <option>Amex Gold</option>
           <option>Capital One Venture X</option>
-          <option>Citi Premier</option>
+          <option>Citi Strata Premier</option>
           <option>Bilt Mastercard</option>
         </select>
       </label>
@@ -362,7 +362,7 @@ function Hero({ navigate, user, isPro }) {
 
           <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
             <BtnPrimary onClick={() => navigate('/search')}>Find my redemption →</BtnPrimary>
-            <BtnGhost onClick={() => navigate('/search')}>Browse sweet spots</BtnGhost>
+            <BtnPrimary onClick={() => navigate('/search')} style={{ background: 'rgba(99,102,241,0.15)', boxShadow: 'none', border: `1px solid rgba(99,102,241,0.35)` }}>Get started</BtnPrimary>
           </div>
 
           {/* Stats strip */}
@@ -488,8 +488,8 @@ function RedemptionsSection() {
             Real redemptions, <span style={{ fontStyle: 'italic', color: V300 }}>real math</span>.
           </h2>
         </div>
-        <span style={{ ...MONO, fontSize: 12, color: FG_SOFT, textTransform: 'uppercase', letterSpacing: '0.1em', cursor: 'default' }}>
-          See all 312 →
+        <span style={{ ...MONO, fontSize: 12, color: FG_MUTE, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+          Sample redemptions
         </span>
       </div>
 
@@ -653,26 +653,24 @@ function PricingSection({ navigate }) {
         gap: 24, maxWidth: 920, margin: '0 auto',
       }}>
         <PricingCard
-          tier="Compass" price="Free" tagline="The basics, on the house."
+          tier="Free" price="Free" tagline="The basics, on the house."
           features={[
-            '5 redemption searches / month',
-            'All 24 transfer partners',
+            '2 searches / day',
+            'All transfer partners',
             'Standard award chart data',
             'Email recap, weekly',
           ]}
           cta="Start free" primary={false} onCta={() => navigate('/search')}
         />
         <PricingCard
-          tier="Sextant" price="$9" per="/ month"
+          tier="Pro" price="$10" per="/ month"
           tagline="Power tools for serious mileage runners."
           featured primary
           features={[
-            'Unlimited searches & saved trips',
-            'Sweet-spot & transfer bonus alerts',
-            'Phantom availability monitoring',
-            'Off-peak & shoulder calendar',
-            'Multi-card pooled valuations',
-            'Concierge import (CSV / OCR)',
+            'Unlimited searches',
+            'All transfer partners',
+            'Priority redemption results',
+            'Email support',
           ]}
           cta="Get Pro →" onCta={() => navigate('/signup')}
         />
