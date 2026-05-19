@@ -282,7 +282,7 @@ export default function TermsOfService() {
             If you have questions, concerns, or feedback about these Terms of Service, please reach out:
           </P>
           <Ul>
-            <Li>Email: <a href="mailto:hello@pointpilot.dev" style={{ color: ACCENT_LT, textDecoration: 'none' }}>hello@pointpilot.dev</a></Li>
+            <Li>Email: <a href="mailto:charliemolner@gmail.com" style={{ color: ACCENT_LT, textDecoration: 'none' }}>charliemolner@gmail.com</a></Li>
             <Li>Website: <a href="https://pointpilot.dev" style={{ color: ACCENT_LT, textDecoration: 'none' }}>pointpilot.dev</a></Li>
           </Ul>
           <P>
