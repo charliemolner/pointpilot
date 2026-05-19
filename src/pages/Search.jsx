@@ -3,22 +3,92 @@ import { useNavigate } from 'react-router-dom'
 import UpgradeModal from '../components/UpgradeModal'
 import { useAuth } from '../context/AuthContext'
 
-// ── Design tokens (matches Landing dark theme) ─────────────
-const BG        = '#0a0f1e'
-const SURFACE   = '#0f1629'
-const ELEVATED  = '#141d35'
-const TEXT      = '#f1f5f9'
-const MUTED     = '#94a3b8'
-const SUBTLE    = '#475569'
-const ACCENT    = '#6366f1'
-const ACCENT_LT = '#818cf8'
-const BORDER    = 'rgba(255,255,255,0.07)'
-const BORDER_MID= 'rgba(255,255,255,0.11)'
-const AMBER     = '#f59e0b'   // kept for affiliate CTA buttons only
+// ── Design tokens ────────────────────────────────────────────
+const NAV    = '#0a0f1e'
+const LINE   = 'rgba(255,255,255,0.08)'
+const LINE_S = 'rgba(255,255,255,0.14)'
+const V500   = '#6366f1'
+const V400   = '#818cf8'
+const V300   = '#a5b4fc'
+const FG     = '#f4f4fb'
+const FG_S   = 'rgba(244,244,251,0.72)'
+const FG_M   = 'rgba(244,244,251,0.46)'
+const FG_F   = 'rgba(244,244,251,0.28)'
+const ELEVATED = '#141d35'
+const SURFACE  = '#0f1629'
+const BORDER   = 'rgba(255,255,255,0.07)'
+const BORDER_M = 'rgba(255,255,255,0.11)'
+const AMBER    = '#f59e0b'
 
-// ─────────────────────────────────────────────────────────
+// ── Typography helpers ───────────────────────────────────────
+const SERIF = { fontFamily: "'Instrument Serif', 'Cormorant Garamond', Georgia, serif", fontWeight: 400 }
+const MONO  = { fontFamily: "'JetBrains Mono', ui-monospace, monospace", letterSpacing: 0 }
+
+// ── Foil card art definitions ────────────────────────────────
+const CARD_ART = {
+  gold: {
+    background: 'linear-gradient(135deg, #4a3a1f 0%, #c9a253 40%, #f3d98a 55%, #a47829 75%, #2a1d0a 100%)',
+    overlay:    'repeating-linear-gradient(90deg, rgba(255,255,255,0.06) 0 1px, transparent 1px 3px)',
+  },
+  platinum: {
+    background: 'linear-gradient(135deg, #2a2e36 0%, #8a92a0 35%, #d8dde5 50%, #6b7280 70%, #1a1d22 100%)',
+    overlay:    'repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0 2px, transparent 2px 6px)',
+  },
+  'sapphire-preferred': {
+    background: 'linear-gradient(140deg, #0a1a3f 0%, #1b3a8a 45%, #4f6bd8 60%, #0c1530 100%)',
+    overlay:    'radial-gradient(ellipse at 70% 20%, rgba(255,255,255,0.18), transparent 55%)',
+  },
+  'sapphire-reserve': {
+    background: 'linear-gradient(135deg, #050a1a 0%, #0e1c3d 40%, #2a3a6a 55%, #07112a 100%)',
+    overlay:    'linear-gradient(120deg, transparent 30%, rgba(180,200,255,0.22) 50%, transparent 65%)',
+  },
+  venture: {
+    background: 'linear-gradient(135deg, #0a1f1a 0%, #1f4a3a 45%, #3e7a5e 60%, #0c1d18 100%)',
+    overlay:    'repeating-radial-gradient(circle at 30% 70%, rgba(255,255,255,0.06) 0 8px, transparent 8px 16px)',
+  },
+  strata: {
+    background: 'linear-gradient(140deg, #08122a 0%, #1a2960 45%, #3a4ea0 60%, #0a1432 100%)',
+    overlay:    'radial-gradient(circle at 90% 110%, rgba(180,150,255,0.28), transparent 50%)',
+  },
+  bilt: {
+    background: 'linear-gradient(135deg, #1a1008 0%, #3d2510 45%, #6b3d18 60%, #1a0e04 100%)',
+    overlay:    'repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 4px)',
+  },
+}
+
+// ── Card display metadata ────────────────────────────────────
+const CARD_META = {
+  'amex-gold':     { tier: 'gold',              cpp: 2.0,  top: '4× Dining'  },
+  'amex-platinum': { tier: 'platinum',           cpp: 2.0,  top: '5× Flights' },
+  'csp':           { tier: 'sapphire-preferred', cpp: 2.05, top: '3× Dining'  },
+  'csr':           { tier: 'sapphire-reserve',   cpp: 2.05, top: '3× Travel'  },
+  'c1vx':          { tier: 'venture',            cpp: 1.7,  top: '2× All'     },
+  'citi-strata':   { tier: 'strata',             cpp: 1.75, top: '3× Travel'  },
+  'bilt':          { tier: 'bilt',               cpp: 2.05, top: '2× Travel'  },
+}
+
+// ── Foil card art component ──────────────────────────────────
+function CardArt({ tier }) {
+  const art = CARD_ART[tier] || CARD_ART.platinum
+  return (
+    <div style={{
+      position: 'relative', width: 44, height: 28, borderRadius: 4,
+      background: art.background, overflow: 'hidden', flexShrink: 0,
+      boxShadow: '0 1px 0 rgba(255,255,255,0.18) inset, 0 -1px 0 rgba(0,0,0,0.4) inset, 0 4px 10px rgba(0,0,0,0.5)',
+    }}>
+      <div style={{ position: 'absolute', inset: 0, background: art.overlay, mixBlendMode: 'screen', opacity: 0.9 }} />
+      <div style={{
+        position: 'absolute', inset: 0,
+        background: 'linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.22) 50%, transparent 65%)',
+        opacity: 0.6,
+      }} />
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────
 // CARD DATABASE  (logic unchanged)
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
 
 const ALL_CARDS = [
   { id: 'amex-gold',            name: 'Amex Gold',                            type: 1, issuer: 'American Express', program: 'Membership Rewards'  },
@@ -31,12 +101,12 @@ const ALL_CARDS = [
   { id: 'citi-strata',          name: 'Citi Strata Premier',                   type: 1, issuer: 'Citi',             program: 'ThankYou Points'     },
   { id: 'bilt',                 name: 'Bilt Mastercard',                       type: 1, issuer: 'Bilt Rewards',     program: 'Bilt Points'         },
   { id: 'wf-autograph-journey', name: 'Wells Fargo Autograph Journey',          type: 1, issuer: 'Wells Fargo',     program: 'Wells Fargo Rewards' },
-  { id: 'cfu',              name: 'Chase Freedom Unlimited',    type: 2, issuer: 'Chase',            companion: 'Chase Sapphire Preferred',      companionBenefit: 'Unlock 14+ airline and hotel transfer partners and multiply the value of every point you\'ve already earned.'     },
+  { id: 'cfu',              name: 'Chase Freedom Unlimited',    type: 2, issuer: 'Chase',            companion: 'Chase Sapphire Preferred',      companionBenefit: "Unlock 14+ airline and hotel transfer partners and multiply the value of every point you've already earned."     },
   { id: 'cff',              name: 'Chase Freedom Flex',         type: 2, issuer: 'Chase',            companion: 'Chase Sapphire Preferred',      companionBenefit: 'Pool your Freedom Flex points and access United, Hyatt, and 12+ other partners for outsized redemption value.'    },
   { id: 'cf',               name: 'Chase Freedom',              type: 2, issuer: 'Chase',            companion: 'Chase Sapphire Preferred',      companionBenefit: 'Combine balances and transfer to 14+ airline and hotel loyalty programs instantly.'                               },
   { id: 'c1-savor',         name: 'Capital One Savor',          type: 2, issuer: 'Capital One',      companion: 'Capital One Venture X',         companionBenefit: 'Transfer to 15+ airlines including Air Canada, Turkish, and Avianca for exceptional redemption value.'             },
-  { id: 'c1-savorone',      name: 'Capital One SavorOne',       type: 2, issuer: 'Capital One',      companion: 'Capital One Venture X',         companionBenefit: 'Unlock global airline transfers and premium redemption rates on every point you\'ve already earned.'               },
-  { id: 'c1-quicksilver',   name: 'Capital One Quicksilver',    type: 2, issuer: 'Capital One',      companion: 'Capital One Venture X',         companionBenefit: 'Access 15+ transfer partners and dramatically increase your points\' value with the Venture X.'                   },
+  { id: 'c1-savorone',      name: 'Capital One SavorOne',       type: 2, issuer: 'Capital One',      companion: 'Capital One Venture X',         companionBenefit: "Unlock global airline transfers and premium redemption rates on every point you've already earned."               },
+  { id: 'c1-quicksilver',   name: 'Capital One Quicksilver',    type: 2, issuer: 'Capital One',      companion: 'Capital One Venture X',         companionBenefit: "Access 15+ transfer partners and dramatically increase your points' value with the Venture X."                   },
   { id: 'c1-qso',           name: 'Capital One QuicksilverOne', type: 2, issuer: 'Capital One',      companion: 'Capital One Venture X',         companionBenefit: 'Combine with Venture X for full transfer partner access across 15+ airlines and hotels.'                          },
   { id: 'citi-dc',          name: 'Citi Double Cash',           type: 2, issuer: 'Citi',             companion: 'Citi Strata Premier',            companionBenefit: 'Unlock ThankYou transfer partners like Air France, Turkish, and Singapore Airlines for premium flight value.'     },
   { id: 'citi-cc',          name: 'Citi Custom Cash',           type: 2, issuer: 'Citi',             companion: 'Citi Strata Premier',            companionBenefit: 'Pool points with Strata Premier and access 15+ airline transfer partners for premium redemptions.'                },
@@ -88,9 +158,9 @@ const GRID_CARDS = ALL_CARDS.filter(c =>
   ['amex-gold','csp','csr','c1vx','citi-strata','amex-platinum','bilt'].includes(c.id)
 )
 
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
 // HELPERS  (logic unchanged)
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
 
 function fuzzySearch(query) {
   if (!query.trim()) return []
@@ -140,9 +210,9 @@ function formatWithCommas(raw) {
   return digits ? parseInt(digits, 10).toLocaleString() : ''
 }
 
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
 // AIRPORT DATABASE  (unchanged)
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
 
 const AIRPORTS = [
   { code: 'JFK', name: 'John F. Kennedy International', city: 'New York', country: 'USA' },
@@ -240,78 +310,103 @@ function searchAirports(query) {
   }).slice(0, 5)
 }
 
-// ─────────────────────────────────────────────────────────
-// SHARED STYLE ATOMS
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// TYPE BADGE STYLES  (for search dropdown)
+// ─────────────────────────────────────────────────────────────
 
-const inputBase = {
-  width: '100%',
-  background: ELEVATED,
-  color: TEXT,
-  fontSize: '15px',
-  fontWeight: '400',
-  padding: '13px 16px',
-  borderRadius: '10px',
-  border: `1px solid ${BORDER_MID}`,
-  outline: 'none',
-  fontFamily: 'inherit',
-  letterSpacing: '-0.1px',
-  transition: 'border-color 0.15s',
+const TYPE_BADGE = {
+  1: { bg: 'rgba(99,102,241,0.15)',  color: '#818cf8' },
+  2: { bg: 'rgba(251,191,36,0.12)',  color: '#fbbf24' },
+  3: { bg: 'rgba(248,113,113,0.12)', color: '#f87171' },
+  4: { bg: 'rgba(96,165,250,0.12)',  color: '#60a5fa' },
+  5: { bg: 'rgba(192,132,252,0.12)', color: '#c084fc' },
+}
+const TYPE_LABEL = { 1: 'Transferable', 2: 'Ecosystem', 3: 'Cash Back', 4: 'Airline', 5: 'Hotel' }
+
+// ─────────────────────────────────────────────────────────────
+// SHARED EDITORIAL PRIMITIVES
+// ─────────────────────────────────────────────────────────────
+
+// Italic word highlighting in card names
+function CardNameDisplay({ name }) {
+  const italicWords = ['Gold', 'Platinum', 'Sapphire', 'Venture', 'Strata', 'Bilt']
+  for (const word of italicWords) {
+    if (name.includes(word)) {
+      const parts = name.split(word)
+      return (
+        <>
+          {parts[0]}
+          <em style={{ fontStyle: 'italic', color: V300, fontWeight: 400 }}>{word}</em>
+          {parts[1]}
+        </>
+      )
+    }
+  }
+  return <>{name}</>
 }
 
-const labelStyle = {
-  display: 'block',
-  color: SUBTLE,
-  fontSize: '11px',
-  fontWeight: '600',
-  textTransform: 'uppercase',
-  letterSpacing: '0.1em',
-  marginBottom: '8px',
+function Kicker({ step, label }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+      <div style={{ width: 24, height: 1, background: V400 }} />
+      <span style={{
+        ...MONO, fontSize: 10, letterSpacing: '0.2em',
+        textTransform: 'uppercase', color: V400,
+      }}>
+        Step {step} · {label}
+      </span>
+    </div>
+  )
 }
 
-// ── Dropdown shell shared by both airport and card dropdowns
+function StepHeadline({ children }) {
+  return (
+    <h2 style={{
+      ...SERIF,
+      fontSize: 'clamp(32px, 5vw, 44px)',
+      lineHeight: 0.97,
+      margin: '0 0 22px',
+      letterSpacing: '-0.025em',
+      color: FG,
+    }}>
+      {children}
+    </h2>
+  )
+}
+
+// Shared dropdown shell
 const dropdownShell = {
   position: 'absolute',
   top: 'calc(100% + 6px)',
   left: 0, right: 0,
   background: SURFACE,
-  borderRadius: '12px',
-  border: `1px solid ${BORDER_MID}`,
+  borderRadius: 12,
+  border: `1px solid ${BORDER_M}`,
   boxShadow: '0 16px 48px rgba(0,0,0,0.65)',
   zIndex: 200,
   overflow: 'hidden',
 }
 
-// Type badge colors - dark-mode palette
-const TYPE_BADGE = {
-  1: { bg: 'rgba(99,102,241,0.15)',  color: ACCENT_LT },
-  2: { bg: 'rgba(251,191,36,0.12)',  color: '#fbbf24'  },
-  3: { bg: 'rgba(248,113,113,0.12)', color: '#f87171'  },
-  4: { bg: 'rgba(96,165,250,0.12)',  color: '#60a5fa'  },
-  5: { bg: 'rgba(192,132,252,0.12)', color: '#c084fc'  },
-}
-const TYPE_LABEL = { 1: 'Transferable', 2: 'Ecosystem', 3: 'Cash Back', 4: 'Airline', 5: 'Hotel' }
-
+// Primary action button
 function PilotButton({ onClick, children, disabled }) {
   return (
     <button
       onClick={onClick}
       disabled={disabled}
       style={{
-        background: disabled ? 'rgba(99,102,241,0.2)' : ACCENT,
+        display: 'inline-flex', alignItems: 'center', gap: 8,
+        padding: '14px 28px', borderRadius: 999, fontSize: 15,
+        fontWeight: 500, cursor: disabled ? 'not-allowed' : 'pointer',
+        border: 'none', fontFamily: 'inherit',
+        background: disabled
+          ? 'rgba(99,102,241,0.15)'
+          : 'linear-gradient(180deg, #7c7fff, #5558e6)',
         color: disabled ? 'rgba(255,255,255,0.3)' : '#fff',
-        fontWeight: '500',
-        fontSize: '15px',
-        padding: '13px 32px',
-        borderRadius: '999px',
-        border: 'none',
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        letterSpacing: '-0.2px',
-        boxShadow: disabled ? 'none' : `0 0 0 1px rgba(99,102,241,0.4), 0 4px 20px rgba(99,102,241,0.3)`,
-        transition: 'all 0.15s',
+        boxShadow: disabled ? 'none' : '0 8px 28px -4px rgba(99,102,241,0.55), inset 0 1px 0 rgba(255,255,255,0.25)',
+        transition: 'transform 0.2s, box-shadow 0.2s',
       }}
-      onMouseEnter={e => { if (!disabled) { e.currentTarget.style.background = '#4f46e5'; e.currentTarget.style.transform = 'translateY(-1px)' } }}
-      onMouseLeave={e => { if (!disabled) { e.currentTarget.style.background = ACCENT; e.currentTarget.style.transform = 'translateY(0)' } }}
+      onMouseEnter={e => { if (!disabled) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 14px 34px -4px rgba(99,102,241,0.7), inset 0 1px 0 rgba(255,255,255,0.3)' } }}
+      onMouseLeave={e => { if (!disabled) { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = '0 8px 28px -4px rgba(99,102,241,0.55), inset 0 1px 0 rgba(255,255,255,0.25)' } }}
     >
       {children}
     </button>
@@ -326,14 +421,10 @@ function AmberButton({ children, href }) {
       rel="noopener noreferrer"
       style={{
         display: 'inline-block',
-        background: AMBER,
-        color: '#1c1917',
-        fontWeight: '700',
-        fontSize: '14px',
-        padding: '12px 28px',
-        borderRadius: '999px',
-        textDecoration: 'none',
-        cursor: 'pointer',
+        background: AMBER, color: '#1c1917',
+        fontWeight: 700, fontSize: 14,
+        padding: '12px 28px', borderRadius: 999,
+        textDecoration: 'none', cursor: 'pointer',
         boxShadow: '0 4px 20px rgba(245,158,11,0.3)',
         transition: 'opacity 0.15s',
       }}
@@ -345,47 +436,32 @@ function AmberButton({ children, href }) {
   )
 }
 
-function StepHeadline({ text }) {
-  return (
-    <h2 style={{
-      color: TEXT,
-      fontSize: '20px',
-      fontWeight: '600',
-      letterSpacing: '-0.4px',
-      marginBottom: '20px',
-      lineHeight: '1.2',
-    }}>
-      {text}
-    </h2>
-  )
-}
+// ─────────────────────────────────────────────────────────────
+// AIRPORT INPUT
+// ─────────────────────────────────────────────────────────────
 
 function AirportInput({ placeholder, onSelect, resetKey }) {
-  const [query, setQuery] = useState('')
+  const [query, setQuery]   = useState('')
   const [results, setResults] = useState([])
   const [showDrop, setShowDrop] = useState(false)
   const containerRef = useRef(null)
 
-  useEffect(() => {
-    setQuery(''); setResults([]); setShowDrop(false)
-  }, [resetKey])
+  useEffect(() => { setQuery(''); setResults([]); setShowDrop(false) }, [resetKey])
 
   useEffect(() => {
-    function handler(e) {
-      if (containerRef.current && !containerRef.current.contains(e.target)) setShowDrop(false)
-    }
+    const handler = e => { if (containerRef.current && !containerRef.current.contains(e.target)) setShowDrop(false) }
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const val = e.target.value
     setQuery(val); onSelect(null)
     const r = searchAirports(val)
     setResults(r); setShowDrop(r.length > 0 && val.trim().length > 0)
   }
 
-  const handleSelect = (airport) => {
+  const handleSelect = airport => {
     setQuery(`${airport.code} - ${airport.city}`)
     onSelect(airport); setShowDrop(false); setResults([])
   }
@@ -397,9 +473,15 @@ function AirportInput({ placeholder, onSelect, resetKey }) {
         placeholder={placeholder}
         value={query}
         onChange={handleChange}
-        style={inputBase}
-        onFocus={e => { e.target.style.borderColor = `rgba(99,102,241,0.55)`; if (results.length > 0) setShowDrop(true) }}
-        onBlur={e => { e.target.style.borderColor = BORDER_MID }}
+        style={{
+          width: '100%', background: ELEVATED, color: FG,
+          fontSize: 15, padding: '13px 16px', borderRadius: 10,
+          border: `1px solid ${BORDER_M}`, outline: 'none',
+          fontFamily: 'inherit', transition: 'border-color 0.15s',
+          boxSizing: 'border-box',
+        }}
+        onFocus={e => { e.target.style.borderColor = 'rgba(99,102,241,0.55)'; if (results.length > 0) setShowDrop(true) }}
+        onBlur={e => { e.target.style.borderColor = BORDER_M }}
       />
       {showDrop && (
         <div style={dropdownShell}>
@@ -416,8 +498,8 @@ function AirportInput({ placeholder, onSelect, resetKey }) {
               onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)' }}
               onMouseLeave={e => { e.currentTarget.style.background = 'none' }}
             >
-              <span style={{ color: ACCENT_LT, fontWeight: '700', fontSize: '13px' }}>{a.code}</span>
-              <span style={{ color: MUTED, fontSize: '13px' }}> · {a.name}, {a.city}, {a.country}</span>
+              <span style={{ color: V400, fontWeight: 700, fontSize: 13 }}>{a.code}</span>
+              <span style={{ color: FG_M, fontSize: 13 }}> · {a.name}, {a.city}, {a.country}</span>
             </button>
           ))}
         </div>
@@ -426,153 +508,147 @@ function AirportInput({ placeholder, onSelect, resetKey }) {
   )
 }
 
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
 // DETECTION PANEL
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
 
 function DetectionPanel({ card, onContinueAnyway, panelRef, onStep2Open }) {
   const [creditScore, setCreditScore] = useState(null)
 
-  const handleScore = (score) => {
-    setCreditScore(score)
-    setTimeout(() => onStep2Open(), 120)
-  }
-
+  const handleScore = score => { setCreditScore(score); setTimeout(() => onStep2Open(), 120) }
   const rec = creditScore ? getRecommendation(card, creditScore) : null
 
   const scoreButtons = [
     { key: 'excellent', label: 'Excellent', sub: '750+' },
-    { key: 'good',      label: 'Good',      sub: '700–749' },
-    { key: 'fair',      label: 'Fair',      sub: '650–699' },
+    { key: 'good',      label: 'Good',      sub: '700-749' },
+    { key: 'fair',      label: 'Fair',      sub: '650-699' },
     { key: 'building',  label: 'Building',  sub: '<650' },
   ]
-
-  const body  = { color: MUTED,  fontSize: '15px', lineHeight: 1.7 }
-  const bodyW = { color: TEXT,   fontSize: '15px', lineHeight: 1.7 }
 
   return (
     <div
       ref={panelRef}
       className="step-reveal"
       style={{
-        background: ELEVATED,
-        border: `1px solid ${BORDER_MID}`,
-        borderRadius: '16px',
-        padding: '24px 28px',
-        marginTop: '40px',
+        background: 'linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01))',
+        border: `1px solid ${LINE}`,
+        borderRadius: 16, padding: '24px 28px', marginTop: 40,
       }}
     >
-      {/* TYPE label */}
       <p style={{
-        fontSize: '11px', fontWeight: '600',
-        letterSpacing: '0.1em', textTransform: 'uppercase',
-        color: card.type === 4 ? ACCENT_LT : AMBER,
-        marginBottom: '12px',
+        ...MONO, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase',
+        color: card.type === 4 ? V300 : AMBER, marginBottom: 14,
       }}>
         {card.type === 4 ? 'Great news' : 'Heads up'}
       </p>
 
       {card.type === 2 && (
         <>
-          <p style={{ ...bodyW, marginBottom: '16px' }}>
+          <p style={{ color: FG, fontSize: 15, lineHeight: 1.65, marginBottom: 14 }}>
             The <strong>{card.name}</strong> earns cash back that can't be transferred to airline partners on its own.
           </p>
-          <p style={{ ...bodyW, marginBottom: '8px', fontWeight: '600' }}>But here's something most people don't know:</p>
-          <p style={{ ...body, marginBottom: '8px' }}>
-            Pair it with a <strong style={{ color: TEXT }}>{card.companion}</strong> and every point you've already earned instantly combines, fully transferable to airline partners.
+          <p style={{ color: FG, fontSize: 15, lineHeight: 1.65, marginBottom: 8, fontWeight: 600 }}>
+            But here's something most people don't know:
           </p>
-          <p style={{ ...body, marginBottom: '20px', fontStyle: 'italic' }}>Your points don't disappear. They level up.</p>
+          <p style={{ color: FG_S, fontSize: 15, lineHeight: 1.65, marginBottom: 8 }}>
+            Pair it with a <strong style={{ color: FG }}>{card.companion}</strong> and every point you've already earned instantly combines, fully transferable to airline partners.
+          </p>
+          <p style={{ color: FG_S, fontSize: 15, lineHeight: 1.65, marginBottom: 20, fontStyle: 'italic' }}>
+            Your points don't disappear. They level up.
+          </p>
         </>
       )}
       {card.type === 3 && (
         <>
-          <p style={{ ...bodyW, marginBottom: '16px' }}>The <strong>{card.name}</strong> earns pure cash back with no airline transfer partners.</p>
-          <p style={{ ...body, marginBottom: '20px' }}>
-            The good news: adding a travel rewards card lets you start earning transferable points immediately, and you keep using your <strong style={{ color: TEXT }}>{card.name}</strong> for cash back on top of it.
+          <p style={{ color: FG, fontSize: 15, lineHeight: 1.65, marginBottom: 14 }}>
+            The <strong>{card.name}</strong> earns pure cash back with no airline transfer partners.
+          </p>
+          <p style={{ color: FG_S, fontSize: 15, lineHeight: 1.65, marginBottom: 20 }}>
+            The good news: adding a travel rewards card lets you start earning transferable points immediately, and you keep using your <strong style={{ color: FG }}>{card.name}</strong> for cash back on top of it.
           </p>
         </>
       )}
       {card.type === 4 && (
         <>
-          <p style={{ ...bodyW, marginBottom: '8px' }}>Your <strong>{card.name}</strong> earns <strong>{card.airline}</strong> miles directly. No transfer needed.</p>
-          <p style={{ ...body }}>We'll show you the best ways to redeem your miles for maximum value.</p>
+          <p style={{ color: FG, fontSize: 15, lineHeight: 1.65, marginBottom: 8 }}>
+            Your <strong>{card.name}</strong> earns <strong>{card.airline}</strong> miles directly. No transfer needed.
+          </p>
+          <p style={{ color: FG_S, fontSize: 15, lineHeight: 1.65 }}>
+            We'll show you the best ways to redeem your miles for maximum value.
+          </p>
         </>
       )}
       {card.type === 5 && (
         <>
-          <p style={{ ...bodyW, marginBottom: '16px' }}>Your <strong>{card.name}</strong> earns <strong>{card.hotel}</strong> points, primarily designed for hotel stays rather than flights.</p>
-          <p style={{ ...body, marginBottom: '8px' }}>While some hotel points can transfer to airlines, the conversion rates are usually poor.</p>
-          <p style={{ ...body, marginBottom: '20px' }}>For flights, a dedicated travel card will get you much further.</p>
+          <p style={{ color: FG, fontSize: 15, lineHeight: 1.65, marginBottom: 14 }}>
+            Your <strong>{card.name}</strong> earns <strong>{card.hotel}</strong> points, primarily designed for hotel stays rather than flights.
+          </p>
+          <p style={{ color: FG_S, fontSize: 15, lineHeight: 1.65, marginBottom: 8 }}>
+            While some hotel points can transfer to airlines, the conversion rates are usually poor.
+          </p>
+          <p style={{ color: FG_S, fontSize: 15, lineHeight: 1.65, marginBottom: 20 }}>
+            For flights, a dedicated travel card will get you much further.
+          </p>
         </>
       )}
 
-      {/* Credit score prompt */}
       {(card.type === 2 || card.type === 3 || card.type === 5) && !creditScore && (
         <>
-          <p style={{ color: SUBTLE, fontSize: '13px', marginBottom: '12px' }}>
-            To point you in the right direction: roughly where is your credit score?
+          <p style={{ ...MONO, fontSize: 10, color: FG_M, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 12 }}>
+            Roughly where is your credit score?
           </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginBottom: '4px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8, marginBottom: 4 }}>
             {scoreButtons.map(btn => (
               <button
                 key={btn.key}
                 onClick={() => handleScore(btn.key)}
                 style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: `1px solid ${BORDER_MID}`,
-                  borderRadius: '10px',
-                  padding: '11px 14px',
-                  cursor: 'pointer',
-                  color: TEXT,
-                  textAlign: 'left',
-                  transition: 'all 0.15s',
-                  fontFamily: 'inherit',
+                  background: 'rgba(255,255,255,0.04)', border: `1px solid ${LINE}`,
+                  borderRadius: 10, padding: '11px 14px', cursor: 'pointer',
+                  color: FG, textAlign: 'left', transition: 'all 0.15s', fontFamily: 'inherit',
                 }}
                 onMouseEnter={e => { e.currentTarget.style.background = 'rgba(99,102,241,0.1)'; e.currentTarget.style.borderColor = 'rgba(99,102,241,0.4)' }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.borderColor = BORDER_MID }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = LINE }}
               >
-                <div style={{ fontWeight: '600', fontSize: '13px' }}>{btn.label}</div>
-                <div style={{ color: SUBTLE, fontSize: '12px', marginTop: '2px' }}>{btn.sub}</div>
+                <div style={{ fontWeight: 600, fontSize: 13 }}>{btn.label}</div>
+                <div style={{ color: FG_M, fontSize: 12, marginTop: 2 }}>{btn.sub}</div>
               </button>
             ))}
           </div>
         </>
       )}
 
-      {/* Credit score result */}
       {rec && (
-        <div className="step-reveal" style={{ marginTop: '4px', paddingTop: '18px', borderTop: `1px solid ${BORDER}` }}>
+        <div className="step-reveal" style={{ marginTop: 4, paddingTop: 18, borderTop: `1px solid ${LINE}` }}>
           {rec.kind === 'companion' && (
             <>
-              <p style={{ ...bodyW, fontWeight: '600', marginBottom: '8px' }}>
-                Great news! You likely qualify for the <span style={{ color: ACCENT_LT }}>{rec.name}</span>. Here's why it's the right move:
+              <p style={{ color: FG, fontSize: 15, lineHeight: 1.65, fontWeight: 600, marginBottom: 8 }}>
+                Great news! You likely qualify for the <span style={{ color: V300 }}>{rec.name}</span>. Here's why it's the right move:
               </p>
-              <p style={{ ...body, marginBottom: '18px' }}>{rec.benefit}</p>
-              <p style={{ ...bodyW, fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>Want to unlock your points?</p>
+              <p style={{ color: FG_S, fontSize: 15, lineHeight: 1.65, marginBottom: 18 }}>{rec.benefit}</p>
+              <p style={{ color: FG, fontSize: 14, fontWeight: 600, marginBottom: 12 }}>Want to unlock your points?</p>
               <AmberButton href={AFFILIATE_LINKS[rec.name]}>Apply for {rec.name}</AmberButton>
             </>
           )}
           {rec.kind === 'starter' && (
             <>
-              <p style={{ ...body, marginBottom: '18px', whiteSpace: 'pre-line' }}>{rec.prefix}</p>
+              <p style={{ color: FG_S, fontSize: 15, lineHeight: 1.65, marginBottom: 18, whiteSpace: 'pre-line' }}>{rec.prefix}</p>
               <AmberButton href={AFFILIATE_LINKS[rec.name]}>Apply for {rec.name}</AmberButton>
             </>
           )}
         </div>
       )}
 
-      {/* Continue anyway */}
-      <div style={{ marginTop: '20px', paddingTop: '14px', borderTop: `1px solid ${BORDER}` }}>
+      <div style={{ marginTop: 20, paddingTop: 14, borderTop: `1px solid ${LINE}` }}>
         <button
           onClick={onContinueAnyway}
           style={{
             background: 'none', border: 'none', cursor: 'pointer',
-            color: SUBTLE, fontSize: '13px',
-            fontFamily: 'inherit', padding: 0,
-            transition: 'color 0.15s',
+            color: FG_M, fontSize: 13, fontFamily: 'inherit',
+            padding: 0, transition: 'color 0.15s',
           }}
-          onMouseEnter={e => { e.currentTarget.style.color = MUTED }}
-          onMouseLeave={e => { e.currentTarget.style.color = SUBTLE }}
+          onMouseEnter={e => { e.currentTarget.style.color = FG_S }}
+          onMouseLeave={e => { e.currentTarget.style.color = FG_M }}
         >
           Continue anyway →
         </button>
@@ -581,34 +657,34 @@ function DetectionPanel({ card, onContinueAnyway, panelRef, onStep2Open }) {
   )
 }
 
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
 // MAIN COMPONENT
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
 
 export default function Search() {
   const navigate = useNavigate()
   const { user, isPro } = useAuth()
 
-  const [selectedCard,   setSelectedCard]   = useState(null)
-  const [searchQuery,    setSearchQuery]    = useState('')
-  const [searchResults,  setSearchResults]  = useState([])
-  const [showDropdown,   setShowDropdown]   = useState(false)
-  const [showDetection,  setShowDetection]  = useState(false)
-  const [showStep2,      setShowStep2]      = useState(false)
-  const [points,         setPoints]         = useState('')
-  const [showStep3,      setShowStep3]      = useState(false)
-  const [fromAirport,    setFromAirport]    = useState(null)
-  const [toAirport,      setToAirport]      = useState(null)
-  const [airportResetKey,setAirportResetKey]= useState(0)
+  const [selectedCard,    setSelectedCard]    = useState(null)
+  const [searchQuery,     setSearchQuery]     = useState('')
+  const [searchResults,   setSearchResults]   = useState([])
+  const [showDropdown,    setShowDropdown]    = useState(false)
+  const [showDetection,   setShowDetection]   = useState(false)
+  const [showStep2,       setShowStep2]       = useState(false)
+  const [points,          setPoints]          = useState('')
+  const [showStep3,       setShowStep3]       = useState(false)
+  const [fromAirport,     setFromAirport]     = useState(null)
+  const [toAirport,       setToAirport]       = useState(null)
+  const [airportResetKey, setAirportResetKey] = useState(0)
   const [showUpgradeModal,setShowUpgradeModal]= useState(false)
 
   const detectionRef = useRef(null)
   const step2Ref     = useRef(null)
   const step3Ref     = useRef(null)
 
-  const scrollTo = (ref) => setTimeout(() => ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
+  const scrollTo = ref => setTimeout(() => ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
 
-  const selectCard = (card) => {
+  const selectCard = card => {
     setSelectedCard(card)
     setSearchQuery(card.type !== 1 || !GRID_CARDS.find(c => c.id === card.id) ? card.name : searchQuery)
     setShowDropdown(false)
@@ -621,7 +697,7 @@ export default function Search() {
 
   const openStep2 = () => { setShowStep2(true); scrollTo(step2Ref) }
 
-  const handleSearch = (value) => {
+  const handleSearch = value => {
     setSearchQuery(value)
     const results = fuzzySearch(value)
     setSearchResults(results)
@@ -637,84 +713,134 @@ export default function Search() {
   const canSearch   = fromAirport !== null && toAirport !== null
 
   return (
-    <div style={{ background: BG, minHeight: '100vh', color: TEXT }}>
+    <div style={{
+      background: `
+        radial-gradient(900px 600px at 80% -10%, rgba(99,102,241,0.18), transparent 55%),
+        radial-gradient(600px 400px at -10% 40%, rgba(130,100,255,0.10), transparent 60%),
+        #0a0f1e
+      `,
+      minHeight: '100vh', color: FG,
+      fontFamily: "'Inter', system-ui, sans-serif",
+      letterSpacing: '-0.01em',
+    }}>
 
-      {/* ── Navbar ──────────────────────────────────────── */}
+      {/* ── Navbar ──────────────────────────────────────────── */}
       <nav style={{
         position: 'sticky', top: 0, zIndex: 100,
-        height: '52px',
+        height: 52,
         background: 'rgba(10,15,30,0.8)',
         backdropFilter: 'blur(20px) saturate(180%)',
         WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-        borderBottom: `1px solid ${BORDER}`,
+        borderBottom: `1px solid ${LINE}`,
         display: 'flex', alignItems: 'center',
       }}>
         <div style={{
-          maxWidth: '760px', margin: '0 auto', padding: '0 24px',
-          width: '100%', display: 'flex', alignItems: 'center',
+          maxWidth: 760, margin: '0 auto', padding: '0 24px',
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
           <span
             onClick={() => navigate('/')}
-            style={{ fontSize: '16px', fontWeight: '600', letterSpacing: '-0.3px', color: TEXT, cursor: 'pointer', userSelect: 'none' }}
+            style={{
+              ...SERIF, fontSize: 20, color: FG,
+              cursor: 'pointer', userSelect: 'none',
+            }}
           >
-            PointPilot
+            Point<em style={{ fontStyle: 'italic', color: V300 }}>Pilot</em>
           </span>
+
+          {isPro ? (
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              padding: '4px 10px 4px 8px',
+              border: '1px solid rgba(165,180,252,0.35)',
+              borderRadius: 999,
+              ...MONO, fontSize: 9.5, letterSpacing: '0.16em', textTransform: 'uppercase',
+              color: V300, background: 'rgba(99,102,241,0.08)',
+            }}>
+              <span style={{ color: V400, fontSize: 10 }}>✦</span> Pro
+            </span>
+          ) : (
+            <button
+              onClick={() => navigate('/signup')}
+              style={{
+                ...MONO, fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase',
+                color: V400, background: 'none', border: `1px solid rgba(129,140,248,0.3)`,
+                borderRadius: 999, padding: '5px 12px', cursor: 'pointer',
+                transition: 'border-color 0.15s, color 0.15s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.6)'; e.currentTarget.style.color = V300 }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(129,140,248,0.3)'; e.currentTarget.style.color = V400 }}
+            >
+              Get Pro ✦
+            </button>
+          )}
         </div>
       </nav>
 
-      <main style={{ maxWidth: '760px', margin: '0 auto', padding: '48px 24px 100px' }}>
+      <main style={{ maxWidth: 760, margin: '0 auto', padding: '48px 24px 100px' }}>
 
         {/* ── STEP 1 ── */}
         <section>
-          <StepHeadline text="What card are you using today?" />
-
-          {/* Card grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '10px', marginBottom: '14px' }}>
-            {GRID_CARDS.map(card => {
-              const isSelected = selectedCard?.id === card.id
-              const isDimmed   = selectedCard && !isSelected
-              return (
-                <div
-                  key={card.id}
-                  onClick={() => selectCard(card)}
-                  style={{
-                    background: isSelected ? 'rgba(99,102,241,0.1)' : ELEVATED,
-                    borderRadius: '12px',
-                    padding: '16px 18px',
-                    cursor: 'pointer',
-                    border: isSelected
-                      ? '1px solid rgba(99,102,241,0.5)'
-                      : `1px solid ${BORDER_MID}`,
-                    boxShadow: isSelected ? '0 0 0 3px rgba(99,102,241,0.12)' : 'none',
-                    opacity: isDimmed ? 0.35 : 1,
-                    transition: 'all 0.15s',
-                    userSelect: 'none',
-                  }}
-                  onMouseEnter={e => { if (!isSelected) e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)' }}
-                  onMouseLeave={e => { if (!isSelected) e.currentTarget.style.borderColor = BORDER_MID }}
-                >
-                  <div style={{ color: TEXT, fontSize: '13px', fontWeight: '600', lineHeight: 1.3, marginBottom: '3px', letterSpacing: '-0.1px' }}>
-                    {card.name}
-                  </div>
-                  <div style={{ color: SUBTLE, fontSize: '11px', fontWeight: '500' }}>
-                    {card.program}
-                  </div>
-                </div>
-              )
-            })}
+          {/* Masthead metadata */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            paddingBottom: 20, marginBottom: 32,
+            borderBottom: `1px solid ${LINE}`,
+            ...MONO, fontSize: 9.5, letterSpacing: '0.18em',
+            color: FG_M, textTransform: 'uppercase',
+          }}>
+            <span>May · 2026</span>
+            <span style={{ opacity: 0.4 }}>·</span>
+            <span>Card Search</span>
+            <span style={{ opacity: 0.4 }}>·</span>
+            <span>PointPilot</span>
           </div>
 
-          {/* Search with dropdown */}
-          <div style={{ position: 'relative' }}>
-            <input
-              type="text"
-              placeholder="Search all cards..."
-              value={searchQuery}
-              onChange={e => handleSearch(e.target.value)}
-              style={inputBase}
-              onFocus={e => { e.target.style.borderColor = 'rgba(99,102,241,0.55)'; if (searchResults.length > 0) setShowDropdown(true) }}
-              onBlur={e => { setTimeout(() => setShowDropdown(false), 180); e.target.style.borderColor = BORDER_MID }}
-            />
+          <Kicker step="01" label="Choose a card" />
+          <StepHeadline>
+            What card<br />
+            <em style={{ fontStyle: 'italic', color: V300 }}>are you using</em><br />
+            today?
+          </StepHeadline>
+          <p style={{ fontSize: 14, lineHeight: 1.6, color: FG_M, maxWidth: 420, marginBottom: 28 }}>
+            Select your card below, or search all cards to find yours.
+          </p>
+
+          {/* Search field */}
+          <div style={{ position: 'relative', marginBottom: 24 }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              padding: '12px 14px',
+              background: 'rgba(255,255,255,0.03)',
+              border: `1px solid ${LINE}`,
+              borderRadius: 10,
+              transition: 'border-color 0.15s',
+            }}
+              onFocusCapture={e => { e.currentTarget.style.borderColor = 'rgba(99,102,241,0.5)' }}
+              onBlurCapture={e => { e.currentTarget.style.borderColor = LINE }}
+            >
+              <span style={{ fontSize: 18, color: FG_M, lineHeight: 1 }}>⌕</span>
+              <input
+                type="text"
+                placeholder="Search all cards…"
+                value={searchQuery}
+                onChange={e => handleSearch(e.target.value)}
+                style={{
+                  flex: 1, background: 'transparent', border: 0, outline: 0,
+                  color: FG, fontFamily: 'inherit', fontSize: 14,
+                }}
+                onFocus={() => { if (searchResults.length > 0) setShowDropdown(true) }}
+                onBlur={() => setTimeout(() => setShowDropdown(false), 180)}
+              />
+              <span style={{
+                ...MONO, fontSize: 10, letterSpacing: '0.1em',
+                color: FG_F, padding: '3px 7px',
+                border: `1px solid ${LINE}`, borderRadius: 4,
+              }}>
+                ⌘ K
+              </span>
+            </div>
+
             {showDropdown && searchResults.length > 0 && (
               <div style={dropdownShell}>
                 {searchResults.map((card, i) => {
@@ -724,8 +850,7 @@ export default function Search() {
                       key={card.id}
                       onMouseDown={() => selectCard(card)}
                       style={{
-                        padding: '11px 16px',
-                        cursor: 'pointer',
+                        padding: '11px 16px', cursor: 'pointer',
                         borderBottom: i < searchResults.length - 1 ? `1px solid ${BORDER}` : 'none',
                         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                       }}
@@ -733,16 +858,15 @@ export default function Search() {
                       onMouseLeave={e => { e.currentTarget.style.background = 'none' }}
                     >
                       <div>
-                        <div style={{ color: TEXT, fontSize: '13px', fontWeight: '600', letterSpacing: '-0.1px' }}>{card.name}</div>
-                        <div style={{ color: SUBTLE, fontSize: '12px', marginTop: '1px' }}>
+                        <div style={{ color: FG, fontSize: 13, fontWeight: 600 }}>{card.name}</div>
+                        <div style={{ color: FG_M, fontSize: 12, marginTop: 1 }}>
                           {card.program || card.miles || card.hotel || card.issuer}
                         </div>
                       </div>
                       <span style={{
-                        fontSize: '11px', fontWeight: '600',
-                        padding: '3px 9px', borderRadius: '999px',
-                        background: badge.bg, color: badge.color,
-                        whiteSpace: 'nowrap', marginLeft: '10px',
+                        fontSize: 11, fontWeight: 600, padding: '3px 9px',
+                        borderRadius: 999, background: badge.bg, color: badge.color,
+                        whiteSpace: 'nowrap', marginLeft: 10, ...MONO, letterSpacing: '0.06em',
                       }}>
                         {TYPE_LABEL[card.type]}
                       </span>
@@ -752,6 +876,88 @@ export default function Search() {
               </div>
             )}
           </div>
+
+          {/* Numbered card list header */}
+          <div style={{
+            display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
+            paddingBottom: 10, borderBottom: `1px solid ${LINE}`, marginBottom: 0,
+          }}>
+            <span style={{ ...SERIF, fontStyle: 'italic', fontSize: 18, color: FG }}>The Index</span>
+            <span style={{ ...MONO, fontSize: 9.5, letterSpacing: '0.18em', textTransform: 'uppercase', color: FG_M }}>
+              {GRID_CARDS.length} cards
+            </span>
+          </div>
+
+          {/* Numbered card rows */}
+          {GRID_CARDS.map((card, i) => {
+            const meta    = CARD_META[card.id] || {}
+            const isSel   = selectedCard?.id === card.id
+            const isDimmed = selectedCard && !isSel
+            const num     = String(i + 1).padStart(2, '0')
+            return (
+              <button
+                key={card.id}
+                onClick={() => selectCard(card)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 14,
+                  width: '100%', padding: '14px 0',
+                  background: isSel
+                    ? 'linear-gradient(90deg, rgba(99,102,241,0.1), transparent 70%)'
+                    : 'transparent',
+                  border: 0, borderBottom: `1px solid ${LINE}`,
+                  color: FG, textAlign: 'left', cursor: 'pointer',
+                  opacity: isDimmed ? 0.32 : 1,
+                  paddingLeft: isSel ? 8 : 0,
+                  paddingRight: isSel ? 8 : 0,
+                  marginLeft: isSel ? -8 : 0,
+                  marginRight: isSel ? -8 : 0,
+                  borderRadius: isSel ? 6 : 0,
+                  transition: 'opacity 0.15s, background 0.18s',
+                }}
+                onMouseEnter={e => { if (!isSel && !isDimmed) e.currentTarget.style.background = 'rgba(255,255,255,0.02)' }}
+                onMouseLeave={e => { if (!isSel) e.currentTarget.style.background = 'transparent' }}
+              >
+                {/* Number */}
+                <span style={{
+                  ...SERIF, fontStyle: 'italic', fontSize: 26,
+                  color: 'rgba(165,180,252,0.6)', width: 32, textAlign: 'left', flexShrink: 0,
+                }}>
+                  {num}
+                </span>
+
+                {/* Name + meta */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ ...SERIF, fontSize: 19, fontWeight: 500, lineHeight: 1.15, letterSpacing: '-0.005em', color: FG }}>
+                    <CardNameDisplay name={card.name} />
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3 }}>
+                    <span style={{ ...MONO, fontSize: 9.5, letterSpacing: '0.12em', textTransform: 'uppercase', color: FG_M }}>
+                      {card.program}
+                    </span>
+                    {meta.top && (
+                      <>
+                        <span style={{ color: FG_F, ...MONO, fontSize: 9 }}>·</span>
+                        <span style={{ ...MONO, fontSize: 9.5, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(165,180,252,0.8)' }}>
+                          {meta.top}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Foil art + cpp */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5, flexShrink: 0 }}>
+                  {meta.tier && <CardArt tier={meta.tier} />}
+                  {meta.cpp && (
+                    <span style={{ ...SERIF, fontStyle: 'italic', fontSize: 13, color: FG }}>
+                      {meta.cpp.toFixed(2)}
+                      <span style={{ ...MONO, fontStyle: 'normal', fontSize: 8, color: FG_M, marginLeft: 2 }}>¢/pt</span>
+                    </span>
+                  )}
+                </div>
+              </button>
+            )
+          })}
         </section>
 
         {/* ── DETECTION PANEL ── */}
@@ -767,69 +973,96 @@ export default function Search() {
 
         {/* ── STEP 2 - Points ── */}
         {showStep2 && (
-          <section ref={step2Ref} className="step-reveal" style={{ marginTop: '40px' }}>
-            <StepHeadline text="How many points do you have?" />
-            <input
-              type="text"
-              inputMode="numeric"
-              placeholder="e.g. 75,000"
-              value={points}
-              onChange={e => setPoints(formatWithCommas(e.target.value))}
-              style={{ ...inputBase, fontSize: '22px', padding: '15px 18px', marginBottom: '8px' }}
-              onFocus={e => { e.target.style.borderColor = 'rgba(99,102,241,0.55)' }}
-              onBlur={e => { e.target.style.borderColor = BORDER_MID }}
-            />
-            <p style={{ color: SUBTLE, fontSize: '12px', marginBottom: '24px', letterSpacing: '-0.1px' }}>
-              Check your card app or statement for your current balance
-            </p>
-            <PilotButton onClick={handleContinue} disabled={!canContinue}>
-              Continue
-            </PilotButton>
+          <section ref={step2Ref} className="step-reveal" style={{ marginTop: 48 }}>
+            <div style={{ paddingTop: 32, borderTop: `1px solid ${LINE}` }}>
+              <Kicker step="02" label="Enter your balance" />
+              <StepHeadline>
+                How many<br />
+                <em style={{ fontStyle: 'italic', color: V300 }}>points</em> do you have?
+              </StepHeadline>
+
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="e.g. 75,000"
+                value={points}
+                onChange={e => setPoints(formatWithCommas(e.target.value))}
+                style={{
+                  width: '100%', background: ELEVATED, color: FG,
+                  fontSize: 28, fontFamily: "'Instrument Serif', Georgia, serif",
+                  fontWeight: 400, letterSpacing: '-0.02em',
+                  padding: '16px 20px', borderRadius: 12,
+                  border: `1px solid ${BORDER_M}`, outline: 'none',
+                  marginBottom: 10, boxSizing: 'border-box',
+                  transition: 'border-color 0.15s',
+                }}
+                onFocus={e => { e.target.style.borderColor = 'rgba(99,102,241,0.55)' }}
+                onBlur={e => { e.target.style.borderColor = BORDER_M }}
+              />
+              <p style={{ ...MONO, fontSize: 10, color: FG_M, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 28 }}>
+                Check your card app or statement for your current balance
+              </p>
+              <PilotButton onClick={handleContinue} disabled={!canContinue}>
+                Continue →
+              </PilotButton>
+            </div>
           </section>
         )}
 
         {/* ── STEP 3 - Route ── */}
         {showStep3 && (
-          <section ref={step3Ref} className="step-reveal" style={{ marginTop: '40px' }}>
-            <StepHeadline text="Where are you flying?" />
-            <p style={{ color: SUBTLE, fontSize: '12px', marginBottom: '14px', letterSpacing: '-0.1px' }}>
-              Type a city, airport name, or IATA code (e.g. "London", "JFK", "NYC")
-            </p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '24px' }}>
-              <div>
-                <label style={labelStyle}>From</label>
-                <AirportInput placeholder="City or airport code" onSelect={setFromAirport} resetKey={airportResetKey} />
-              </div>
-              <div>
-                <label style={labelStyle}>To</label>
-                <AirportInput placeholder="City or airport code" onSelect={setToAirport} resetKey={airportResetKey} />
-              </div>
-            </div>
+          <section ref={step3Ref} className="step-reveal" style={{ marginTop: 48 }}>
+            <div style={{ paddingTop: 32, borderTop: `1px solid ${LINE}` }}>
+              <Kicker step="03" label="Plan your route" />
+              <StepHeadline>
+                Where are<br />
+                <em style={{ fontStyle: 'italic', color: V300 }}>you flying</em>?
+              </StepHeadline>
 
-            <PilotButton
-              disabled={!canSearch}
-              onClick={async () => {
-                if (!canSearch) return
-                if (!isPro) {
-                  try {
-                    const res = await fetch('/api/search', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ card: selectedCard?.name, points, from: fromAirport, to: toAirport }),
-                    })
-                    const data = await res.json()
-                    console.log('[Search] /api/search response - status:', res.status, '| body:', data)
-                    if (res.status === 429) { setShowUpgradeModal(true); return }
-                  } catch (err) {
-                    console.warn('[Search] /api/search fetch error (failing open):', err)
+              <p style={{ ...MONO, fontSize: 10, color: FG_M, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 18 }}>
+                City, airport name, or IATA code (e.g. "London", "JFK", "NYC")
+              </p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 28 }}>
+                <div>
+                  <label style={{ ...MONO, display: 'block', fontSize: 9.5, letterSpacing: '0.16em', textTransform: 'uppercase', color: FG_M, marginBottom: 8 }}>
+                    From
+                  </label>
+                  <AirportInput placeholder="City or airport code" onSelect={setFromAirport} resetKey={airportResetKey} />
+                </div>
+                <div>
+                  <label style={{ ...MONO, display: 'block', fontSize: 9.5, letterSpacing: '0.16em', textTransform: 'uppercase', color: FG_M, marginBottom: 8 }}>
+                    To
+                  </label>
+                  <AirportInput placeholder="City or airport code" onSelect={setToAirport} resetKey={airportResetKey} />
+                </div>
+              </div>
+
+              <PilotButton
+                disabled={!canSearch}
+                onClick={async () => {
+                  if (!canSearch) return
+                  if (!isPro) {
+                    try {
+                      const res = await fetch('/api/search', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ card: selectedCard?.name, points, from: fromAirport, to: toAirport }),
+                      })
+                      const data = await res.json()
+                      console.log('[Search] /api/search response - status:', res.status, '| body:', data)
+                      if (res.status === 429) { setShowUpgradeModal(true); return }
+                    } catch (err) {
+                      console.warn('[Search] /api/search fetch error (failing open):', err)
+                    }
                   }
-                }
-                sessionStorage.setItem('pp_fresh_search', 'true')
-                navigate('/results', { state: { card: selectedCard, points, from: fromAirport, to: toAirport } })
-              }}
-            >
-              Pilot My Points
-            </PilotButton>
+                  sessionStorage.setItem('pp_fresh_search', 'true')
+                  navigate('/results', { state: { card: selectedCard, points, from: fromAirport, to: toAirport } })
+                }}
+              >
+                Pilot My Points →
+              </PilotButton>
+            </div>
           </section>
         )}
 
