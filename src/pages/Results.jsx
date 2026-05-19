@@ -894,8 +894,8 @@ function detectHaul(from, to) {
 
 // ── Partner metadata helper ───────────────────────────────────────────
 function getPartnerInfo(partner) {
-  if (!partner || /direct|no transfer/i.test(partner)) return { ratio: '—', speed: 'No transfer' }
-  if (/Flying Blue/i.test(partner))       return { ratio: '1:1', speed: 'Instant — most days' }
+  if (!partner || /direct|no transfer/i.test(partner)) return { ratio: 'Direct', speed: 'No transfer' }
+  if (/Flying Blue/i.test(partner))       return { ratio: '1:1', speed: 'Instant, most days' }
   if (/Virgin Atlantic/i.test(partner))   return { ratio: '1:1', speed: 'Instant' }
   if (/Aeroplan/i.test(partner))          return { ratio: '1:1', speed: 'Instant' }
   if (/MileagePlus/i.test(partner))       return { ratio: '1:1', speed: 'Instant' }
@@ -941,8 +941,6 @@ export default function Results() {
   const { state } = useLocation()
   const { isPro } = useAuth()
   const [showModal, setShowModal] = useState(false)
-  const [luxOpen, setLuxOpen]     = useState(false)
-  const [budOpen, setBudOpen]     = useState(false)
 
   const card   = state?.card   || null
   const points = state?.points || ''
@@ -1017,7 +1015,7 @@ export default function Results() {
             style={{ fontFamily: SR, fontSize: 24, letterSpacing: '-0.01em', cursor: 'pointer', display: 'flex', alignItems: 'baseline', gap: 6 }}
           >
             <span style={{ width: 7, height: 7, borderRadius: 99, background: V5, display: 'inline-block', transform: 'translateY(-2px)' }} />
-            Point<em style={{ fontStyle: 'italic' }}>Pilot</em>
+            {'Point'}<em style={{ fontStyle: 'italic' }}>{'Pilot'}</em>
           </span>
           {/* Nav actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1117,7 +1115,7 @@ export default function Results() {
                 {/* Pass header */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
                   <span style={{ fontFamily: SR, fontSize: 18, color: INK_2 }}>
-                    Boarding Pass <em style={{ color: INK_3 }}>— Best Redemption</em>
+                    Boarding Pass <em style={{ color: INK_3 }}>Best Redemption</em>
                   </span>
                   <span style={{ fontFamily: MN, fontSize: 11, letterSpacing: '0.16em', color: INK_3 }}>PP · 2026</span>
                 </div>
@@ -1210,7 +1208,7 @@ export default function Results() {
                 </h2>
                 <p style={{ fontFamily: SR, fontStyle: 'italic', color: INK_2, fontSize: 19, lineHeight: 1.5, margin: 0 }}>
                   {hasEnough
-                    ? `More than enough — with a surplus of ${surplus.toLocaleString()} points left over.`
+                    ? `More than enough, with a surplus of ${surplus.toLocaleString()} points left over.`
                     : `You're ${shortfall.toLocaleString()} points short of the luxury option, but easily covered by the budget pick.`
                   }
                 </p>
@@ -1248,7 +1246,7 @@ export default function Results() {
                 <div style={{ marginTop: 14, fontFamily: SR, fontStyle: 'italic', fontSize: 19, color: INK }}>
                   {hasEnough
                     ? <>Surplus of <em style={{ fontStyle: 'normal', color: GRN, fontFamily: MN, fontSize: 14, letterSpacing: '0.04em' }}>{surplus.toLocaleString()} pts</em> remaining after booking.</>
-                    : <>Short by <em style={{ fontStyle: 'normal', color: '#f87171', fontFamily: MN, fontSize: 14, letterSpacing: '0.04em' }}>{shortfall.toLocaleString()} pts</em> — consider the budget option instead.</>
+                    : <>Short by <em style={{ fontStyle: 'normal', color: '#f87171', fontFamily: MN, fontSize: 14, letterSpacing: '0.04em' }}>{shortfall.toLocaleString()} pts</em>, consider the budget option instead.</>
                   }
                 </div>
               </div>
@@ -1335,8 +1333,8 @@ export default function Results() {
               },
               {
                 label: 'Transfer',
-                lux: <span style={{ fontFamily: SN, fontSize: 15, color: INK_2 }}>{luxury.partner.replace('Book directly - no transfer needed', 'Direct — no transfer').replace(' · 1:1 ratio', ' (1:1)')}</span>,
-                bud: <span style={{ fontFamily: SN, fontSize: 15, color: INK_2 }}>{budget.partner.replace('Book directly - no transfer needed', 'Direct — no transfer').replace(' · 1:1 ratio', ' (1:1)')}</span>,
+                lux: <span style={{ fontFamily: SN, fontSize: 15, color: INK_2 }}>{luxury.partner.replace('Book directly - no transfer needed', 'Direct, no transfer').replace(' · 1:1 ratio', ' (1:1)')}</span>,
+                bud: <span style={{ fontFamily: SN, fontSize: 15, color: INK_2 }}>{budget.partner.replace('Book directly - no transfer needed', 'Direct, no transfer').replace(' · 1:1 ratio', ' (1:1)')}</span>,
               },
               {
                 label: 'Transfer speed',
@@ -1347,10 +1345,14 @@ export default function Results() {
                 label: 'Fuel surcharges',
                 lux: luxury.warning
                   ? <span style={{ fontFamily: SN, fontSize: 14, color: '#fcd34d' }}>{luxury.warning.slice(0, 60)}…</span>
-                  : <span style={{ fontFamily: SN, fontSize: 15, color: GRN }}>None on most partners</span>,
+                  : /Flying Blue/i.test(luxury.partner)
+                    ? <span style={{ fontFamily: SN, fontSize: 15, color: INK_2 }}>Varies by partner</span>
+                    : <span style={{ fontFamily: SN, fontSize: 15, color: GRN }}>None on most partners</span>,
                 bud: budget.warning
                   ? <span style={{ fontFamily: SN, fontSize: 14, color: '#fcd34d' }}>{budget.warning.slice(0, 60)}…</span>
-                  : <span style={{ fontFamily: SN, fontSize: 15, color: GRN }}>None on most partners</span>,
+                  : /Flying Blue/i.test(budget.partner)
+                    ? <span style={{ fontFamily: SN, fontSize: 15, color: INK_2 }}>Varies by partner</span>
+                    : <span style={{ fontFamily: SN, fontSize: 15, color: GRN }}>None on most partners</span>,
               },
               {
                 label: 'Best for',
@@ -1371,108 +1373,51 @@ export default function Results() {
           {/* How to book */}
           <div style={{ borderTop: `1px solid ${R1}`, marginTop: 24 }}>
             <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr 1fr', borderBottom: `1px solid ${R1}` }}>
-              <div style={{ padding: '22px 24px', fontFamily: MN, fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_3, display: 'flex', alignItems: 'center' }}>
+              <div style={{ padding: '22px 24px', fontFamily: MN, fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_3, display: 'flex', alignItems: 'flex-start', paddingTop: 28 }}>
                 How to book
               </div>
-              {/* Luxury expand */}
-              <div>
-                <button
-                  onClick={() => setLuxOpen(o => !o)}
-                  style={{ width: '100%', textAlign: 'left', padding: '22px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, fontFamily: SR, fontSize: 18, color: INK_2, background: 'none', border: 'none', cursor: 'pointer', transition: 'color .2s' }}
-                  onMouseEnter={e => e.currentTarget.style.color = INK}
-                  onMouseLeave={e => e.currentTarget.style.color = INK_2}
-                >
-                  <span>{luxOpen ? 'Close' : 'Open'} the Luxury playbook</span>
-                  <span style={{ width: 28, height: 28, border: `1px solid ${luxOpen ? V5 : R2}`, borderRadius: 999, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'border-color .2s, transform .25s', transform: luxOpen ? 'rotate(180deg)' : 'none' }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
-                  </span>
-                </button>
-                <div style={{ overflow: 'hidden', maxHeight: luxOpen ? 800 : 0, transition: 'max-height 0.4s ease' }}>
-                  <div style={{ padding: '6px 24px 28px' }}>
-                    {luxury.warning && (
-                      <div style={{ background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 10, padding: '12px 16px', marginBottom: 16, display: 'flex', gap: 10 }}>
-                        <span style={{ color: '#fbbf24', flexShrink: 0 }}>⚠</span>
-                        <p style={{ color: '#fcd34d', fontSize: 13, lineHeight: 1.55, margin: 0 }}>{luxury.warning}</p>
-                      </div>
-                    )}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                      {luxury.steps.map((step, i) => (
-                        <div key={i} style={{ display: 'grid', gridTemplateColumns: '28px 1fr', gap: 14, fontSize: 14, color: INK_2, lineHeight: 1.55 }}>
-                          <span style={{ fontFamily: MN, fontSize: 11, letterSpacing: '0.1em', color: V4, width: 24, height: 24, border: `1px solid rgba(99,102,241,0.4)`, borderRadius: 999, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>{i + 1}</span>
-                          <div>{step}</div>
-                        </div>
-                      ))}
-                    </div>
+              {/* Luxury steps — always visible */}
+              <div style={{ padding: '22px 24px 28px' }}>
+                <div style={{ fontFamily: SR, fontSize: 18, color: INK_2, marginBottom: 20 }}>Luxury playbook</div>
+                {luxury.warning && (
+                  <div style={{ background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 10, padding: '12px 16px', marginBottom: 16, display: 'flex', gap: 10 }}>
+                    <span style={{ color: '#fbbf24', flexShrink: 0 }}>⚠</span>
+                    <p style={{ color: '#fcd34d', fontSize: 13, lineHeight: 1.55, margin: 0 }}>{luxury.warning}</p>
                   </div>
+                )}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  {luxury.steps.map((step, i) => (
+                    <div key={i} style={{ display: 'grid', gridTemplateColumns: '28px 1fr', gap: 14, fontSize: 14, color: INK_2, lineHeight: 1.55 }}>
+                      <span style={{ fontFamily: MN, fontSize: 11, letterSpacing: '0.1em', color: V4, width: 24, height: 24, border: `1px solid rgba(99,102,241,0.4)`, borderRadius: 999, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>{i + 1}</span>
+                      <div>{step}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
-              {/* Budget expand */}
-              <div>
-                <button
-                  onClick={() => setBudOpen(o => !o)}
-                  style={{ width: '100%', textAlign: 'left', padding: '22px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, fontFamily: SR, fontSize: 18, color: INK_2, background: 'none', border: 'none', cursor: 'pointer', transition: 'color .2s' }}
-                  onMouseEnter={e => e.currentTarget.style.color = INK}
-                  onMouseLeave={e => e.currentTarget.style.color = INK_2}
-                >
-                  <span>{budOpen ? 'Close' : 'Open'} the Budget playbook</span>
-                  <span style={{ width: 28, height: 28, border: `1px solid ${budOpen ? V5 : R2}`, borderRadius: 999, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'border-color .2s, transform .25s', transform: budOpen ? 'rotate(180deg)' : 'none' }}>
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
-                  </span>
-                </button>
-                <div style={{ overflow: 'hidden', maxHeight: budOpen ? 800 : 0, transition: 'max-height 0.4s ease' }}>
-                  <div style={{ padding: '6px 24px 28px' }}>
-                    {budget.warning && (
-                      <div style={{ background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 10, padding: '12px 16px', marginBottom: 16, display: 'flex', gap: 10 }}>
-                        <span style={{ color: '#fbbf24', flexShrink: 0 }}>⚠</span>
-                        <p style={{ color: '#fcd34d', fontSize: 13, lineHeight: 1.55, margin: 0 }}>{budget.warning}</p>
-                      </div>
-                    )}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                      {budget.steps.map((step, i) => (
-                        <div key={i} style={{ display: 'grid', gridTemplateColumns: '28px 1fr', gap: 14, fontSize: 14, color: INK_2, lineHeight: 1.55 }}>
-                          <span style={{ fontFamily: MN, fontSize: 11, letterSpacing: '0.1em', color: V4, width: 24, height: 24, border: `1px solid rgba(99,102,241,0.4)`, borderRadius: 999, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>{i + 1}</span>
-                          <div>{step}</div>
-                        </div>
-                      ))}
-                    </div>
+              {/* Budget steps — always visible */}
+              <div style={{ padding: '22px 24px 28px' }}>
+                <div style={{ fontFamily: SR, fontSize: 18, color: INK_2, marginBottom: 20 }}>Budget playbook</div>
+                {budget.warning && (
+                  <div style={{ background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 10, padding: '12px 16px', marginBottom: 16, display: 'flex', gap: 10 }}>
+                    <span style={{ color: '#fbbf24', flexShrink: 0 }}>⚠</span>
+                    <p style={{ color: '#fcd34d', fontSize: 13, lineHeight: 1.55, margin: 0 }}>{budget.warning}</p>
                   </div>
+                )}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  {budget.steps.map((step, i) => (
+                    <div key={i} style={{ display: 'grid', gridTemplateColumns: '28px 1fr', gap: 14, fontSize: 14, color: INK_2, lineHeight: 1.55 }}>
+                      <span style={{ fontFamily: MN, fontSize: 11, letterSpacing: '0.1em', color: V4, width: 24, height: 24, border: `1px solid rgba(99,102,241,0.4)`, borderRadius: 999, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>{i + 1}</span>
+                      <div>{step}</div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-            </div>
-
-            {/* CTA row */}
-            <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr 1fr', borderBottom: `1px solid ${R1}` }}>
-              <div />
-              <div style={{ padding: 24 }}>
-                <a
-                  href={AFFILIATE_LINKS[card?.name] || '#'}
-                  target="_blank" rel="noopener noreferrer"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '14px 22px', borderRadius: 999, fontSize: 14, background: V5, color: 'white', textDecoration: 'none', transition: 'background .2s' }}
-                  onMouseEnter={e => e.currentTarget.style.background = '#4f46e5'}
-                  onMouseLeave={e => e.currentTarget.style.background = V5}
-                >
-                  Book luxury option
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-                </a>
-              </div>
-              <div style={{ padding: 24 }}>
-                <a
-                  href={AFFILIATE_LINKS[card?.name] || '#'}
-                  target="_blank" rel="noopener noreferrer"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '14px 22px', borderRadius: 999, fontSize: 14, border: `1px solid ${R2}`, color: INK, textDecoration: 'none', transition: 'border-color .2s' }}
-                  onMouseEnter={e => e.currentTarget.style.borderColor = INK_3}
-                  onMouseLeave={e => e.currentTarget.style.borderColor = R2}
-                >
-                  Book budget option
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-                </a>
               </div>
             </div>
           </div>
 
           {/* Disclaimer */}
           <p style={{ marginTop: 24, fontFamily: SR, fontStyle: 'italic', color: INK_3, fontSize: 15, lineHeight: 1.6, maxWidth: 720 }}>
-            PointPilot shows average award pricing across the next 90 days. Always verify live availability on the airline's site before transferring points — transfers are irreversible.
+            PointPilot shows average award pricing across the next 90 days. Always verify live availability on the airline's site before transferring points. Transfers are irreversible.
           </p>
         </div>
       </section>
@@ -1490,7 +1435,7 @@ export default function Results() {
                 }
               </h2>
               <p style={{ fontFamily: SR, fontStyle: 'italic', color: INK_2, fontSize: 19, lineHeight: 1.5, margin: 0, maxWidth: 620 }}>
-                Each of these cards earns transferable points and currently runs a bonus large enough to cover this route — sometimes twice over.
+                Each of these cards earns transferable points and currently runs a bonus large enough to cover this route, sometimes twice over.
               </p>
             </div>
           </div>
@@ -1568,7 +1513,7 @@ export default function Results() {
       <footer style={{ borderTop: `1px solid ${R1}`, padding: '56px 0 72px', color: INK_3, fontSize: 13 }}>
         <div style={{ ...CONT, display: 'grid', gridTemplateColumns: '1fr auto', gap: 40, alignItems: 'end' }}>
           <p style={{ margin: 0, maxWidth: 560, lineHeight: 1.6, fontFamily: SR, fontStyle: 'italic', fontSize: 16, color: INK_2 }}>
-            PointPilot is independent. We earn a commission on cards opened through links above — it never changes which result is "best." Average award pricing across 90-day forward availability.
+            PointPilot is independent. We earn a commission on cards opened through links above. It never changes which result is "best." Average award pricing across 90-day forward availability.
           </p>
           <div style={{ display: 'flex', gap: 24, fontFamily: MN, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: INK_3 }}>
             <span>{from?.code} → {to?.code}</span>
