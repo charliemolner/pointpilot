@@ -91,8 +91,8 @@ const REDEMPTIONS = [
 
 const PROGRAMS = [
   { name: 'Chase',       sub: 'Ultimate Rewards',   value: '2.05¢', tone: 'violet' },
-  { name: 'Amex',        sub: 'Membership Rewards',  value: '2.20¢', tone: 'gold'   },
-  { name: 'Capital One', sub: 'Venture Miles',       value: '1.85¢', tone: 'violet' },
+  { name: 'Amex',        sub: 'Membership Rewards',  value: '2.00¢', tone: 'gold'   },
+  { name: 'Capital One', sub: 'Venture Miles',       value: '1.70¢', tone: 'violet' },
   { name: 'Citi',        sub: 'ThankYou Points',     value: '1.95¢', tone: 'violet' },
   { name: 'Bilt',        sub: 'Rewards',             value: '2.05¢', tone: 'violet' },
   { name: 'United',      sub: 'MileagePlus',         value: '1.35¢', tone: 'muted'  },
@@ -101,9 +101,8 @@ const PROGRAMS = [
 ]
 
 const PARTNER_PILLS = [
-  '+ Marriott Bonvoy', '· Hilton Honors', '· Hyatt', '· ANA Mileage Club',
-  '· Aeroplan', '· Virgin Atlantic', '· Avianca LifeMiles', '· Alaska',
-  '· Iberia Plus', '· Turkish Miles&Smiles',
+  '+ ANA Mileage Club', '· Aeroplan', '· Virgin Atlantic', '· Avianca LifeMiles',
+  '· Alaska MileagePlan', '· Iberia Plus', '· Turkish Miles&Smiles', '· Flying Blue',
 ]
 
 // ── Reusable primitives ──────────────────────────────────────
@@ -196,8 +195,8 @@ function MiniCalculator({ onSearch }) {
   const [card, setCard] = useState('Chase Sapphire')
   const [points, setPoints] = useState(80000)
 
-  const cpp = card.includes('Amex') ? 2.2
-    : card.includes('Capital') ? 1.85
+  const cpp = card.includes('Amex') ? 2.0
+    : card.includes('Capital') ? 1.7
     : card.includes('Citi') ? 1.95
     : card.includes('Bilt') ? 2.05
     : 2.0
@@ -357,7 +356,7 @@ function Hero({ navigate, user, isPro }) {
             color: FG_SOFT, maxWidth: 520, margin: '0 0 36px',
           }}>
             PointPilot finds the highest cents-per-point redemption across 24 transfer
-            partners — first class, lie-flat, or the surprise off-peak gem nobody talks about.
+            partners, first class, lie-flat, or the surprise off-peak gem nobody talks about.
           </p>
 
           <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -478,14 +477,14 @@ function RedemptionsSection() {
       }}>
         <div>
           <span style={{ ...MONO, fontSize: 11, letterSpacing: '0.16em', color: V300, textTransform: 'uppercase' }}>
-            01 · This week's sweet spots
+            01 · Sample redemptions
           </span>
           <h2 style={{
             ...SERIF,
             fontSize: 'clamp(32px,4vw,56px)', lineHeight: 1.02,
             margin: '16px 0 0', letterSpacing: '-0.025em', maxWidth: 720, color: FG,
           }}>
-            Real redemptions, <span style={{ fontStyle: 'italic', color: V300 }}>real math</span>.
+            Real routes. <span style={{ fontStyle: 'italic', color: V300 }}>Real value</span>.
           </h2>
         </div>
         <span style={{ ...MONO, fontSize: 12, color: FG_MUTE, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
@@ -723,14 +722,14 @@ function Footer({ navigate }) {
         <div>
           <PpMark onClick={() => navigate('/')} />
           <p style={{ marginTop: 16, fontSize: 14, color: FG_MUTE, maxWidth: 300, lineHeight: 1.55 }}>
-            A small instrument for award travel. Built for the r/awardtravel diaspora.
+            The smartest way to redeem your points and miles.
           </p>
         </div>
 
         <FootCol title="Product" items={[
           { label: 'Redemptions',  onClick: () => navigate('/search') },
           { label: 'Sweet spots',  onClick: () => navigate('/search') },
-          { label: 'Sextant Pro',  onClick: () => navigate('/signup') },
+          { label: 'Pro',          onClick: () => navigate('/signup') },
         ]} />
 
         <FootCol title="Account" items={[
