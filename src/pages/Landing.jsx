@@ -100,10 +100,6 @@ const PROGRAMS = [
   { name: 'American',    sub: 'AAdvantage',          value: '1.65¢', tone: 'muted'  },
 ]
 
-const PARTNER_PILLS = [
-  '+ ANA Mileage Club', '· Aeroplan', '· Virgin Atlantic', '· Avianca LifeMiles',
-  '· Alaska MileagePlan', '· Iberia Plus', '· Turkish Miles&Smiles', '· Flying Blue',
-]
 
 // ── Reusable primitives ──────────────────────────────────────
 
@@ -367,18 +363,13 @@ function Hero({ navigate, user, isPro }) {
           {/* Stats strip */}
           <div style={{ display: 'flex', gap: 36, marginTop: 56, color: FG_MUTE, fontSize: 13, flexWrap: 'wrap' }}>
             <div>
-              <div style={{ ...SERIF, fontSize: 28, color: FG }}>24</div>
-              <div style={{ marginTop: 2 }}>Transfer partners</div>
+              <div style={{ ...SERIF, fontSize: 28, color: FG }}>20+</div>
+              <div style={{ marginTop: 2 }}>Transfer partners across all programs</div>
             </div>
             <div style={{ width: 1, background: LINE }} />
             <div>
-              <div style={{ ...SERIF, fontSize: 28, color: FG }}>28.0<span style={{ fontSize: 16, color: FG_MUTE }}>¢</span></div>
-              <div style={{ marginTop: 2 }}>Best logged cpp</div>
-            </div>
-            <div style={{ width: 1, background: LINE }} />
-            <div>
-              <div style={{ ...SERIF, fontSize: 28, color: FG }}>~90<span style={{ fontSize: 16, color: FG_MUTE }}>s</span></div>
-              <div style={{ marginTop: 2 }}>Median search</div>
+              <div style={{ ...SERIF, fontSize: 28, color: FG }}>&lt; 2<span style={{ fontSize: 16, color: FG_MUTE }}>min</span></div>
+              <div style={{ marginTop: 2 }}>Time to answer</div>
             </div>
           </div>
         </div>
@@ -555,9 +546,8 @@ function ProgramsSection() {
           </h2>
         </div>
         <p style={{ fontSize: 16, lineHeight: 1.6, color: FG_SOFT, alignSelf: 'end', maxWidth: 520 }}>
-          Five transferable currencies. Nineteen airline and hotel partners. We track award
-          charts, fuel surcharges, and transfer bonuses so you don't have to bookmark
-          another spreadsheet.
+          The major transferable currencies, all in one place. We track award charts and
+          transfer partners so you don't have to bookmark another spreadsheet.
         </p>
       </div>
 
@@ -565,13 +555,6 @@ function ProgramsSection() {
         {PROGRAMS.map(p => <ProgramCard key={p.name} p={p} />)}
       </div>
 
-      <div style={{
-        marginTop: 32, paddingTop: 24, borderTop: `1px solid ${LINE}`,
-        display: 'flex', flexWrap: 'wrap', gap: '8px 22px',
-        fontSize: 12, color: FG_MUTE, ...MONO,
-      }}>
-        {PARTNER_PILLS.map(s => <span key={s}>{s}</span>)}
-      </div>
     </section>
   )
 }
@@ -676,7 +659,7 @@ function PricingSection({ navigate }) {
       </div>
 
       <p style={{ textAlign: 'center', marginTop: 20, fontSize: 13, color: FG_MUTE }}>
-        Cancel any time. The points you save in a single trip pay for a decade of Sextant.
+        Cancel any time. The points you save in a single trip more than pay for itself.
       </p>
     </section>
   )
