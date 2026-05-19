@@ -1,21 +1,9 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import UpgradeModal from '../components/UpgradeModal'
 import { useAuth } from '../context/AuthContext'
 
-// ── Design tokens ──────────────────────────────────────────
-const BG        = '#0a0f1e'
-const SURFACE   = '#0f1629'
-const ELEVATED  = '#141d35'
-const TEXT      = '#f1f5f9'
-const MUTED     = '#94a3b8'
-const SUBTLE    = '#475569'
-const ACCENT    = '#6366f1'
-const ACCENT_LT = '#818cf8'
-const BORDER    = 'rgba(255,255,255,0.07)'
-const BORDER_MID = 'rgba(255,255,255,0.10)'
-const GLOW      = 'rgba(99,102,241,0.35)'
-
+// ── Affiliate links ───────────────────────────────────────────────────
 // TODO: Replace with real affiliate links from FlexOffers
 const AFFILIATE_LINKS = {
   'Chase Sapphire Preferred':      'AFFILIATE_LINK_CHASE_SAPPHIRE_PREFERRED',
@@ -28,38 +16,33 @@ const AFFILIATE_LINKS = {
 const CARD_DETAILS = {
   'Chase Sapphire Preferred': {
     tagline: '14+ transfer partners · $95/yr · 60k bonus offer',
-    highlight: 'Best all-around travel card for beginners and experts alike',
     bonus: '75,000 point welcome bonus after $5,000 spend in 3 months, worth up to $1,500 in travel',
   },
   'Capital One Venture X': {
     tagline: '15+ transfer partners · $395/yr · $300 travel credit',
-    highlight: 'Premium travel card that effectively pays for itself every year',
     bonus: '75,000 mile welcome bonus after $4,000 spend in 3 months, worth up to $1,400 in travel',
   },
   'Citi Strata Premier': {
     tagline: '15+ transfer partners · $95/yr · Singapore & Turkish access',
-    highlight: "Hidden gem with access to some of the world's best programs",
     bonus: '60,000 point welcome bonus after $4,000 spend in 3 months, worth up to $1,100 in travel',
   },
   'Amex Gold': {
     tagline: '20+ partners · $325/yr · 4x dining & groceries',
-    highlight: 'Strongest earner for everyday spend with world-class transfer partners',
     bonus: '60,000–100,000 point welcome bonus after $8,000 spend in 6 months, worth up to $2,000 in travel',
   },
   'Wells Fargo Autograph Journey': {
     tagline: 'Flying Blue & Aeroplan · $95/yr · 60k bonus offer',
-    highlight: 'Underrated card with powerful airline partners at a low annual fee',
     bonus: '60,000 point welcome bonus after $3,000 spend in 3 months, worth up to $1,000 in travel',
   },
 }
 
-// ── Points label - avoid "ThankYou Points points" etc. ──
+// ── Points label - avoid "ThankYou Points points" etc. ──────────────
 function pointsLabel(program) {
   if (/miles|points|mileage|plan/i.test(program)) return program
   return program + ' points'
 }
 
-// ── Affiliate card promo grid (always show all 4) ──
+// ── Affiliate card promo grid ────────────────────────────────────────
 const PROMO_CARDS = [
   { name: 'Chase Sapphire Preferred',  issuer: 'Chase' },
   { name: 'Capital One Venture X',     issuer: 'Capital One' },
@@ -67,7 +50,7 @@ const PROMO_CARDS = [
   { name: 'Amex Gold',                 issuer: 'American Express' },
 ]
 
-// ── localStorage search counter ──
+// ── localStorage search counter ──────────────────────────────────────
 function getSearchData() {
   const today = new Date().toISOString().slice(0, 10)
   const storedDate  = localStorage.getItem('pp_search_date')
@@ -77,10 +60,9 @@ function getSearchData() {
 }
 
 function incrementSearchCount() {
-  // Only count if the user arrived from a real search submission
   const isFresh = sessionStorage.getItem('pp_fresh_search') === 'true'
-  if (!isFresh) return getSearchData().count  // refresh / back / new tab - don't count
-  sessionStorage.removeItem('pp_fresh_search')  // clear the flag immediately
+  if (!isFresh) return getSearchData().count
+  sessionStorage.removeItem('pp_fresh_search')
   const today = new Date().toISOString().slice(0, 10)
   const { count } = getSearchData()
   const next = count + 1
@@ -89,11 +71,10 @@ function incrementSearchCount() {
   return next
 }
 
-// ─────────────────────────────────────────────────────────
-// ROUTE-AWARE RECOMMENDATION ENGINE
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────
+// ROUTE-AWARE RECOMMENDATION ENGINE (unchanged)
+// ─────────────────────────────────────────────────────────────────────
 
-// Which transfer partners each card program can access
 const PROGRAM_PARTNERS = {
   'Ultimate Rewards':    ['Virgin Atlantic Flying Club', 'British Airways Avios', 'Air France Flying Blue', 'Singapore KrisFlyer', 'Iberia Avios', 'Air Canada Aeroplan', 'United MileagePlus', 'Japan Airlines Mileage Bank'],
   'Membership Rewards':  ['Virgin Atlantic Flying Club', 'British Airways Avios', 'Air France Flying Blue', 'Singapore KrisFlyer', 'Iberia Avios', 'Air Canada Aeroplan', 'ANA Mileage Club', 'Delta SkyMiles'],
@@ -103,7 +84,6 @@ const PROGRAM_PARTNERS = {
   'Wells Fargo Rewards': ['Air France Flying Blue', 'Air Canada Aeroplan', 'Avianca LifeMiles'],
 }
 
-// Normalize airport codes to metro groups for route matching
 const METRO_MAP = {
   JFK: 'NYC', LGA: 'NYC', EWR: 'NYC',
   LHR: 'LON', LGW: 'LON', STN: 'LON',
@@ -114,9 +94,6 @@ const METRO_MAP = {
 }
 function getMetro(code) { return METRO_MAP[code] || code }
 
-// ── Route database ──
-// Each option: airline, partner, points, cashValue, cpp, note, warning?, steps[], programs[]
-// programs[] = card programs that can access this partner - pick the first match for the user's card
 const ROUTE_DB = {
   'NYC-LON': {
     luxury: [
@@ -273,7 +250,7 @@ const ROUTE_DB = {
         airline: 'ITA Airways Business Class via Aeroplan',
         partner: 'Transfer to Air Canada Aeroplan · 1:1 ratio',
         points: 55000, cashValue: 2800, cpp: 5.1,
-        note: 'Air Canada Aeroplan is one of the few programs that lets you book ITA Airways (Italy\'s flag carrier) business class. ITA Business features lie-flat seats and exceptional Italian hospitality on a route most cards can\'t access well.',
+        note: "Air Canada Aeroplan is one of the few programs that lets you book ITA Airways (Italy's flag carrier) business class. ITA Business features lie-flat seats and exceptional Italian hospitality on a route most cards can't access well.",
         warning: null,
         steps: [
           'Log into your card account and navigate to "Transfer Points"',
@@ -351,7 +328,7 @@ const ROUTE_DB = {
         airline: 'Emirates Business Class via Aeroplan',
         partner: 'Transfer to Air Canada Aeroplan · 1:1 ratio',
         points: 75000, cashValue: 5500, cpp: 7.3,
-        note: "Air Canada Aeroplan lets you book Emirates Business Class at fixed Saver rates, one of the best ways to experience the Emirates Business Suite without needing Emirates Skywards miles. Emirates connects to Dubai via major international hubs.",
+        note: "Air Canada Aeroplan lets you book Emirates Business Class at fixed Saver rates, one of the best ways to experience the Emirates Business Suite without needing Emirates Skywards miles.",
         warning: null,
         steps: [
           'Log into your card account and navigate to "Transfer Points"',
@@ -550,7 +527,7 @@ const ROUTE_DB = {
   },
 }
 
-// ── Default fallback for programs/routes not in the database ──
+// ── Default fallback for programs/routes not in the database ──────────
 const DEFAULT_FALLBACKS = {
   'Ultimate Rewards': {
     luxury: {
@@ -559,14 +536,7 @@ const DEFAULT_FALLBACKS = {
       points: 60000, cashValue: 2800, cpp: 4.7,
       note: 'United MileagePlus gives you access to 40+ Star Alliance partner airlines for business class worldwide. Availability and pricing varies by route. Search united.com for Saver business availability on your specific dates.',
       warning: null,
-      steps: [
-        'Log into Chase and go to "Transfer to Travel Partners"',
-        'Select United MileagePlus (1:1, instant transfer)',
-        'Search for Saver business class availability on united.com',
-        'Filter for partner airlines on your specific route',
-        'Look for the "Saver" label, the lowest mileage tier',
-        'Book and pay only taxes and carrier fees at checkout',
-      ],
+      steps: ['Log into Chase and go to "Transfer to Travel Partners"', 'Select United MileagePlus (1:1, instant transfer)', 'Search for Saver business class availability on united.com', 'Filter for partner airlines on your specific route', 'Look for the "Saver" label, the lowest mileage tier', 'Book and pay only taxes and carrier fees at checkout'],
     },
     budget: {
       airline: 'Economy via Air Canada Aeroplan',
@@ -574,14 +544,7 @@ const DEFAULT_FALLBACKS = {
       points: 30000, cashValue: 700, cpp: 2.3,
       note: 'Aeroplan covers Star Alliance carriers worldwide with no fuel surcharges on most partners. For destinations not in our route database, search aeroplan.com for the best available economy rates.',
       warning: null,
-      steps: [
-        'Log into Chase and go to "Transfer to Travel Partners"',
-        'Select Air Canada Aeroplan (1:1, instant transfer)',
-        'Search aeroplan.com for economy Saver availability on your route',
-        'Look for Star Alliance carriers serving your destination',
-        'No fuel surcharges on most Aeroplan partners',
-        'Book and pay only carrier fees at checkout',
-      ],
+      steps: ['Log into Chase and go to "Transfer to Travel Partners"', 'Select Air Canada Aeroplan (1:1, instant transfer)', 'Search aeroplan.com for economy Saver availability on your route', 'Look for Star Alliance carriers serving your destination', 'No fuel surcharges on most Aeroplan partners', 'Book and pay only carrier fees at checkout'],
     },
   },
   'Membership Rewards': {
@@ -591,14 +554,7 @@ const DEFAULT_FALLBACKS = {
       points: 55000, cashValue: 2800, cpp: 5.1,
       note: 'Air France Flying Blue gives you access to Air France, KLM, and 30+ partner airlines worldwide. Check flyingblue.com on the 1st of each month for Promo Rewards discounts.',
       warning: null,
-      steps: [
-        'Log into your Amex account and go to "Transfer Points"',
-        'Select Air France/KLM Flying Blue (1:1, typically instant)',
-        'Check flyingblue.com for monthly Promo Rewards before transferring',
-        'Search for business class award availability on airfrance.com',
-        'Book and pay ~$100–$200 in taxes and fees',
-        'Flying Blue covers worldwide destinations via Air France, KLM, and partners',
-      ],
+      steps: ['Log into your Amex account and go to "Transfer Points"', 'Select Air France/KLM Flying Blue (1:1, typically instant)', 'Check flyingblue.com for monthly Promo Rewards before transferring', 'Search for business class award availability on airfrance.com', 'Book and pay ~$100–$200 in taxes and fees', 'Flying Blue covers worldwide destinations via Air France, KLM, and partners'],
     },
     budget: {
       airline: 'Economy via Air Canada Aeroplan',
@@ -606,14 +562,7 @@ const DEFAULT_FALLBACKS = {
       points: 30000, cashValue: 700, cpp: 2.3,
       note: 'Aeroplan covers Star Alliance worldwide with no fuel surcharges on most partners. Amex transfers to Aeroplan at 1:1 instantly, one of the most versatile economy options.',
       warning: null,
-      steps: [
-        'Log into your Amex account and go to "Transfer Points"',
-        'Select Air Canada Aeroplan (1:1, instant transfer)',
-        'Search aeroplan.com for economy Saver availability on your route',
-        'Look for Star Alliance carriers serving your destination',
-        'No fuel surcharges on most Aeroplan partners',
-        'Book and pay only carrier fees at checkout',
-      ],
+      steps: ['Log into your Amex account and go to "Transfer Points"', 'Select Air Canada Aeroplan (1:1, instant transfer)', 'Search aeroplan.com for economy Saver availability on your route', 'Look for Star Alliance carriers serving your destination', 'No fuel surcharges on most Aeroplan partners', 'Book and pay only carrier fees at checkout'],
     },
   },
   'Capital One Miles': {
@@ -623,14 +572,7 @@ const DEFAULT_FALLBACKS = {
       points: 55000, cashValue: 2800, cpp: 5.1,
       note: 'Air France Flying Blue is a Capital One transfer partner at 1:1. Monthly Promo Rewards can cut costs by 25–50%. Check on the 1st of each month.',
       warning: null,
-      steps: [
-        'Log into your Capital One account and go to "Transfer Miles"',
-        'Select Air France/KLM Flying Blue (1:1)',
-        'Check flyingblue.com for monthly Promo Rewards before transferring',
-        'Search for business class award availability on airfrance.com',
-        'Book and pay ~$100–$200 in taxes and fees',
-        'Flying Blue covers worldwide destinations via Air France, KLM, and partners',
-      ],
+      steps: ['Log into your Capital One account and go to "Transfer Miles"', 'Select Air France/KLM Flying Blue (1:1)', 'Check flyingblue.com for monthly Promo Rewards before transferring', 'Search for business class award availability on airfrance.com', 'Book and pay ~$100–$200 in taxes and fees', 'Flying Blue covers worldwide destinations via Air France, KLM, and partners'],
     },
     budget: {
       airline: 'Economy via Air Canada Aeroplan',
@@ -638,14 +580,7 @@ const DEFAULT_FALLBACKS = {
       points: 30000, cashValue: 700, cpp: 2.3,
       note: 'Aeroplan is a Capital One partner. No fuel surcharges on most Star Alliance partners makes this one of the cleanest economy options for international routes.',
       warning: null,
-      steps: [
-        'Log into Capital One and go to "Transfer Miles"',
-        'Select Air Canada Aeroplan (1:1)',
-        'Search aeroplan.com for economy Saver availability on your route',
-        'Look for Star Alliance carriers serving your destination',
-        'No fuel surcharges on most Aeroplan partners',
-        'Book and pay only carrier fees at checkout',
-      ],
+      steps: ['Log into Capital One and go to "Transfer Miles"', 'Select Air Canada Aeroplan (1:1)', 'Search aeroplan.com for economy Saver availability on your route', 'Look for Star Alliance carriers serving your destination', 'No fuel surcharges on most Aeroplan partners', 'Book and pay only carrier fees at checkout'],
     },
   },
   'ThankYou Points': {
@@ -655,14 +590,7 @@ const DEFAULT_FALLBACKS = {
       points: 55000, cashValue: 2800, cpp: 5.1,
       note: 'Air France Flying Blue is a Citi ThankYou partner at 1:1. Monthly Promo Rewards can significantly reduce the points cost. Check on the 1st of each month.',
       warning: null,
-      steps: [
-        'Log into your Citi account and go to "Transfer Points"',
-        'Select Air France/KLM Flying Blue (1:1)',
-        'Check flyingblue.com on the 1st of each month for Promo Rewards',
-        'Search for business class award availability on airfrance.com',
-        'Book and pay ~$100–$200 in taxes and fees',
-        'Flying Blue covers Air France, KLM, and 30+ global partners',
-      ],
+      steps: ['Log into your Citi account and go to "Transfer Points"', 'Select Air France/KLM Flying Blue (1:1)', 'Check flyingblue.com on the 1st of each month for Promo Rewards', 'Search for business class award availability on airfrance.com', 'Book and pay ~$100–$200 in taxes and fees', 'Flying Blue covers Air France, KLM, and 30+ global partners'],
     },
     budget: {
       airline: 'Economy via Avianca LifeMiles',
@@ -670,14 +598,7 @@ const DEFAULT_FALLBACKS = {
       points: 25000, cashValue: 650, cpp: 2.6,
       note: "LifeMiles consistently offers some of the lowest economy rates for Star Alliance partners worldwide. An underrated gem in the Citi ThankYou partner lineup.",
       warning: null,
-      steps: [
-        'Log into your Citi account and go to "Transfer Points"',
-        'Select Avianca LifeMiles (1:1)',
-        'Search lifemiles.com for Star Alliance economy awards on your route',
-        'Look for United, Air Canada, Lufthansa, or other Star Alliance carriers',
-        'LifeMiles typically charges fewer miles than other Star Alliance programs',
-        'Book and pay only carrier fees at checkout',
-      ],
+      steps: ['Log into your Citi account and go to "Transfer Points"', 'Select Avianca LifeMiles (1:1)', 'Search lifemiles.com for Star Alliance economy awards on your route', 'Look for United, Air Canada, Lufthansa, or other Star Alliance carriers', 'LifeMiles typically charges fewer miles than other Star Alliance programs', 'Book and pay only carrier fees at checkout'],
     },
   },
   'Bilt Points': {
@@ -687,14 +608,7 @@ const DEFAULT_FALLBACKS = {
       points: 60000, cashValue: 2800, cpp: 4.7,
       note: 'Bilt transfers to United instantly at 1:1. United Polaris business class and 40+ Star Alliance partner airlines are accessible. Search united.com for Saver business availability.',
       warning: null,
-      steps: [
-        'Log into your Bilt account and go to "Transfer Points"',
-        'Select United MileagePlus (1:1, instant)',
-        'Search for Saver business class availability on united.com',
-        'Filter for partner airlines on your specific route',
-        'Look for the "Saver" label, the lowest mileage tier',
-        'Book and pay only taxes and carrier fees at checkout',
-      ],
+      steps: ['Log into your Bilt account and go to "Transfer Points"', 'Select United MileagePlus (1:1, instant)', 'Search for Saver business class availability on united.com', 'Filter for partner airlines on your specific route', 'Look for the "Saver" label, the lowest mileage tier', 'Book and pay only taxes and carrier fees at checkout'],
     },
     budget: {
       airline: 'Economy via Air Canada Aeroplan',
@@ -702,14 +616,7 @@ const DEFAULT_FALLBACKS = {
       points: 30000, cashValue: 700, cpp: 2.3,
       note: 'Bilt transfers to Aeroplan instantly at 1:1. No fuel surcharges on most Star Alliance partners makes this one of the cleanest economy options for international travel.',
       warning: null,
-      steps: [
-        'Log into Bilt and go to "Transfer Points"',
-        'Select Air Canada Aeroplan (1:1, instant)',
-        'Search aeroplan.com for economy Saver availability on your route',
-        'Look for Star Alliance carriers serving your destination',
-        'No fuel surcharges on most Aeroplan partners',
-        'Book and pay only carrier fees at checkout',
-      ],
+      steps: ['Log into Bilt and go to "Transfer Points"', 'Select Air Canada Aeroplan (1:1, instant)', 'Search aeroplan.com for economy Saver availability on your route', 'Look for Star Alliance carriers serving your destination', 'No fuel surcharges on most Aeroplan partners', 'Book and pay only carrier fees at checkout'],
     },
   },
   'Wells Fargo Rewards': {
@@ -719,14 +626,7 @@ const DEFAULT_FALLBACKS = {
       points: 55000, cashValue: 2800, cpp: 5.1,
       note: 'Air France Flying Blue is a Wells Fargo Autograph Journey partner at 1:1. Monthly Promo Rewards can reduce costs by 25–50%.',
       warning: null,
-      steps: [
-        'Log into your Wells Fargo account and go to "Transfer Points"',
-        'Select Air France/KLM Flying Blue (1:1)',
-        'Check flyingblue.com on the 1st of each month for Promo Rewards',
-        'Search for business class award availability on airfrance.com',
-        'Book and pay ~$100–$200 in taxes and fees',
-        'Flying Blue covers Air France, KLM, and global SkyTeam partners',
-      ],
+      steps: ['Log into your Wells Fargo account and go to "Transfer Points"', 'Select Air France/KLM Flying Blue (1:1)', 'Check flyingblue.com on the 1st of each month for Promo Rewards', 'Search for business class award availability on airfrance.com', 'Book and pay ~$100–$200 in taxes and fees', 'Flying Blue covers Air France, KLM, and global SkyTeam partners'],
     },
     budget: {
       airline: 'Economy via Air Canada Aeroplan',
@@ -734,50 +634,39 @@ const DEFAULT_FALLBACKS = {
       points: 25000, cashValue: 650, cpp: 2.6,
       note: 'Aeroplan is a Wells Fargo Autograph Journey partner. No fuel surcharges on most Star Alliance partners for international economy routes.',
       warning: null,
-      steps: [
-        'Log into Wells Fargo and go to "Transfer Points"',
-        'Select Air Canada Aeroplan (1:1)',
-        'Search aeroplan.com for economy Saver availability on your route',
-        'Look for Star Alliance carriers serving your destination',
-        'No fuel surcharges on most Aeroplan partners',
-        'Book and pay only carrier fees at checkout',
-      ],
+      steps: ['Log into Wells Fargo and go to "Transfer Points"', 'Select Air Canada Aeroplan (1:1)', 'Search aeroplan.com for economy Saver availability on your route', 'Look for Star Alliance carriers serving your destination', 'No fuel surcharges on most Aeroplan partners', 'Book and pay only carrier fees at checkout'],
     },
   },
 }
 
-// Airline card programs - these earn miles directly, no transfer needed
+// ── Airline co-branded card programs ─────────────────────────────────
 const AIRLINE_DIRECT = {
   'United MileagePlus': {
     luxury: {
-      airline: 'United Polaris Business Class',
-      partner: 'Book directly - no transfer needed',
+      airline: 'United Polaris Business Class', partner: 'Book directly - no transfer needed',
       points: 57500, cashValue: 3000, cpp: 5.2,
-      note: 'United Polaris features lie-flat beds, amenity kits, and premium dining. Search united.com for Saver business availability on your specific route. Availability varies significantly by dates and routing.',
+      note: 'United Polaris features lie-flat beds, amenity kits, and premium dining. Search united.com for Saver business availability on your specific route.',
       warning: null,
       steps: ['Log into your United MileagePlus account at united.com', 'Search Award Travel and select Business class', 'Filter by "Saver" to find the lowest mileage tier', 'Look for Polaris cabin availability on your route', 'Book directly with your MileagePlus miles', 'Pay only taxes and carrier fees at checkout'],
     },
     budget: {
-      airline: 'United Economy Saver',
-      partner: 'Book directly - no transfer needed',
+      airline: 'United Economy Saver', partner: 'Book directly - no transfer needed',
       points: 20000, cashValue: 450, cpp: 2.3,
-      note: 'United Saver economy awards offer wide availability on United\'s own metal and 40+ Star Alliance partners. Search by "Saver" tier on united.com for the lowest mileage rates.',
+      note: "United Saver economy awards offer wide availability on United's own metal and 40+ Star Alliance partners.",
       warning: null,
       steps: ['Log into your United MileagePlus account at united.com', 'Search Award Travel and select Economy class', 'Filter by "Saver" to find the lowest mileage tier', 'Look for United or partner carrier availability', 'Book directly with your MileagePlus miles', 'Pay only carrier fees (~$5–$50) at checkout'],
     },
   },
   'Delta SkyMiles': {
     luxury: {
-      airline: 'Delta One Business Class',
-      partner: 'Book directly - no transfer needed',
+      airline: 'Delta One Business Class', partner: 'Book directly - no transfer needed',
       points: 80000, cashValue: 3000, cpp: 3.8,
-      note: "Delta uses dynamic pricing. Award costs vary by date and demand. Use the award calendar on delta.com to find the lowest price across flexible dates. Delta One features lie-flat suites on wide-body international routes.",
+      note: "Delta uses dynamic pricing. Award costs vary by date and demand. Use the award calendar on delta.com to find the lowest price across flexible dates.",
       warning: null,
       steps: ['Log into your SkyMiles account at delta.com', 'Search Award Travel and select Business class', 'Use the calendar view to compare prices across dates', 'Look for Delta One cabin availability on your route', 'Book directly with your SkyMiles miles', 'Pay only taxes at checkout'],
     },
     budget: {
-      airline: 'Delta Economy',
-      partner: 'Book directly - no transfer needed',
+      airline: 'Delta Economy', partner: 'Book directly - no transfer needed',
       points: 20000, cashValue: 400, cpp: 2.0,
       note: "Delta's dynamic pricing means award costs fluctuate. The calendar view is your best tool. Mid-week departures and off-peak dates typically show the lowest SkyMiles prices.",
       warning: null,
@@ -786,72 +675,64 @@ const AIRLINE_DIRECT = {
   },
   'AAdvantage Miles': {
     luxury: {
-      airline: 'American Airlines Business Class',
-      partner: 'Book directly - no transfer needed',
+      airline: 'American Airlines Business Class', partner: 'Book directly - no transfer needed',
       points: 57500, cashValue: 2800, cpp: 4.9,
-      note: "American's MilesAAver awards are available at fixed rates on AA's own metal and oneworld partners. Search aa.com for MilesAAver business class availability on your specific route.",
+      note: "American's MilesAAver awards are available at fixed rates on AA's own metal and oneworld partners.",
       warning: null,
       steps: ['Log into your AAdvantage account at aa.com', 'Search for Award Flights and select Business class', "Look for 'MilesAAver' labeled awards, the lowest mileage tier", 'Check availability on American-operated or oneworld partner flights', 'Book directly with your AAdvantage miles', 'Pay only carrier fees at checkout'],
     },
     budget: {
-      airline: 'American Airlines Economy Saver',
-      partner: 'Book directly - no transfer needed',
+      airline: 'American Airlines Economy Saver', partner: 'Book directly - no transfer needed',
       points: 15000, cashValue: 350, cpp: 2.3,
-      note: "AAdvantage MilesAAver economy awards start at fixed rates. No change fees on AAdvantage award tickets, so you can re-book if better availability opens up.",
+      note: "AAdvantage MilesAAver economy awards start at fixed rates. No change fees on AAdvantage award tickets.",
       warning: null,
       steps: ['Log into aa.com and search for Award Flights', "Look for 'MilesAAver' labeled economy awards", 'Check availability on American and oneworld partner carriers', 'Book directly with your AAdvantage miles', 'No change fees if you need to reschedule', 'Pay only carrier fees at checkout'],
     },
   },
   'Rapid Rewards': {
     luxury: {
-      airline: 'Southwest Business Select',
-      partner: 'Book directly - no transfer needed',
+      airline: 'Southwest Business Select', partner: 'Book directly - no transfer needed',
       points: 25000, cashValue: 750, cpp: 3.0,
-      note: "Southwest Business Select is the premium fare tier with priority A1–A15 boarding, premium snacks, and a fully refundable fare. Southwest flies primarily domestic US, Mexico, Caribbean, and Central America.",
+      note: "Southwest Business Select is the premium fare tier with priority A1–A15 boarding, premium snacks, and a fully refundable fare.",
       warning: null,
       steps: ['Log into southwest.com and search for your route', "Select 'Business Select' fare tier", 'Southwest is revenue-based. All seats available at all times.', 'Apply your Rapid Rewards points at checkout', 'A1–A15 boarding gives you first pick of seats', 'Fully refundable. Cancel to reusable travel funds anytime.'],
     },
     budget: {
-      airline: 'Southwest Wanna Get Away',
-      partner: 'Book directly - no transfer needed',
+      airline: 'Southwest Wanna Get Away', partner: 'Book directly - no transfer needed',
       points: 10000, cashValue: 300, cpp: 3.0,
-      note: "Southwest Wanna Get Away is the best-value tier with revenue-based redemptions with no blackout dates, no change fees, and 2 free checked bags. Points never expire.",
+      note: "Southwest Wanna Get Away is the best-value tier with no blackout dates, no change fees, and 2 free checked bags.",
       warning: null,
       steps: ['Log into southwest.com and search for your route', "Select 'Wanna Get Away' fare tier for lowest points cost", 'All seats available, no blackout dates ever', 'Apply your Rapid Rewards points at checkout', '2 free checked bags included', 'Cancel to reusable travel funds with no fees'],
     },
   },
   'Alaska Mileage Plan': {
     luxury: {
-      airline: 'Alaska Airlines First Class',
-      partner: 'Book directly - no transfer needed',
+      airline: 'Alaska Airlines First Class', partner: 'Book directly - no transfer needed',
       points: 25000, cashValue: 650, cpp: 2.6,
-      note: "Alaska first class with Saver awards is one of the most consistent values in US aviation: wide seats, complimentary meal service, and exceptional on-time performance.",
+      note: "Alaska first class with Saver awards is one of the most consistent values in US aviation.",
       warning: null,
       steps: ['Log into your Mileage Plan account at alaskaair.com', 'Search Award Travel and select First Class', "Look for 'Saver' labeled first class awards", 'Book directly with your Mileage Plan miles', 'Pay only carrier fees (~$5–$25) at checkout', 'Priority boarding included for first class passengers'],
     },
     budget: {
-      airline: 'Alaska Airlines Economy Saver',
-      partner: 'Book directly - no transfer needed',
+      airline: 'Alaska Airlines Economy Saver', partner: 'Book directly - no transfer needed',
       points: 10000, cashValue: 250, cpp: 2.5,
-      note: "Alaska Mileage Plan has a clean award chart with consistent Saver rates. Alaska miles never expire with account activity, and the carrier has the best on-time performance of any major US airline.",
+      note: "Alaska Mileage Plan has a clean award chart with consistent Saver rates. Alaska miles never expire with account activity.",
       warning: null,
       steps: ['Log into alaskaair.com and search Award Travel', "Look for 'Saver' labeled economy awards", 'Book directly with your Mileage Plan miles', 'Pay only carrier fees (~$5–$15) at checkout', "Alaska miles never expire with any account activity", 'Alaska has the fewest lost bags of any major US carrier'],
     },
   },
   'TrueBlue Points': {
     luxury: {
-      airline: 'JetBlue Mint Business Class',
-      partner: 'Book directly - no transfer needed',
+      airline: 'JetBlue Mint Business Class', partner: 'Book directly - no transfer needed',
       points: 30000, cashValue: 900, cpp: 3.0,
-      note: "JetBlue Mint is the most accessible lie-flat business class in the US. Revenue-based pricing means all Mint seats are always available. No blackout dates, no award charts to navigate.",
+      note: "JetBlue Mint is the most accessible lie-flat business class in the US. Revenue-based pricing means all Mint seats are always available.",
       warning: null,
       steps: ['Log into jetblue.com and search for Mint cabin availability', "Mint available on JFK/BOS to LHR, LAX, SFO, and select international routes", 'All Mint seats available as TrueBlue awards at all times', 'Apply your TrueBlue points at checkout', 'Mint includes private suites, lie-flat beds, and full meal service', 'Pay remaining fare balance if any'],
     },
     budget: {
-      airline: 'JetBlue Economy',
-      partner: 'Book directly - no transfer needed',
+      airline: 'JetBlue Economy', partner: 'Book directly - no transfer needed',
       points: 8000, cashValue: 130, cpp: 1.6,
-      note: "JetBlue is revenue-based with no blackout dates. All seats available at all times. Economy includes the most legroom of any US carrier and complimentary snacks on every flight.",
+      note: "JetBlue is revenue-based with no blackout dates. Economy includes the most legroom of any US carrier.",
       warning: null,
       steps: ['Search any route on jetblue.com', 'All fares available as TrueBlue awards, no blackout dates', "Choose the lowest fare tier for fewest points", 'Apply TrueBlue points at checkout', 'Free carry-on and complimentary snacks included', 'Points never expire with account activity'],
     },
@@ -860,46 +741,132 @@ const AIRLINE_DIRECT = {
 
 const AIRLINE_PROGRAM_KEYS = new Set(Object.keys(AIRLINE_DIRECT))
 
+// ── Domestic fallbacks ────────────────────────────────────────────────
+const DOMESTIC_FALLBACKS = {
+  'Ultimate Rewards': {
+    luxury: {
+      airline: 'United First Class', partner: 'Transfer to United MileagePlus · 1:1 ratio',
+      points: 30000, cashValue: 450, cpp: 1.5,
+      note: "United MileagePlus is the best use of Chase Ultimate Rewards on domestic routes. Saver first class awards include premium seating, full meal service on longer routes, and priority boarding.",
+      warning: null,
+      steps: ['Log into Chase and go to "Transfer to Travel Partners"', 'Select United MileagePlus (1:1, instant transfer)', 'Go to united.com and search Award Travel, selecting First Class', 'Use the award calendar to compare prices across dates', 'Look for "Saver" labeled first class awards, the lowest mileage tier', 'Pay only ~$5–$15 in carrier fees at checkout'],
+    },
+    budget: {
+      airline: 'United Economy Saver', partner: 'Transfer to United MileagePlus · 1:1 ratio',
+      points: 12500, cashValue: 200, cpp: 1.6,
+      note: "United Saver economy awards are the most consistent domestic value in the Chase UR ecosystem. Starting at 12,500 miles, wide availability across United's domestic network.",
+      warning: null,
+      steps: ['Log into Chase and go to "Transfer to Travel Partners"', 'Select United MileagePlus (1:1, instant transfer)', 'Go to united.com and search Award Travel in Economy class', 'Look for "Saver" labeled economy awards, the lowest mileage tier', 'Best availability on weekdays and off-peak dates', 'Pay only ~$5–$15 in carrier fees at checkout'],
+    },
+  },
+  'Membership Rewards': {
+    luxury: {
+      airline: 'Delta First Class', partner: 'Transfer to Delta SkyMiles · 1:1 ratio',
+      points: 50000, cashValue: 500, cpp: 1.0,
+      note: "Delta SkyMiles is the best domestic transfer partner for Amex Membership Rewards. Use the award calendar on delta.com to find the lowest price before transferring.",
+      warning: 'Delta uses dynamic pricing. Award costs vary by date and demand. Always check the award calendar across multiple dates on delta.com before transferring points.',
+      steps: ['Log into your Amex account and go to "Transfer Points"', 'Select Delta SkyMiles as your transfer partner (1:1, typically instant)', 'Before transferring, go to delta.com and use the award calendar to find lowest pricing', 'Look for First Class availability. Mid-week and off-peak dates are cheapest.', 'Transfer only after confirming the award is bookable', 'Pay only taxes (~$5–$15) at checkout'],
+    },
+    budget: {
+      airline: 'Delta Economy', partner: 'Transfer to Delta SkyMiles · 1:1 ratio',
+      points: 12500, cashValue: 200, cpp: 1.6,
+      note: "Delta SkyMiles domestic economy is the top domestic play for Amex Gold cardholders. Use the award calendar to compare costs across multiple dates before transferring.",
+      warning: null,
+      steps: ['Log into your Amex account and go to "Transfer Points"', 'Select Delta SkyMiles as your transfer partner (1:1, typically instant)', 'Before transferring, go to delta.com and use the award calendar view', 'Compare prices across multiple dates. Weekdays typically show fewer miles.', 'Transfer after confirming your award seat is available', 'Pay only taxes (~$5–$15) at checkout'],
+    },
+  },
+  'ThankYou Points': {
+    luxury: {
+      airline: 'American Airlines First Class', partner: 'Transfer to American AAdvantage · 1:1 ratio',
+      points: 30000, cashValue: 450, cpp: 1.5,
+      note: "Citi ThankYou transfers directly to American AAdvantage at 1:1, making it the cleanest domestic play in the ThankYou lineup.",
+      warning: null,
+      steps: ['Log into your Citi account and go to "Transfer Points"', 'Select American AAdvantage as your transfer partner (1:1)', 'Allow up to 24–48 hours for the transfer to complete', 'Go to aa.com and search for Award Flights, selecting First class', "Look for 'MilesAAver' labeled first class awards, the lowest mileage tier", 'Pay only carrier fees (~$5–$20) at checkout'],
+    },
+    budget: {
+      airline: 'American Airlines Economy', partner: 'Transfer to American AAdvantage · 1:1 ratio',
+      points: 12500, cashValue: 200, cpp: 1.6,
+      note: "Citi ThankYou transfers directly to American AAdvantage at 1:1. MilesAAver economy awards start at 12,500 miles on domestic routes.",
+      warning: null,
+      steps: ['Log into your Citi account and go to "Transfer Points"', 'Select American AAdvantage as your transfer partner (1:1)', 'Allow up to 24–48 hours for the transfer to complete', 'Go to aa.com and search for Award Flights in Economy class', "Look for 'MilesAAver' labeled economy awards, the lowest mileage tier", 'Pay only carrier fees (~$5–$20) at checkout'],
+    },
+  },
+  'Capital One Miles': {
+    luxury: {
+      airline: 'United First Class via Avianca LifeMiles', partner: 'Transfer to Avianca LifeMiles · 1:1 ratio',
+      points: 25000, cashValue: 400, cpp: 1.6,
+      note: "Avianca LifeMiles is the strongest domestic option for Capital One miles. Domestic United first class runs ~20,000–25,000 LifeMiles, significantly cheaper than booking through United directly.",
+      warning: null,
+      steps: ['Log into Capital One and go to "Transfer Miles"', 'Select Avianca LifeMiles (1:1)', 'Allow 1–2 business days for the transfer to complete', 'Go to lifemiles.com and search for United (UA) First Class on your route', 'Look for Star Alliance first class availability', 'Pay only carrier fees (~$5–$20) at checkout'],
+    },
+    budget: {
+      airline: 'United Economy via Avianca LifeMiles', partner: 'Transfer to Avianca LifeMiles · 1:1 ratio',
+      points: 7500, cashValue: 150, cpp: 2.0,
+      note: "Avianca LifeMiles has some of the lowest rates for Star Alliance domestic economy, as low as 7,500 miles for shorter routes on United.",
+      warning: null,
+      steps: ['Log into Capital One and go to "Transfer Miles"', 'Select Avianca LifeMiles (1:1)', 'Allow 1–2 business days for the transfer to complete', 'Go to lifemiles.com and search for United (UA) economy on your domestic route', 'Look for the lowest-tier Star Alliance economy availability', 'Pay only carrier fees (~$5–$15) at checkout'],
+    },
+  },
+  'Bilt Points': {
+    luxury: {
+      airline: 'United First Class', partner: 'Transfer to United MileagePlus · 1:1 ratio',
+      points: 30000, cashValue: 450, cpp: 1.5,
+      note: "Bilt transfers to United MileagePlus instantly at 1:1, making it one of the fastest domestic upgrade plays.",
+      warning: null,
+      steps: ['Log into Bilt and go to "Transfer Points"', 'Select United MileagePlus (1:1, instant)', 'Go to united.com and search Award Travel in First Class', 'Use the award calendar to find the lowest price across dates', 'Look for "Saver" labeled first class awards', 'Pay only ~$5–$15 in carrier fees at checkout'],
+    },
+    budget: {
+      airline: 'United Economy Saver', partner: 'Transfer to United MileagePlus · 1:1 ratio',
+      points: 12500, cashValue: 200, cpp: 1.6,
+      note: "Bilt transfers to United MileagePlus instantly. Saver economy on domestic routes starts at 12,500 miles, no fuel surcharges.",
+      warning: null,
+      steps: ['Log into Bilt and go to "Transfer Points"', 'Select United MileagePlus (1:1, instant)', 'Go to united.com and search Award Travel in Economy class', 'Look for "Saver" labeled economy awards, the lowest mileage tier', 'Best availability on weekdays and off-peak dates', 'Pay only ~$5–$15 in carrier fees at checkout'],
+    },
+  },
+  'Wells Fargo Rewards': {
+    luxury: {
+      airline: 'United First Class via Avianca LifeMiles', partner: 'Transfer to Avianca LifeMiles · 1:1 ratio',
+      points: 25000, cashValue: 400, cpp: 1.6,
+      note: "Avianca LifeMiles is the strongest domestic play in the Wells Fargo Autograph Journey partner lineup.",
+      warning: null,
+      steps: ['Log into Wells Fargo and go to "Transfer Points"', 'Select Avianca LifeMiles (1:1)', 'Allow 1–2 business days for the transfer to complete', 'Go to lifemiles.com and search for United (UA) First Class on your domestic route', 'Look for Star Alliance first class availability', 'Pay only carrier fees (~$5–$20) at checkout'],
+    },
+    budget: {
+      airline: 'United Economy via Avianca LifeMiles', partner: 'Transfer to Avianca LifeMiles · 1:1 ratio',
+      points: 7500, cashValue: 150, cpp: 2.0,
+      note: "Avianca LifeMiles has the lowest domestic economy rates of any Wells Fargo Autograph Journey transfer partner.",
+      warning: null,
+      steps: ['Log into Wells Fargo and go to "Transfer Points"', 'Select Avianca LifeMiles (1:1)', 'Allow 1–2 business days for the transfer to complete', 'Go to lifemiles.com and search for United (UA) economy on your domestic route', 'Look for the lowest-tier Star Alliance economy availability', 'Pay only carrier fees (~$5–$15) at checkout'],
+    },
+  },
+}
+
 function getResults(program, fromAirport, toAirport) {
   const fromCode = fromAirport?.code || ''
   const toCode   = toAirport?.code  || ''
-
-  // Airline co-branded cards book directly - use airline-specific recommendations
   if (AIRLINE_PROGRAM_KEYS.has(program)) {
     return { isDefault: false, isDomestic: false, ...AIRLINE_DIRECT[program] }
   }
-
-  // Domestic US routes - skip international partners entirely and use domestic-optimized picks
   if (isDomesticUS(fromCode, toCode)) {
     const domestic = DOMESTIC_FALLBACKS[program] || DOMESTIC_FALLBACKS['Ultimate Rewards']
     return { isDefault: false, isDomestic: true, luxury: domestic.luxury, budget: domestic.budget }
   }
-
-  // Build both orderings of the route key
   const fromMetro = getMetro(fromCode)
   const toMetro   = getMetro(toCode)
   const route = ROUTE_DB[`${fromMetro}-${toMetro}`] || ROUTE_DB[`${toMetro}-${fromMetro}`]
-
-  // Route not in database - show default fallback
   if (!route) {
     const fallback = DEFAULT_FALLBACKS[program] || DEFAULT_FALLBACKS['Ultimate Rewards']
     return { isDefault: true, isDomestic: false, ...fallback }
   }
-
-  // Find first luxury and budget option compatible with user's card program
   const luxury = route.luxury.find(opt => opt.programs.includes(program))
   const budget = route.budget.find(opt => opt.programs.includes(program))
-
-  // Program not compatible with any option on this route - use fallback
   if (!luxury || !budget) {
     const fallback = DEFAULT_FALLBACKS[program] || DEFAULT_FALLBACKS['Ultimate Rewards']
     return { isDefault: true, isDomestic: false, ...fallback }
   }
-
   return { isDefault: false, isDomestic: false, luxury, budget }
 }
 
-// ── US airport codes for domestic route detection ──────────
 const US_AIRPORTS = new Set([
   'JFK', 'LGA', 'EWR', 'LAX', 'SFO', 'ORD', 'ATL', 'DFW', 'DEN', 'SEA',
   'MIA', 'BOS', 'LAS', 'PHX', 'IAH', 'IAD', 'DCA', 'BWI', 'SAN', 'MSP',
@@ -912,208 +879,10 @@ const US_AIRPORTS = new Set([
   'SJC', 'SMF', 'BUR', 'LGB', 'ONT', 'SNA', 'FAT', 'RNO', 'BOI', 'GEG',
   'GSP', 'GSO',
 ])
-
 function isDomesticUS(fromCode, toCode) {
   return US_AIRPORTS.has(fromCode) && US_AIRPORTS.has(toCode)
 }
 
-// ── Domestic US redemption recommendations by card program ──
-const DOMESTIC_FALLBACKS = {
-  'Ultimate Rewards': {
-    luxury: {
-      airline: 'United First Class',
-      partner: 'Transfer to United MileagePlus · 1:1 ratio',
-      points: 30000, cashValue: 450, cpp: 1.5,
-      note: "United MileagePlus is the best use of Chase Ultimate Rewards on domestic routes. Saver first class awards include premium seating, full meal service on longer routes, and priority boarding, for a fraction of what a cash first class ticket costs. Instant transfers mean you can jump on award availability the moment it opens.",
-      warning: null,
-      steps: [
-        'Log into Chase and go to "Transfer to Travel Partners"',
-        'Select United MileagePlus (1:1, instant transfer)',
-        'Go to united.com and search Award Travel, selecting First Class',
-        'Use the award calendar to compare prices across dates',
-        'Look for "Saver" labeled first class awards, the lowest mileage tier',
-        'Pay only ~$5–$15 in carrier fees at checkout',
-      ],
-    },
-    budget: {
-      airline: 'United Economy Saver',
-      partner: 'Transfer to United MileagePlus · 1:1 ratio',
-      points: 12500, cashValue: 200, cpp: 1.6,
-      note: "United Saver economy awards are the most consistent domestic value in the Chase UR ecosystem. Starting at 12,500 miles, wide availability across United's domestic network, no fuel surcharges, and instant transfers so you can book as soon as you spot availability.",
-      warning: null,
-      steps: [
-        'Log into Chase and go to "Transfer to Travel Partners"',
-        'Select United MileagePlus (1:1, instant transfer)',
-        'Go to united.com and search Award Travel in Economy class',
-        'Look for "Saver" labeled economy awards, the lowest mileage tier',
-        'Best availability on weekdays and off-peak dates',
-        'Pay only ~$5–$15 in carrier fees at checkout',
-      ],
-    },
-  },
-  'Membership Rewards': {
-    luxury: {
-      airline: 'Delta First Class',
-      partner: 'Transfer to Delta SkyMiles · 1:1 ratio',
-      points: 50000, cashValue: 500, cpp: 1.0,
-      note: "Delta SkyMiles is the best domestic transfer partner for Amex Membership Rewards. Delta uses dynamic pricing. First class awards typically run 30,000–60,000 SkyMiles depending on the route and date. Use the award calendar on delta.com to find the lowest price before transferring.",
-      warning: 'Delta uses dynamic pricing. Award costs vary by date and demand. Always check the award calendar across multiple dates on delta.com before transferring points.',
-      steps: [
-        'Log into your Amex account and go to "Transfer Points"',
-        'Select Delta SkyMiles as your transfer partner (1:1, typically instant)',
-        'Before transferring, go to delta.com and use the award calendar to find lowest pricing',
-        'Look for First Class availability. Mid-week and off-peak dates are cheapest.',
-        'Transfer only after confirming the award is bookable',
-        'Pay only taxes (~$5–$15) at checkout',
-      ],
-    },
-    budget: {
-      airline: 'Delta Economy',
-      partner: 'Transfer to Delta SkyMiles · 1:1 ratio',
-      points: 12500, cashValue: 200, cpp: 1.6,
-      note: "Delta SkyMiles domestic economy is the top domestic play for Amex Gold cardholders. Dynamic pricing can yield excellent value, especially on off-peak dates and shorter routes. Use the award calendar to compare costs across multiple dates before transferring.",
-      warning: null,
-      steps: [
-        'Log into your Amex account and go to "Transfer Points"',
-        'Select Delta SkyMiles as your transfer partner (1:1, typically instant)',
-        'Before transferring, go to delta.com and use the award calendar view',
-        'Compare prices across multiple dates. Weekdays typically show fewer miles.',
-        'Transfer after confirming your award seat is available',
-        'Pay only taxes (~$5–$15) at checkout',
-      ],
-    },
-  },
-  'ThankYou Points': {
-    luxury: {
-      airline: 'American Airlines First Class',
-      partner: 'Transfer to American AAdvantage · 1:1 ratio',
-      points: 30000, cashValue: 450, cpp: 1.5,
-      note: "Citi ThankYou transfers directly to American AAdvantage at 1:1, making it the cleanest domestic play in the ThankYou lineup. American First Class on domestic routes features wider seats, premium dining on longer routes, and priority boarding. No change fees on AAdvantage award tickets.",
-      warning: null,
-      steps: [
-        'Log into your Citi account and go to "Transfer Points"',
-        'Select American AAdvantage as your transfer partner (1:1)',
-        'Allow up to 24–48 hours for the transfer to complete',
-        'Go to aa.com and search for Award Flights, selecting First class',
-        "Look for 'MilesAAver' labeled first class awards, the lowest mileage tier",
-        'Pay only carrier fees (~$5–$20) at checkout',
-      ],
-    },
-    budget: {
-      airline: 'American Airlines Economy',
-      partner: 'Transfer to American AAdvantage · 1:1 ratio',
-      points: 12500, cashValue: 200, cpp: 1.6,
-      note: "Citi ThankYou transfers directly to American AAdvantage at 1:1. MilesAAver economy awards start at 12,500 miles on domestic routes with wide availability across American's network. No change fees, so you can re-book if better award space opens up.",
-      warning: null,
-      steps: [
-        'Log into your Citi account and go to "Transfer Points"',
-        'Select American AAdvantage as your transfer partner (1:1)',
-        'Allow up to 24–48 hours for the transfer to complete',
-        'Go to aa.com and search for Award Flights in Economy class',
-        "Look for 'MilesAAver' labeled economy awards, the lowest mileage tier",
-        'Pay only carrier fees (~$5–$20) at checkout',
-      ],
-    },
-  },
-  'Capital One Miles': {
-    luxury: {
-      airline: 'United First Class via Avianca LifeMiles',
-      partner: 'Transfer to Avianca LifeMiles · 1:1 ratio',
-      points: 25000, cashValue: 400, cpp: 1.6,
-      note: "Avianca LifeMiles is the strongest domestic option for Capital One miles. It books Star Alliance partners including United at some of the lowest published rates. Domestic United first class runs ~20,000–25,000 LifeMiles, significantly cheaper than booking through United directly.",
-      warning: null,
-      steps: [
-        'Log into Capital One and go to "Transfer Miles"',
-        'Select Avianca LifeMiles (1:1)',
-        'Allow 1–2 business days for the transfer to complete',
-        'Go to lifemiles.com and search for United (UA) First Class on your route',
-        'Look for Star Alliance first class availability',
-        'Pay only carrier fees (~$5–$20) at checkout',
-      ],
-    },
-    budget: {
-      airline: 'United Economy via Avianca LifeMiles',
-      partner: 'Transfer to Avianca LifeMiles · 1:1 ratio',
-      points: 7500, cashValue: 150, cpp: 2.0,
-      note: "Avianca LifeMiles has some of the lowest rates for Star Alliance domestic economy, as low as 7,500 miles for shorter routes on United. One of the best-value domestic redemptions available in the Capital One transfer partner lineup.",
-      warning: null,
-      steps: [
-        'Log into Capital One and go to "Transfer Miles"',
-        'Select Avianca LifeMiles (1:1)',
-        'Allow 1–2 business days for the transfer to complete',
-        'Go to lifemiles.com and search for United (UA) economy on your domestic route',
-        'Look for the lowest-tier Star Alliance economy availability',
-        'Pay only carrier fees (~$5–$15) at checkout',
-      ],
-    },
-  },
-  'Bilt Points': {
-    luxury: {
-      airline: 'United First Class',
-      partner: 'Transfer to United MileagePlus · 1:1 ratio',
-      points: 30000, cashValue: 450, cpp: 1.5,
-      note: "Bilt transfers to United MileagePlus instantly at 1:1, making it one of the fastest domestic upgrade plays. United Saver first class awards start around 30,000 miles and include full meal service, premium seating, and priority boarding on domestic routes.",
-      warning: null,
-      steps: [
-        'Log into Bilt and go to "Transfer Points"',
-        'Select United MileagePlus (1:1, instant)',
-        'Go to united.com and search Award Travel in First Class',
-        'Use the award calendar to find the lowest price across dates',
-        'Look for "Saver" labeled first class awards',
-        'Pay only ~$5–$15 in carrier fees at checkout',
-      ],
-    },
-    budget: {
-      airline: 'United Economy Saver',
-      partner: 'Transfer to United MileagePlus · 1:1 ratio',
-      points: 12500, cashValue: 200, cpp: 1.6,
-      note: "Bilt transfers to United MileagePlus instantly. It's the fastest way to book a domestic award. Saver economy on domestic routes starts at 12,500 miles, no fuel surcharges, and the instant transfer means you can lock in award space before it disappears.",
-      warning: null,
-      steps: [
-        'Log into Bilt and go to "Transfer Points"',
-        'Select United MileagePlus (1:1, instant)',
-        'Go to united.com and search Award Travel in Economy class',
-        'Look for "Saver" labeled economy awards, the lowest mileage tier',
-        'Best availability on weekdays and off-peak dates',
-        'Pay only ~$5–$15 in carrier fees at checkout',
-      ],
-    },
-  },
-  'Wells Fargo Rewards': {
-    luxury: {
-      airline: 'United First Class via Avianca LifeMiles',
-      partner: 'Transfer to Avianca LifeMiles · 1:1 ratio',
-      points: 25000, cashValue: 400, cpp: 1.6,
-      note: "Avianca LifeMiles is the strongest domestic play in the Wells Fargo Autograph Journey partner lineup. It books Star Alliance partners including United at low fixed rates. Domestic first class on United runs ~20,000–25,000 LifeMiles.",
-      warning: null,
-      steps: [
-        'Log into Wells Fargo and go to "Transfer Points"',
-        'Select Avianca LifeMiles (1:1)',
-        'Allow 1–2 business days for the transfer to complete',
-        'Go to lifemiles.com and search for United (UA) First Class on your domestic route',
-        'Look for Star Alliance first class availability',
-        'Pay only carrier fees (~$5–$20) at checkout',
-      ],
-    },
-    budget: {
-      airline: 'United Economy via Avianca LifeMiles',
-      partner: 'Transfer to Avianca LifeMiles · 1:1 ratio',
-      points: 7500, cashValue: 150, cpp: 2.0,
-      note: "Avianca LifeMiles has the lowest domestic economy rates of any Wells Fargo Autograph Journey transfer partner, as low as 7,500 miles for short United hops. Most travelers overlook this; it's one of the best domestic redemption values in the lineup.",
-      warning: null,
-      steps: [
-        'Log into Wells Fargo and go to "Transfer Points"',
-        'Select Avianca LifeMiles (1:1)',
-        'Allow 1–2 business days for the transfer to complete',
-        'Go to lifemiles.com and search for United (UA) economy on your domestic route',
-        'Look for the lowest-tier Star Alliance economy availability',
-        'Pay only carrier fees (~$5–$15) at checkout',
-      ],
-    },
-  },
-}
-
-// ── Haul detection (display label only) ──
 const LONG_HAUL_CODES  = new Set(['NRT','HND','KIX','ICN','PEK','PVG','HKG','SIN','BKK','KUL','SYD','MEL','AKL','MNL','CGK','LHR','LGW','STN','CDG','ORY','AMS','FRA','MUC','FCO','MXP','BCN','MAD','ZRH','VIE','CPH','ARN','HEL','DUB','LIS','ATH','DXB','AUH','DOH','TLV','CAI','JNB','CPT','GRU','EZE','BOG','LIM','SCL'])
 const MEDIUM_HAUL_CODES = new Set(['LAX','SFO','SEA','DFW','ATL','DEN','LAS','PHX','IAD','DCA','BWI','MCO','HNL','ORD','MDW','MIA','BOS','YYZ','YVR','YUL','CUN','MEX'])
 function detectHaul(from, to) {
@@ -1123,275 +892,84 @@ function detectHaul(from, to) {
   return 'short'
 }
 
-// ─────────────────────────────────────────────────────────
-// COMPONENTS
-// ─────────────────────────────────────────────────────────
-
-function ApplyButton({ children, href }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      style={{
-        display: 'inline-block',
-        background: ACCENT,
-        color: '#fff',
-        fontWeight: '500',
-        fontSize: '13px',
-        padding: '9px 20px',
-        borderRadius: '999px',
-        textDecoration: 'none',
-        letterSpacing: '-0.1px',
-        boxShadow: `0 0 0 1px rgba(99,102,241,0.4), 0 4px 16px ${GLOW}`,
-        transition: 'background 0.15s, box-shadow 0.15s, transform 0.12s',
-      }}
-      onMouseEnter={e => {
-        e.currentTarget.style.background = '#4f46e5'
-        e.currentTarget.style.transform = 'translateY(-1px)'
-      }}
-      onMouseLeave={e => {
-        e.currentTarget.style.background = ACCENT
-        e.currentTarget.style.transform = 'translateY(0)'
-      }}
-    >
-      {children}
-    </a>
-  )
+// ── Partner metadata helper ───────────────────────────────────────────
+function getPartnerInfo(partner) {
+  if (!partner || /direct|no transfer/i.test(partner)) return { ratio: '—', speed: 'No transfer' }
+  if (/Flying Blue/i.test(partner))       return { ratio: '1:1', speed: 'Instant — most days' }
+  if (/Virgin Atlantic/i.test(partner))   return { ratio: '1:1', speed: 'Instant' }
+  if (/Aeroplan/i.test(partner))          return { ratio: '1:1', speed: 'Instant' }
+  if (/MileagePlus/i.test(partner))       return { ratio: '1:1', speed: 'Instant' }
+  if (/KrisFlyer/i.test(partner))         return { ratio: '1:1', speed: '1–3 business days' }
+  if (/British Airways/i.test(partner))   return { ratio: '1:1', speed: 'Instant' }
+  if (/Iberia/i.test(partner))            return { ratio: '1:1', speed: '1–3 business days' }
+  if (/ANA/i.test(partner))               return { ratio: '1:1', speed: '1–3 business days' }
+  if (/Turkish/i.test(partner))           return { ratio: '1:1', speed: '1–2 business days' }
+  if (/LifeMiles/i.test(partner))         return { ratio: '1:1', speed: '1–2 business days' }
+  if (/SkyMiles/i.test(partner))          return { ratio: '1:1', speed: 'Instant' }
+  if (/AAdvantage/i.test(partner))        return { ratio: '1:1', speed: '24–48 hours' }
+  return { ratio: '1:1', speed: 'Instant' }
 }
 
-function ResultCard({ badge, isLuxury, result, userPoints }) {
-  const userPts    = parseInt((userPoints || '0').replace(/\D/g, ''), 10) || 0
-  const hasEnough  = userPts >= result.points
-  const shortfall  = result.points - userPts
+// ─────────────────────────────────────────────────────────────────────
+// VISUAL DESIGN TOKENS
+// ─────────────────────────────────────────────────────────────────────
+const INK    = '#f4f3ee'
+const INK_2  = '#c9c8c0'
+const INK_3  = '#8b8d9c'
+const R1     = 'rgba(244,243,238,0.08)'
+const R2     = 'rgba(244,243,238,0.16)'
+const V5     = '#6366f1'
+const V4     = '#818cf8'
+const GOLD_C = '#d4a55a'
+const GRN    = '#6ec28a'
+const SR     = "'Instrument Serif', 'Times New Roman', serif"
+const MN     = "'JetBrains Mono', ui-monospace, monospace"
+const SN     = "system-ui, -apple-system, BlinkMacSystemFont, sans-serif"
 
-  return (
-    <div style={{
-      background: SURFACE,
-      borderRadius: '16px',
-      border: isLuxury
-        ? `1px solid rgba(99,102,241,0.3)`
-        : `1px solid ${BORDER_MID}`,
-      overflow: 'hidden',
-      boxShadow: isLuxury ? `0 0 0 1px rgba(99,102,241,0.1), 0 8px 32px rgba(0,0,0,0.3)` : 'none',
-    }}>
-      {/* Card header strip */}
-      <div style={{
-        padding: '13px 18px',
-        borderBottom: `1px solid ${BORDER}`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '10px',
-        background: isLuxury ? 'rgba(99,102,241,0.06)' : ELEVATED,
-      }}>
-        <span style={{
-          fontSize: '11px', fontWeight: '600',
-          letterSpacing: '0.08em', textTransform: 'uppercase',
-          color: isLuxury ? ACCENT_LT : MUTED,
-          border: `1px solid ${isLuxury ? 'rgba(129,140,248,0.25)' : BORDER_MID}`,
-          borderRadius: '999px',
-          padding: '3px 10px',
-          background: isLuxury ? 'rgba(99,102,241,0.08)' : 'rgba(255,255,255,0.04)',
-        }}>
-          {badge}
-        </span>
-        {hasEnough
-          ? <span style={{ color: '#4ade80', fontSize: '12px', fontWeight: '500' }}>✓ You have enough</span>
-          : <span style={{ color: '#f87171', fontSize: '12px', fontWeight: '500' }}>{shortfall.toLocaleString()} pts short</span>
-        }
-      </div>
+const PAGE_BG = `
+  radial-gradient(1200px 600px at 80% -100px, rgba(99,102,241,0.10), transparent 60%),
+  radial-gradient(900px 500px at 10% 10%, rgba(99,102,241,0.05), transparent 60%),
+  #0a0f1e
+`
 
-      {/* Card body */}
-      <div style={{ padding: '18px 20px' }}>
-        {/* Transfer partner */}
-        <p style={{
-          fontSize: '11px', fontWeight: '500',
-          color: SUBTLE, letterSpacing: '0.06em',
-          textTransform: 'uppercase', marginBottom: '6px',
-        }}>
-          {result.partner}
-        </p>
-
-        {/* Airline */}
-        <h3 style={{
-          color: TEXT, fontSize: '20px',
-          fontWeight: '700', letterSpacing: '-0.4px',
-          lineHeight: 1.15, marginBottom: '14px',
-        }}>
-          {result.airline}
-        </h3>
-
-        {/* Metrics row */}
-        <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '8px', marginBottom: '14px',
-        }}>
-          {[
-            { label: 'Points required', value: result.points.toLocaleString() },
-            { label: 'Est. cash value',  value: `$${result.cashValue.toLocaleString()}` },
-            { label: 'Value per point',  value: `${result.cpp}¢` },
-          ].map(m => (
-            <div key={m.label} style={{
-              background: ELEVATED,
-              border: `1px solid ${BORDER}`,
-              borderRadius: '8px', padding: '9px 10px',
-            }}>
-              <div style={{
-                color: SUBTLE, fontSize: '10px',
-                fontWeight: '600', textTransform: 'uppercase',
-                letterSpacing: '0.08em', marginBottom: '3px',
-              }}>{m.label}</div>
-              <div style={{
-                color: isLuxury ? ACCENT_LT : TEXT,
-                fontSize: '14px', fontWeight: '700',
-                letterSpacing: '-0.3px',
-              }}>{m.value}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Warning box */}
-        {result.warning && (
-          <div style={{
-            background: 'rgba(251,191,36,0.07)',
-            border: '1px solid rgba(251,191,36,0.2)',
-            borderRadius: '10px', padding: '12px 16px',
-            marginBottom: '18px',
-            display: 'flex', gap: '10px', alignItems: 'flex-start',
-          }}>
-            <span style={{ color: '#fbbf24', fontSize: '13px', flexShrink: 0 }}>⚠</span>
-            <p style={{ color: '#fcd34d', fontSize: '13px', lineHeight: 1.55, margin: 0, fontWeight: '400' }}>
-              {result.warning}
-            </p>
-          </div>
-        )}
-
-        {/* Note */}
-        <p style={{
-          color: MUTED, fontSize: '13px',
-          lineHeight: 1.6, marginBottom: '16px',
-          fontStyle: 'italic',
-        }}>
-          {result.note}
-        </p>
-
-        {/* How to book */}
-        <div style={{
-          borderTop: `1px solid ${BORDER}`,
-          paddingTop: '14px', marginBottom: '14px',
-        }}>
-          <p style={{
-            color: SUBTLE, fontSize: '11px',
-            fontWeight: '600', textTransform: 'uppercase',
-            letterSpacing: '0.08em', marginBottom: '10px',
-          }}>
-            How to book this
-          </p>
-          <ol style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {result.steps.map((step, i) => (
-              <li key={i} style={{
-                display: 'flex', gap: '10px',
-                marginBottom: '7px', alignItems: 'flex-start',
-              }}>
-                <span style={{
-                  flexShrink: 0,
-                  width: '20px', height: '20px',
-                  borderRadius: '50%',
-                  background: isLuxury ? 'rgba(99,102,241,0.15)' : ELEVATED,
-                  border: `1px solid ${isLuxury ? 'rgba(99,102,241,0.3)' : BORDER_MID}`,
-                  color: isLuxury ? ACCENT_LT : MUTED,
-                  fontSize: '10px', fontWeight: '700',
-                  display: 'flex', alignItems: 'center',
-                  justifyContent: 'center', marginTop: '2px',
-                }}>
-                  {i + 1}
-                </span>
-                <span style={{ color: MUTED, fontSize: '13px', lineHeight: 1.5 }}>{step}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
-
-        {/* Transfer irreversibility notice */}
-        <div style={{
-          background: 'rgba(99,102,241,0.06)',
-          border: `1px solid rgba(99,102,241,0.15)`,
-          borderRadius: '10px', padding: '12px 16px',
-          display: 'flex', gap: '10px', alignItems: 'flex-start',
-        }}>
-          <span style={{ color: ACCENT_LT, fontSize: '13px', flexShrink: 0 }}>ℹ</span>
-          <p style={{
-            color: MUTED, fontSize: '12px',
-            lineHeight: 1.55, margin: 0, fontWeight: '400',
-          }}>
-            Always verify award availability before transferring points. Transfers are typically irreversible.
-          </p>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ─────────────────────────────────────────────────────────
-// MAIN PAGE
-// ─────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────
+// MAIN RESULTS PAGE
+// ─────────────────────────────────────────────────────────────────────
 
 export default function Results() {
   const navigate = useNavigate()
   const { state } = useLocation()
   const { isPro } = useAuth()
   const [showModal, setShowModal] = useState(false)
+  const [luxOpen, setLuxOpen]     = useState(false)
+  const [budOpen, setBudOpen]     = useState(false)
 
   const card   = state?.card   || null
   const points = state?.points || ''
   const from   = state?.from   || null
   const to     = state?.to     || null
 
-  // Increment search counter - skip entirely for Pro users
   useEffect(() => {
     if (!isPro) incrementSearchCount()
   }, [isPro])
 
   const handleNewSearch = () => {
-    if (isPro) {
-      navigate('/search')
-      return
-    }
+    if (isPro) { navigate('/search'); return }
     const { count } = getSearchData()
-    if (count >= 2) {
-      setShowModal(true)
-    } else {
-      navigate('/search')
-    }
+    if (count >= 2) { setShowModal(true) } else { navigate('/search') }
   }
 
+  // ── No-card fallback ──
   if (!card) {
     return (
-      <div style={{ background: BG, minHeight: '100vh', color: TEXT, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
-        <div style={{
-          background: SURFACE,
-          border: `1px solid ${BORDER_MID}`,
-          borderRadius: '16px', padding: '48px 40px',
-          maxWidth: '400px', width: '100%', textAlign: 'center',
-        }}>
-          <div style={{ fontSize: '36px', marginBottom: '16px' }}>✈</div>
-          <h1 style={{ color: TEXT, fontSize: '18px', fontWeight: '700', marginBottom: '10px', letterSpacing: '-0.3px' }}>
-            No search found
-          </h1>
-          <p style={{ color: MUTED, fontSize: '14px', marginBottom: '28px', lineHeight: 1.6 }}>
-            Start a search to see your personalized redemption options.
-          </p>
+      <div style={{ background: '#0a0f1e', minHeight: '100vh', color: INK, fontFamily: SN, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <div style={{ textAlign: 'center', maxWidth: 400 }}>
+          <div style={{ fontFamily: SR, fontSize: 72, lineHeight: 0.9, marginBottom: 32, color: INK }}>✈</div>
+          <h1 style={{ fontFamily: SR, fontSize: 36, fontWeight: 400, letterSpacing: '-0.02em', marginBottom: 16, color: INK }}>No search found.</h1>
+          <p style={{ color: INK_3, fontSize: 16, lineHeight: 1.6, marginBottom: 32, fontFamily: SR, fontStyle: 'italic' }}>Start a search to see your personalized redemption options.</p>
           <button
             onClick={() => navigate('/search')}
-            style={{
-              background: ACCENT, color: '#fff',
-              fontWeight: '500', padding: '11px 24px',
-              borderRadius: '999px', border: 'none',
-              cursor: 'pointer', fontSize: '14px',
-              boxShadow: `0 0 0 1px rgba(99,102,241,0.4), 0 4px 16px ${GLOW}`,
-            }}
+            style={{ background: V5, color: '#fff', fontFamily: SN, fontSize: 14, padding: '12px 28px', borderRadius: 999, border: 'none', cursor: 'pointer', letterSpacing: '-0.1px' }}
           >
             ← Start a search
           </button>
@@ -1403,280 +981,601 @@ export default function Results() {
   const program  = card.program || card.miles || 'Ultimate Rewards'
   const { isDefault, isDomestic, luxury, budget } = getResults(program, from, to)
   const haul     = detectHaul(from, to)
-  const haulLabel = isDomestic
-    ? 'Domestic route'
-    : haul === 'long' ? 'Long-haul route' : haul === 'medium' ? 'Medium-haul route' : 'Short-haul route'
-  const userPts = parseInt((points || '0').replace(/\D/g, ''), 10) || 0
-  const luxuryShortfall = luxury.points - userPts
-  const hasEnoughForLuxury = userPts >= luxury.points
+  const haulLabel = isDomestic ? 'Domestic route' : haul === 'long' ? 'Long-haul' : haul === 'medium' ? 'Medium-haul' : 'Short-haul'
+  const userPts   = parseInt((points || '0').replace(/\D/g, ''), 10) || 0
+  const hasEnough = userPts >= luxury.points
+  const shortfall = luxury.points - userPts
+  const surplus   = userPts - luxury.points
+  // Balance bar: what % of userPts does the required cost represent (capped at 96%)
+  const needPct   = userPts > 0 ? Math.min(96, Math.round(luxury.points / userPts * 100)) : 60
+  const bestCabin = /business|upper class|first/i.test(luxury.airline) ? 'Business' : 'Economy'
+  const luxMeta   = getPartnerInfo(luxury.partner)
+  const budMeta   = getPartnerInfo(budget.partner)
+  const isDirect  = /direct|no transfer/i.test(luxury.partner)
+  const visibleCards = PROMO_CARDS.filter(r => r.name !== card?.name).slice(0, 3)
+
+  // Shared styles
+  const CONT = { maxWidth: 1180, margin: '0 auto', padding: '0 40px' }
+  const kicker = { fontFamily: MN, fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_3 }
+  const rule = { height: 1, background: R1, width: '100%' }
 
   return (
-    <div style={{ background: BG, minHeight: '100vh', color: TEXT }}>
+    <div style={{ background: PAGE_BG, minHeight: '100vh', color: INK, fontFamily: SN, fontSize: 16, WebkitFontSmoothing: 'antialiased' }}>
 
-      {/* ── Navbar ── */}
+      {/* ── Sticky nav ── */}
       <nav style={{
-        position: 'sticky', top: 0, zIndex: 100,
-        height: '52px',
-        background: 'rgba(10,15,30,0.75)',
-        backdropFilter: 'blur(20px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-        borderBottom: `1px solid ${BORDER}`,
-        display: 'flex', alignItems: 'center',
+        borderBottom: `1px solid ${R1}`,
+        background: 'rgba(10,15,30,0.7)',
+        backdropFilter: 'saturate(140%) blur(12px)',
+        WebkitBackdropFilter: 'saturate(140%) blur(12px)',
+        position: 'sticky', top: 0, zIndex: 50,
       }}>
-        <div style={{
-          maxWidth: '740px', margin: '0 auto', padding: '0 24px',
-          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        }}>
+        <div style={{ ...CONT, display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 68 }}>
+          {/* Wordmark */}
           <span
             onClick={() => navigate('/')}
-            style={{
-              fontSize: '16px', fontWeight: '600',
-              letterSpacing: '-0.3px', color: TEXT,
-              cursor: 'pointer', userSelect: 'none',
-            }}
+            style={{ fontFamily: SR, fontSize: 24, letterSpacing: '-0.01em', cursor: 'pointer', display: 'flex', alignItems: 'baseline', gap: 6 }}
           >
-            PointPilot
+            <span style={{ width: 7, height: 7, borderRadius: 99, background: V5, display: 'inline-block', transform: 'translateY(-2px)' }} />
+            Point<em style={{ fontStyle: 'italic' }}>Pilot</em>
           </span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Nav actions */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <button
               onClick={handleNewSearch}
-              style={{
-                background: ACCENT, color: '#fff',
-                fontWeight: '500', fontSize: '13px',
-                padding: '7px 16px', borderRadius: '999px',
-                border: 'none', cursor: 'pointer',
-                letterSpacing: '-0.1px',
-                boxShadow: `0 0 0 1px rgba(99,102,241,0.4), 0 2px 10px ${GLOW}`,
-                transition: 'background 0.15s, transform 0.12s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#4f46e5'; e.currentTarget.style.transform = 'translateY(-1px)' }}
-              onMouseLeave={e => { e.currentTarget.style.background = ACCENT; e.currentTarget.style.transform = 'translateY(0)' }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '9px 16px', border: `1px solid ${R2}`, borderRadius: 999, fontFamily: SN, fontSize: 13, color: INK_2, background: 'none', cursor: 'pointer', transition: 'color .2s, border-color .2s' }}
+              onMouseEnter={e => { e.currentTarget.style.color = INK; e.currentTarget.style.borderColor = INK_3 }}
+              onMouseLeave={e => { e.currentTarget.style.color = INK_2; e.currentTarget.style.borderColor = R2 }}
             >
-              ← New search
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M5 12l6-6M5 12l6 6"/></svg>
+              New search
             </button>
             <button
               onClick={() => navigate('/')}
-              style={{
-                background: 'none', color: MUTED,
-                fontWeight: '400', fontSize: '13px',
-                padding: '7px 14px', borderRadius: '999px',
-                border: `1px solid ${BORDER_MID}`,
-                cursor: 'pointer', letterSpacing: '-0.1px',
-                transition: 'color 0.15s, border-color 0.15s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.color = TEXT; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)' }}
-              onMouseLeave={e => { e.currentTarget.style.color = MUTED; e.currentTarget.style.borderColor = BORDER_MID }}
+              style={{ display: 'inline-flex', alignItems: 'center', padding: '9px 16px', border: `1px solid ${R2}`, borderRadius: 999, fontFamily: SN, fontSize: 13, color: INK_2, background: 'none', cursor: 'pointer', transition: 'color .2s, border-color .2s' }}
+              onMouseEnter={e => { e.currentTarget.style.color = INK; e.currentTarget.style.borderColor = INK_3 }}
+              onMouseLeave={e => { e.currentTarget.style.color = INK_2; e.currentTarget.style.borderColor = R2 }}
             >
               Home
             </button>
+            {isPro && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '9px 16px', border: `1px solid rgba(212,165,90,0.32)`, borderRadius: 999, fontFamily: SN, fontSize: 13, color: GOLD_C, background: 'rgba(212,165,90,0.06)' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 6.8L21 11l-6.6 2.2L12 20l-2.4-6.8L3 11l6.6-2.2z"/></svg>
+                Pro
+              </span>
+            )}
           </div>
         </div>
       </nav>
 
-      <main style={{ maxWidth: '740px', margin: '0 auto', padding: '0 24px 80px' }}>
-
-        {/* ── Route header ── */}
-        <div style={{
-          textAlign: 'center',
-          paddingTop: '32px', paddingBottom: '24px',
-          position: 'relative',
-        }}>
-          {/* Subtle glow */}
-          <div style={{
-            position: 'absolute', inset: 0, pointerEvents: 'none',
-            background: 'radial-gradient(ellipse 60% 70% at 50% 0%, rgba(99,102,241,0.10) 0%, transparent 70%)',
-          }} />
-
-          <p style={{
-            fontSize: '11px', fontWeight: '600',
-            letterSpacing: '0.1em', textTransform: 'uppercase',
-            color: SUBTLE, marginBottom: '10px',
-          }}>
-            {card.name} · {program} · {haulLabel}
-          </p>
-
+      {/* ── Hero ── */}
+      <section style={{ padding: '100px 0 56px' }}>
+        <div style={CONT}>
+          {/* Kicker row */}
+          <div style={{ display: 'flex', gap: 14, justifyContent: 'center', alignItems: 'center', marginBottom: 28 }}>
+            <span style={kicker}>{card.name}</span>
+            <span style={{ width: 18, height: 1, background: R2 }} />
+            <span style={kicker}>{program}</span>
+            <span style={{ width: 18, height: 1, background: R2 }} />
+            <span style={kicker}>{haulLabel} · Result 01</span>
+          </div>
+          {/* Big route */}
           <h1 style={{
-            fontSize: 'clamp(36px, 7vw, 64px)',
-            fontWeight: '700',
-            letterSpacing: '-0.04em',
-            lineHeight: 1.0,
-            marginBottom: '10px',
-            background: `linear-gradient(180deg, ${TEXT} 30%, ${MUTED} 100%)`,
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
+            fontFamily: SR, fontWeight: 400,
+            fontSize: 'clamp(72px, 12vw, 168px)',
+            lineHeight: 0.92, letterSpacing: '-0.035em',
+            margin: '0 0 26px', textAlign: 'center', color: INK,
           }}>
-            {from?.code ?? from} → {to?.code ?? to}
+            {from?.code ?? '???'}
+            <span style={{ fontFamily: SN, fontWeight: 300, fontSize: '0.55em', verticalAlign: '0.18em', color: V4, margin: '0 0.16em', letterSpacing: 0 }}>→</span>
+            {to?.code ?? '???'}
           </h1>
-
-          <p style={{ color: SUBTLE, fontSize: '14px', marginBottom: '8px', letterSpacing: '-0.1px' }}>
-            {from?.city} to {to?.city}
+          {/* Subtitle */}
+          <p style={{ textAlign: 'center', color: INK_2, fontSize: 19, fontFamily: SR, fontStyle: 'italic', margin: '0 0 14px' }}>
+            {from?.city} → {to?.city}
           </p>
-
-          <p style={{ color: SUBTLE, fontSize: '12px', lineHeight: 1.6, marginBottom: '16px', maxWidth: '480px', margin: '0 auto 16px' }}>
-            Results assume availability from a major hub. If your departure airport has limited international service, consider departing from a nearby gateway airport.
-          </p>
-
-          <p style={{ color: MUTED, fontSize: '15px', lineHeight: 1.6 }}>
-            Best redemption with{' '}
-            <span style={{ color: TEXT, fontWeight: '600' }}>{points} {pointsLabel(program)}</span>
+          <p style={{ textAlign: 'center', color: INK_3, fontSize: 13, fontFamily: MN, letterSpacing: '0.1em', textTransform: 'uppercase', margin: 0 }}>
+            {pointsLabel(program)} · Avg. award pricing
           </p>
         </div>
+      </section>
 
-        {/* Free tier note */}
-        <p style={{
-          textAlign: 'center', color: SUBTLE,
-          fontSize: '12px', lineHeight: 1.6,
-          marginBottom: '20px',
-        }}>
-          Results show average award pricing across dates. Sign up for full access to search specific dates and see live availability.
-        </p>
+      {/* ── Boarding pass ── */}
+      <div style={{ padding: '0 0 80px' }}>
+        <div style={CONT}>
+          {/* Route notices */}
+          {isDomestic && (
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${R2}`, borderRadius: 12, padding: '14px 20px', marginBottom: 24, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+              <span style={{ fontSize: 16, flexShrink: 0 }}>🇺🇸</span>
+              <p style={{ color: INK_2, fontSize: 13, lineHeight: 1.6, margin: 0, fontFamily: SR, fontStyle: 'italic' }}>
+                Domestic route detected. We've prioritized the best domestic airline partners for your card.
+              </p>
+            </div>
+          )}
+          {!isDomestic && isDefault && (
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${R2}`, borderRadius: 12, padding: '14px 20px', marginBottom: 24, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+              <span style={{ fontSize: 16, flexShrink: 0 }}>🗺️</span>
+              <p style={{ color: INK_2, fontSize: 13, lineHeight: 1.6, margin: 0, fontFamily: SR, fontStyle: 'italic' }}>
+                We're building out more routes every week. Here's the best general redemption strategy for your card.
+              </p>
+            </div>
+          )}
 
-        {/* Route notice banners */}
-        {isDomestic && (
+          {/* Pass card */}
           <div style={{
-            background: ELEVATED,
-            border: `1px solid ${BORDER_MID}`,
-            borderRadius: '12px', padding: '14px 18px',
-            marginBottom: '24px',
-            display: 'flex', gap: '12px', alignItems: 'flex-start',
+            background: 'linear-gradient(180deg, #0f1530 0%, #0c1226 100%)',
+            border: `1px solid ${R2}`,
+            borderRadius: 18, position: 'relative', overflow: 'hidden',
           }}>
-            <span style={{ fontSize: '15px', flexShrink: 0 }}>🇺🇸</span>
-            <p style={{ color: MUTED, fontSize: '13px', lineHeight: 1.6, margin: 0 }}>
-              Domestic route detected. We've prioritized the best domestic airline partners for your card. International programs like Air France Flying Blue or Aeroplan are excluded since they offer poor value on US domestic awards.
-            </p>
-          </div>
-        )}
-        {!isDomestic && isDefault && (
-          <div style={{
-            background: ELEVATED,
-            border: `1px solid ${BORDER_MID}`,
-            borderRadius: '12px', padding: '14px 18px',
-            marginBottom: '24px',
-            display: 'flex', gap: '12px', alignItems: 'flex-start',
-          }}>
-            <span style={{ fontSize: '15px', flexShrink: 0 }}>🗺️</span>
-            <p style={{ color: MUTED, fontSize: '13px', lineHeight: 1.6, margin: 0 }}>
-              We're building out more routes every week. Here's the best general redemption strategy for your card. Availability varies by route and dates.
-            </p>
-          </div>
-        )}
+            {/* Punch-out circles */}
+            <div style={{ position: 'absolute', width: 28, height: 28, background: '#0a0f1e', borderRadius: '50%', top: '50%', left: -14, transform: 'translateY(-50%)', border: `1px solid ${R2}` }} />
+            <div style={{ position: 'absolute', width: 28, height: 28, background: '#0a0f1e', borderRadius: '50%', top: '50%', right: -14, transform: 'translateY(-50%)', border: `1px solid ${R2}` }} />
 
-        {/* ── Result cards ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '40px' }}>
-          <ResultCard badge="Luxury Option" isLuxury={true}  result={luxury} userPoints={points} />
-          <ResultCard badge="Budget Option" isLuxury={false} result={budget} userPoints={points} />
-        </div>
-
-        {/* ── Affiliate card grid ── */}
-        {(() => {
-          const visibleCards = PROMO_CARDS.filter(rec => rec.name !== card?.name)
-          return (
-            <div style={{ marginBottom: '40px' }}>
-              <div style={{ marginBottom: '16px' }}>
-                <h2 style={{
-                  color: TEXT, fontSize: '20px',
-                  fontWeight: '700', letterSpacing: '-0.35px',
-                  marginBottom: '8px', lineHeight: 1.3,
-                }}>
-                  {hasEnoughForLuxury
-                    ? 'Earn more points for your next trip'
-                    : `${luxuryShortfall.toLocaleString()} points short of the luxury option`
-                  }
-                </h2>
-                <p style={{ color: MUTED, fontSize: '14px', lineHeight: 1.6 }}>
-                  Each card comes with a welcome bonus that could cover this entire trip.
-                </p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 1px 1fr' }}>
+              {/* Left */}
+              <div style={{ padding: '38px 44px' }}>
+                {/* Pass header */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
+                  <span style={{ fontFamily: SR, fontSize: 18, color: INK_2 }}>
+                    Boarding Pass <em style={{ color: INK_3 }}>— Best Redemption</em>
+                  </span>
+                  <span style={{ fontFamily: MN, fontSize: 11, letterSpacing: '0.16em', color: INK_3 }}>PP · 2026</span>
+                </div>
+                {/* Route */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'end', gap: 18, marginBottom: 32 }}>
+                  <div>
+                    <div style={{ fontFamily: MN, fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_3, marginBottom: 8 }}>{from?.city}</div>
+                    <div style={{ fontFamily: SR, fontSize: 76, lineHeight: 0.9, letterSpacing: '-0.03em' }}>{from?.code ?? '???'}</div>
+                  </div>
+                  {/* Plane line */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBottom: 18 }}>
+                    <svg viewBox="0 0 140 24" fill="none" stroke="currentColor" strokeWidth="1" style={{ width: '100%', maxWidth: 140, height: 'auto', color: INK_3 }}>
+                      <line x1="0" y1="12" x2="58" y2="12" strokeDasharray="3 3"/>
+                      <line x1="84" y1="12" x2="140" y2="12" strokeDasharray="3 3"/>
+                      <g transform="translate(70 12)" fill="currentColor" stroke="none">
+                        <path d="M-12 0 L8 -6 L12 -4 L4 0 L12 4 L8 6 Z" />
+                      </g>
+                    </svg>
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: MN, fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_3, marginBottom: 8, textAlign: 'right' }}>{to?.city}</div>
+                    <div style={{ fontFamily: SR, fontSize: 76, lineHeight: 0.9, letterSpacing: '-0.03em', textAlign: 'right' }}>{to?.code ?? '???'}</div>
+                  </div>
+                </div>
+                {/* Meta strip */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, paddingTop: 28, borderTop: `1px solid ${R1}` }}>
+                  {[
+                    { label: 'Haul',     value: haulLabel.replace(' route','').replace('-haul','') + '-haul' },
+                    { label: 'Best cabin', value: bestCabin },
+                    { label: isDirect ? 'Booking' : 'Transfer', value: isDirect ? 'Direct' : luxMeta.ratio },
+                  ].map(m => (
+                    <div key={m.label}>
+                      <div style={{ fontFamily: MN, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_3, marginBottom: 8 }}>{m.label}</div>
+                      <div style={{ fontFamily: SR, fontSize: 22, color: INK }}>{m.value}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-                {visibleCards.map(rec => (
-                  <div key={rec.name} style={{
-                    background: SURFACE,
-                    border: `1px solid ${BORDER_MID}`,
-                    borderRadius: '14px', padding: '18px',
-                    display: 'flex', flexDirection: 'column', gap: '12px',
-                  }}>
-                    <div style={{ flex: 1 }}>
-                      <p style={{
-                        color: SUBTLE, fontSize: '10px',
-                        fontWeight: '600', textTransform: 'uppercase',
-                        letterSpacing: '0.1em', marginBottom: '4px',
-                      }}>
-                        {rec.issuer}
-                      </p>
-                      <h3 style={{
-                        color: TEXT, fontSize: '14px',
-                        fontWeight: '600', marginBottom: '5px',
-                        lineHeight: 1.3, letterSpacing: '-0.2px',
-                      }}>
-                        {rec.name}
-                      </h3>
-                      <p style={{ color: SUBTLE, fontSize: '11px', lineHeight: 1.5, marginBottom: '10px' }}>
-                        {CARD_DETAILS[rec.name]?.tagline}
-                      </p>
-                      {CARD_DETAILS[rec.name]?.bonus && (
-                        <div style={{
-                          background: 'rgba(255,255,255,0.04)',
-                          border: `1px solid ${BORDER_MID}`,
-                          borderRadius: '8px', padding: '9px 12px',
-                          marginBottom: '4px',
-                        }}>
-                          <p style={{
-                            color: MUTED, fontSize: '11px',
-                            fontWeight: '400', lineHeight: 1.5, margin: 0,
-                          }}>
-                            {CARD_DETAILS[rec.name].bonus}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                    {/* TODO: Replace with real affiliate link from FlexOffers */}
-                    <ApplyButton href={AFFILIATE_LINKS[rec.name]}>Apply now →</ApplyButton>
+              {/* Dashed divider */}
+              <div style={{ background: `repeating-linear-gradient(180deg, ${R2} 0 6px, transparent 6px 14px)`, margin: '32px 0' }} />
+
+              {/* Right */}
+              <div style={{ padding: '38px 44px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 28 }}>
+                {/* Best redemption */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ fontFamily: MN, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_3 }}>Best redemption</div>
+                  <div style={{ fontFamily: SR, fontSize: 64, lineHeight: 0.95, letterSpacing: '-0.02em' }}>
+                    {luxury.points.toLocaleString()}
+                    <small style={{ fontFamily: SR, fontStyle: 'italic', fontSize: 22, color: INK_3, marginLeft: 8 }}>pts</small>
                   </div>
-                ))}
+                  <div style={{ color: INK_2, fontSize: 14, marginTop: 6 }}>{luxury.airline}</div>
+                  <div style={{ color: INK_3, fontSize: 13, fontFamily: MN, letterSpacing: '0.06em' }}>{luxury.partner.split('·')[0].trim()}</div>
+                </div>
+                {/* Stats grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
+                  <div style={{ border: `1px solid ${R1}`, borderRadius: 12, padding: '18px 20px' }}>
+                    <div style={{ fontFamily: MN, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_3, marginBottom: 8 }}>Value / point</div>
+                    <div style={{ fontFamily: SR, fontSize: 28, color: V4 }}>{luxury.cpp}¢</div>
+                    <div style={{ color: GRN, fontFamily: MN, fontSize: 11, letterSpacing: '0.04em', marginTop: 6 }}>
+                      ↑ {(luxury.cpp / 1.0).toFixed(1)}× vs cash back
+                    </div>
+                  </div>
+                  <div style={{ border: `1px solid ${R1}`, borderRadius: 12, padding: '18px 20px' }}>
+                    <div style={{ fontFamily: MN, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_3, marginBottom: 8 }}>Est. cash value</div>
+                    <div style={{ fontFamily: SR, fontSize: 28, color: INK }}>${luxury.cashValue.toLocaleString()}</div>
+                    <div style={{ color: INK_3, fontFamily: MN, fontSize: 11, letterSpacing: '0.04em', marginTop: 6 }}>
+                      {/business|upper|first/i.test(luxury.airline) ? 'Biz class, round-trip' : 'Economy, round-trip'}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          )
-        })()}
+          </div>
+        </div>
+      </div>
 
-        {/* ── Upgrade CTA - hidden for Pro users ── */}
-        {!isPro && (
-          <div style={{
-            textAlign: 'center', marginBottom: '28px',
-            padding: '28px 24px',
-            background: SURFACE,
-            border: `1px solid ${BORDER_MID}`,
-            borderRadius: '16px',
-          }}>
-            <p style={{
-              color: TEXT, fontSize: '17px',
-              fontWeight: '600', lineHeight: 1.45,
-              marginBottom: '20px', letterSpacing: '-0.3px',
-              maxWidth: '400px', margin: '0 auto 20px',
-            }}>
-              Unlock unlimited searches, live award availability, and transfer bonus alerts.
+      {/* ── Section 01: Balance ── */}
+      {userPts > 0 && (
+        <section style={{ padding: '72px 0', borderTop: `1px solid ${R1}` }}>
+          <div style={CONT}>
+            <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 60, alignItems: 'start', marginBottom: 44 }}>
+              <div style={kicker}>01 / Balance</div>
+              <div>
+                <h2 style={{ fontFamily: SR, fontWeight: 400, fontSize: 48, lineHeight: 1.02, letterSpacing: '-0.02em', margin: '0 0 16px', maxWidth: 700 }}>
+                  You have{' '}
+                  <em style={{ fontStyle: 'normal', color: V4 }}>{userPts.toLocaleString()}</em>{' '}
+                  points. The best seat costs{' '}
+                  <em style={{ fontStyle: 'normal' }}>{luxury.points.toLocaleString()}</em>.
+                </h2>
+                <p style={{ fontFamily: SR, fontStyle: 'italic', color: INK_2, fontSize: 19, lineHeight: 1.5, margin: 0 }}>
+                  {hasEnough
+                    ? `More than enough — with a surplus of ${surplus.toLocaleString()} points left over.`
+                    : `You're ${shortfall.toLocaleString()} points short of the luxury option, but easily covered by the budget pick.`
+                  }
+                </p>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 60, alignItems: 'start' }}>
+              <div style={{ fontFamily: MN, fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_3, paddingTop: 20 }}>{program}</div>
+              <div>
+                {/* Balance bar */}
+                <div style={{ width: '100%', height: 64, background: 'rgba(244,243,238,0.04)', border: `1px solid ${R1}`, borderRadius: 10, position: 'relative', overflow: 'hidden' }}>
+                  {/* Have (full bar) */}
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(99,102,241,0.10), rgba(99,102,241,0.20))' }} />
+                  {/* Need strip */}
+                  <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${needPct}%`, background: 'linear-gradient(90deg, #5b5ff0 0%, #818cf8 100%)', boxShadow: '0 0 24px rgba(99,102,241,0.5)' }}>
+                    <span style={{ position: 'absolute', top: 18, left: 16, fontFamily: MN, fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'white' }}>
+                      Need · {luxury.points.toLocaleString()}
+                    </span>
+                  </div>
+                  <span style={{ position: 'absolute', top: 18, right: 16, fontFamily: MN, fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: INK }}>
+                    Balance · {userPts.toLocaleString()}
+                  </span>
+                </div>
+                {/* Legend */}
+                <div style={{ display: 'flex', gap: 32, marginTop: 18, fontSize: 13, color: INK_2 }}>
+                  <span>
+                    <span style={{ display: 'inline-block', width: 10, height: 10, background: 'linear-gradient(90deg,#5b5ff0,#818cf8)', borderRadius: 2, marginRight: 8, verticalAlign: '1px' }} />
+                    Required for best seat
+                  </span>
+                  <span>
+                    <span style={{ display: 'inline-block', width: 10, height: 10, background: 'rgba(99,102,241,0.20)', border: '1px solid rgba(99,102,241,0.4)', borderRadius: 2, marginRight: 8, verticalAlign: '1px' }} />
+                    Your available balance
+                  </span>
+                </div>
+                {/* Surplus / shortfall */}
+                <div style={{ marginTop: 14, fontFamily: SR, fontStyle: 'italic', fontSize: 19, color: INK }}>
+                  {hasEnough
+                    ? <>Surplus of <em style={{ fontStyle: 'normal', color: GRN, fontFamily: MN, fontSize: 14, letterSpacing: '0.04em' }}>{surplus.toLocaleString()} pts</em> remaining after booking.</>
+                    : <>Short by <em style={{ fontStyle: 'normal', color: '#f87171', fontFamily: MN, fontSize: 14, letterSpacing: '0.04em' }}>{shortfall.toLocaleString()} pts</em> — consider the budget option instead.</>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── Section 02: Compare ── */}
+      <section style={{ padding: '72px 0', borderTop: `1px solid ${R1}` }}>
+        <div style={CONT}>
+          {/* Section head */}
+          <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 60, alignItems: 'start', marginBottom: 44 }}>
+            <div style={kicker}>02 / Compare</div>
+            <div>
+              <h2 style={{ fontFamily: SR, fontWeight: 400, fontSize: 48, lineHeight: 1.02, letterSpacing: '-0.02em', margin: '0 0 16px', maxWidth: 700 }}>
+                Two routes through your points.
+              </h2>
+              <p style={{ fontFamily: SR, fontStyle: 'italic', color: INK_2, fontSize: 19, lineHeight: 1.5, margin: 0, maxWidth: 620 }}>
+                One sets you in the premium cabin. The other gets you there for almost nothing. Both are bookable today.
+              </p>
+            </div>
+          </div>
+
+          {/* Compare table */}
+          <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr 1fr', borderTop: `1px solid ${R2}` }}>
+
+            {/* Column headers */}
+            <div style={{ padding: '28px 24px', borderBottom: `1px solid ${R1}` }}>
+              <div style={kicker}>Side by side</div>
+              <div style={{ marginTop: 18, fontFamily: SR, fontStyle: 'italic', color: INK_2, fontSize: 18, maxWidth: 180, lineHeight: 1.4 }}>
+                Cabin, partner, and the math.
+              </div>
+            </div>
+            {/* Luxury header */}
+            <div style={{ padding: '28px 24px', borderBottom: `1px solid ${R1}` }}>
+              <span style={{ display: 'inline-block', fontFamily: MN, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', padding: '5px 10px', borderRadius: 999, marginBottom: 14, color: GOLD_C, background: 'rgba(212,165,90,0.08)', border: `1px solid rgba(212,165,90,0.28)` }}>
+                Luxury · Best value
+              </span>
+              <h3 style={{ fontFamily: SR, fontWeight: 400, fontSize: 30, lineHeight: 1.05, margin: '0 0 8px', letterSpacing: '-0.01em' }}>
+                {/business|upper/i.test(luxury.airline) ? 'Business Class' : /first/i.test(luxury.airline) ? 'First Class' : luxury.airline.split(' ').slice(-2).join(' ')}
+              </h3>
+              <div style={{ fontFamily: MN, fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_3 }}>
+                {luxury.partner.replace('Transfer to ', '').replace(' · 1:1 ratio', '').replace('Book directly - no transfer needed', 'Direct booking')}
+              </div>
+              <div style={{ fontFamily: SR, fontSize: 56, lineHeight: 1, marginTop: 18, letterSpacing: '-0.02em' }}>
+                {luxury.points.toLocaleString()}
+                <span style={{ fontFamily: MN, fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_3, display: 'block', marginTop: 8 }}>Points required</span>
+              </div>
+            </div>
+            {/* Budget header */}
+            <div style={{ padding: '28px 24px', borderBottom: `1px solid ${R1}` }}>
+              <span style={{ display: 'inline-block', fontFamily: MN, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', padding: '5px 10px', borderRadius: 999, marginBottom: 14, color: V4, background: 'rgba(99,102,241,0.12)', border: `1px solid rgba(99,102,241,0.28)` }}>
+                Budget · Fewest points
+              </span>
+              <h3 style={{ fontFamily: SR, fontWeight: 400, fontSize: 30, lineHeight: 1.05, margin: '0 0 8px', letterSpacing: '-0.01em' }}>
+                {/economy/i.test(budget.airline) ? 'Economy' : budget.airline.split(' ').slice(-2).join(' ')}
+              </h3>
+              <div style={{ fontFamily: MN, fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_3 }}>
+                {budget.partner.replace('Transfer to ', '').replace(' · 1:1 ratio', '').replace('Book directly - no transfer needed', 'Direct booking')}
+              </div>
+              <div style={{ fontFamily: SR, fontSize: 56, lineHeight: 1, marginTop: 18, letterSpacing: '-0.02em' }}>
+                {budget.points.toLocaleString()}
+                <span style={{ fontFamily: MN, fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_3, display: 'block', marginTop: 8 }}>Points required</span>
+              </div>
+            </div>
+
+            {/* Rows */}
+            {[
+              {
+                label: 'Cash value',
+                lux: <><span style={{ fontFamily: SR, fontSize: 28, color: INK }}>${luxury.cashValue.toLocaleString()}</span></>,
+                bud: <><span style={{ fontFamily: SR, fontSize: 28, color: INK }}>${budget.cashValue.toLocaleString()}</span></>,
+              },
+              {
+                label: 'Value / point',
+                lux: (
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                    <span style={{ fontFamily: SR, fontSize: 28, color: GRN }}>{luxury.cpp}¢</span>
+                    <span style={{ fontFamily: MN, fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase', color: GOLD_C, border: `1px solid rgba(212,165,90,0.4)`, borderRadius: 999, padding: '3px 8px' }}>Best</span>
+                  </div>
+                ),
+                bud: <span style={{ fontFamily: SR, fontSize: 28, color: INK }}>{budget.cpp}¢</span>,
+              },
+              {
+                label: 'Transfer',
+                lux: <span style={{ fontFamily: SN, fontSize: 15, color: INK_2 }}>{luxury.partner.replace('Book directly - no transfer needed', 'Direct — no transfer').replace(' · 1:1 ratio', ' (1:1)')}</span>,
+                bud: <span style={{ fontFamily: SN, fontSize: 15, color: INK_2 }}>{budget.partner.replace('Book directly - no transfer needed', 'Direct — no transfer').replace(' · 1:1 ratio', ' (1:1)')}</span>,
+              },
+              {
+                label: 'Transfer speed',
+                lux: <span style={{ fontFamily: SN, fontSize: 15, color: INK_2 }}>{luxMeta.speed}</span>,
+                bud: <span style={{ fontFamily: SN, fontSize: 15, color: INK_2 }}>{budMeta.speed}</span>,
+              },
+              {
+                label: 'Fuel surcharges',
+                lux: luxury.warning
+                  ? <span style={{ fontFamily: SN, fontSize: 14, color: '#fcd34d' }}>{luxury.warning.slice(0, 60)}…</span>
+                  : <span style={{ fontFamily: SN, fontSize: 15, color: GRN }}>None on most partners</span>,
+                bud: budget.warning
+                  ? <span style={{ fontFamily: SN, fontSize: 14, color: '#fcd34d' }}>{budget.warning.slice(0, 60)}…</span>
+                  : <span style={{ fontFamily: SN, fontSize: 15, color: GRN }}>None on most partners</span>,
+              },
+              {
+                label: 'Best for',
+                lux: <span style={{ fontFamily: SR, fontStyle: 'italic', fontSize: 18, color: INK }}>{luxury.note.split('.')[0]}.</span>,
+                bud: <span style={{ fontFamily: SR, fontStyle: 'italic', fontSize: 18, color: INK }}>{budget.note.split('.')[0]}.</span>,
+              },
+            ].map(row => (
+              <React.Fragment key={row.label}>
+                <div style={{ padding: '22px 24px', borderBottom: `1px solid ${R1}`, display: 'flex', alignItems: 'center', fontFamily: MN, fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_3 }}>
+                  {row.label}
+                </div>
+                <div style={{ padding: '22px 24px', borderBottom: `1px solid ${R1}` }}>{row.lux}</div>
+                <div style={{ padding: '22px 24px', borderBottom: `1px solid ${R1}` }}>{row.bud}</div>
+              </React.Fragment>
+            ))}
+          </div>
+
+          {/* How to book */}
+          <div style={{ borderTop: `1px solid ${R1}`, marginTop: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr 1fr', borderBottom: `1px solid ${R1}` }}>
+              <div style={{ padding: '22px 24px', fontFamily: MN, fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', color: INK_3, display: 'flex', alignItems: 'center' }}>
+                How to book
+              </div>
+              {/* Luxury expand */}
+              <div>
+                <button
+                  onClick={() => setLuxOpen(o => !o)}
+                  style={{ width: '100%', textAlign: 'left', padding: '22px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, fontFamily: SR, fontSize: 18, color: INK_2, background: 'none', border: 'none', cursor: 'pointer', transition: 'color .2s' }}
+                  onMouseEnter={e => e.currentTarget.style.color = INK}
+                  onMouseLeave={e => e.currentTarget.style.color = INK_2}
+                >
+                  <span>{luxOpen ? 'Close' : 'Open'} the Luxury playbook</span>
+                  <span style={{ width: 28, height: 28, border: `1px solid ${luxOpen ? V5 : R2}`, borderRadius: 999, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'border-color .2s, transform .25s', transform: luxOpen ? 'rotate(180deg)' : 'none' }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
+                  </span>
+                </button>
+                <div style={{ overflow: 'hidden', maxHeight: luxOpen ? 800 : 0, transition: 'max-height 0.4s ease' }}>
+                  <div style={{ padding: '6px 24px 28px' }}>
+                    {luxury.warning && (
+                      <div style={{ background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 10, padding: '12px 16px', marginBottom: 16, display: 'flex', gap: 10 }}>
+                        <span style={{ color: '#fbbf24', flexShrink: 0 }}>⚠</span>
+                        <p style={{ color: '#fcd34d', fontSize: 13, lineHeight: 1.55, margin: 0 }}>{luxury.warning}</p>
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                      {luxury.steps.map((step, i) => (
+                        <div key={i} style={{ display: 'grid', gridTemplateColumns: '28px 1fr', gap: 14, fontSize: 14, color: INK_2, lineHeight: 1.55 }}>
+                          <span style={{ fontFamily: MN, fontSize: 11, letterSpacing: '0.1em', color: V4, width: 24, height: 24, border: `1px solid rgba(99,102,241,0.4)`, borderRadius: 999, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>{i + 1}</span>
+                          <div>{step}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* Budget expand */}
+              <div>
+                <button
+                  onClick={() => setBudOpen(o => !o)}
+                  style={{ width: '100%', textAlign: 'left', padding: '22px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, fontFamily: SR, fontSize: 18, color: INK_2, background: 'none', border: 'none', cursor: 'pointer', transition: 'color .2s' }}
+                  onMouseEnter={e => e.currentTarget.style.color = INK}
+                  onMouseLeave={e => e.currentTarget.style.color = INK_2}
+                >
+                  <span>{budOpen ? 'Close' : 'Open'} the Budget playbook</span>
+                  <span style={{ width: 28, height: 28, border: `1px solid ${budOpen ? V5 : R2}`, borderRadius: 999, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'border-color .2s, transform .25s', transform: budOpen ? 'rotate(180deg)' : 'none' }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
+                  </span>
+                </button>
+                <div style={{ overflow: 'hidden', maxHeight: budOpen ? 800 : 0, transition: 'max-height 0.4s ease' }}>
+                  <div style={{ padding: '6px 24px 28px' }}>
+                    {budget.warning && (
+                      <div style={{ background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.2)', borderRadius: 10, padding: '12px 16px', marginBottom: 16, display: 'flex', gap: 10 }}>
+                        <span style={{ color: '#fbbf24', flexShrink: 0 }}>⚠</span>
+                        <p style={{ color: '#fcd34d', fontSize: 13, lineHeight: 1.55, margin: 0 }}>{budget.warning}</p>
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                      {budget.steps.map((step, i) => (
+                        <div key={i} style={{ display: 'grid', gridTemplateColumns: '28px 1fr', gap: 14, fontSize: 14, color: INK_2, lineHeight: 1.55 }}>
+                          <span style={{ fontFamily: MN, fontSize: 11, letterSpacing: '0.1em', color: V4, width: 24, height: 24, border: `1px solid rgba(99,102,241,0.4)`, borderRadius: 999, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginTop: 1 }}>{i + 1}</span>
+                          <div>{step}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* CTA row */}
+            <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr 1fr', borderBottom: `1px solid ${R1}` }}>
+              <div />
+              <div style={{ padding: 24 }}>
+                <a
+                  href={AFFILIATE_LINKS[card?.name] || '#'}
+                  target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '14px 22px', borderRadius: 999, fontSize: 14, background: V5, color: 'white', textDecoration: 'none', transition: 'background .2s' }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#4f46e5'}
+                  onMouseLeave={e => e.currentTarget.style.background = V5}
+                >
+                  Book luxury option
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                </a>
+              </div>
+              <div style={{ padding: 24 }}>
+                <a
+                  href={AFFILIATE_LINKS[card?.name] || '#'}
+                  target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '14px 22px', borderRadius: 999, fontSize: 14, border: `1px solid ${R2}`, color: INK, textDecoration: 'none', transition: 'border-color .2s' }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = INK_3}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = R2}
+                >
+                  Book budget option
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Disclaimer */}
+          <p style={{ marginTop: 24, fontFamily: SR, fontStyle: 'italic', color: INK_3, fontSize: 15, lineHeight: 1.6, maxWidth: 720 }}>
+            PointPilot shows average award pricing across the next 90 days. Always verify live availability on the airline's site before transferring points — transfers are irreversible.
+          </p>
+        </div>
+      </section>
+
+      {/* ── Section 03: Earn ── */}
+      <section style={{ padding: '72px 0', borderTop: `1px solid ${R1}` }}>
+        <div style={CONT}>
+          <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 60, alignItems: 'start', marginBottom: 44 }}>
+            <div style={kicker}>03 / Earn</div>
+            <div>
+              <h2 style={{ fontFamily: SR, fontWeight: 400, fontSize: 48, lineHeight: 1.02, letterSpacing: '-0.02em', margin: '0 0 16px', maxWidth: 700 }}>
+                {hasEnough
+                  ? 'Or earn the whole trip in one welcome bonus.'
+                  : `${shortfall.toLocaleString()} points short. These bonuses cover the gap.`
+                }
+              </h2>
+              <p style={{ fontFamily: SR, fontStyle: 'italic', color: INK_2, fontSize: 19, lineHeight: 1.5, margin: 0, maxWidth: 620 }}>
+                Each of these cards earns transferable points and currently runs a bonus large enough to cover this route — sometimes twice over.
+              </p>
+            </div>
+          </div>
+
+          {/* Affiliate cards grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${visibleCards.length}, 1fr)`, borderTop: `1px solid ${R2}` }}>
+            {visibleCards.map((rec, idx) => {
+              const det = CARD_DETAILS[rec.name] || {}
+              return (
+                <div
+                  key={rec.name}
+                  style={{
+                    padding: '36px 32px',
+                    borderRight: idx < visibleCards.length - 1 ? `1px solid ${R1}` : 'none',
+                    display: 'flex', flexDirection: 'column', gap: 18,
+                    minHeight: 360,
+                  }}
+                >
+                  <div style={{ fontFamily: MN, fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: INK_3 }}>{rec.issuer}</div>
+                  <h4 style={{ fontFamily: SR, fontWeight: 400, fontSize: 30, margin: 0, lineHeight: 1.05, letterSpacing: '-0.01em' }}>{rec.name}</h4>
+                  <div style={{ color: INK_2, fontSize: 14, lineHeight: 1.5 }}>{det.tagline}</div>
+                  <div style={{ marginTop: 'auto', paddingTop: 18, borderTop: `1px solid ${R1}`, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {det.bonus && (
+                      <>
+                        <div style={{ fontFamily: SR, fontSize: 32, lineHeight: 1, letterSpacing: '-0.01em' }}>
+                          {det.bonus.match(/[\d,]+(?:,\d{3})?(?:–[\d,]+)? (?:point|mile)/i)?.[0]?.split(' ')[0] || '75,000'}
+                          <span style={{ fontFamily: SR, fontStyle: 'italic', fontSize: 18, color: INK_3, marginLeft: 8 }}>
+                            {/mile/i.test(det.bonus) ? 'miles' : 'pts'}
+                          </span>
+                        </div>
+                        <div style={{ color: INK_3, fontSize: 13, lineHeight: 1.5 }}>{det.bonus}</div>
+                      </>
+                    )}
+                    <a
+                      href={AFFILIATE_LINKS[rec.name] || '#'}
+                      target="_blank" rel="noopener noreferrer"
+                      style={{ marginTop: 16, display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: MN, fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: V4, textDecoration: 'none', transition: 'color .2s, gap .2s' }}
+                      onMouseEnter={e => { e.currentTarget.style.color = INK; e.currentTarget.style.gap = '14px' }}
+                      onMouseLeave={e => { e.currentTarget.style.color = V4; e.currentTarget.style.gap = '8px' }}
+                    >
+                      Apply now <span>→</span>
+                    </a>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Upgrade CTA (free users only) ── */}
+      {!isPro && (
+        <section style={{ padding: '72px 0', borderTop: `1px solid ${R1}` }}>
+          <div style={{ ...CONT, textAlign: 'center' }}>
+            <div style={kicker}>Unlock Pro</div>
+            <h2 style={{ fontFamily: SR, fontWeight: 400, fontSize: 48, lineHeight: 1.02, letterSpacing: '-0.02em', margin: '24px 0 16px' }}>
+              Unlimited searches. Live award availability.
+            </h2>
+            <p style={{ fontFamily: SR, fontStyle: 'italic', color: INK_2, fontSize: 19, lineHeight: 1.5, margin: '0 auto 32px', maxWidth: 480 }}>
+              Transfer bonus alerts, priority results, and full access for $10/month.
             </p>
             <button
               onClick={() => setShowModal(true)}
-              style={{
-                background: ACCENT, color: '#fff',
-                fontWeight: '500', fontSize: '15px',
-                padding: '13px 32px', borderRadius: '999px',
-                border: 'none', cursor: 'pointer',
-                letterSpacing: '-0.2px',
-                boxShadow: `0 0 0 1px rgba(99,102,241,0.4), 0 4px 24px ${GLOW}`,
-                transition: 'background 0.15s, transform 0.12s',
-              }}
+              style={{ background: V5, color: '#fff', fontFamily: SN, fontSize: 15, padding: '14px 36px', borderRadius: 999, border: 'none', cursor: 'pointer', letterSpacing: '-0.1px', boxShadow: '0 0 0 1px rgba(99,102,241,0.4), 0 4px 24px rgba(99,102,241,0.35)', transition: 'background .15s, transform .12s' }}
               onMouseEnter={e => { e.currentTarget.style.background = '#4f46e5'; e.currentTarget.style.transform = 'translateY(-1px)' }}
-              onMouseLeave={e => { e.currentTarget.style.background = ACCENT; e.currentTarget.style.transform = 'translateY(0)' }}
+              onMouseLeave={e => { e.currentTarget.style.background = V5; e.currentTarget.style.transform = 'translateY(0)' }}
             >
               Get Unlimited Access
             </button>
           </div>
-        )}
+        </section>
+      )}
 
-      </main>
+      {/* ── Footer ── */}
+      <footer style={{ borderTop: `1px solid ${R1}`, padding: '56px 0 72px', color: INK_3, fontSize: 13 }}>
+        <div style={{ ...CONT, display: 'grid', gridTemplateColumns: '1fr auto', gap: 40, alignItems: 'end' }}>
+          <p style={{ margin: 0, maxWidth: 560, lineHeight: 1.6, fontFamily: SR, fontStyle: 'italic', fontSize: 16, color: INK_2 }}>
+            PointPilot is independent. We earn a commission on cards opened through links above — it never changes which result is "best." Average award pricing across 90-day forward availability.
+          </p>
+          <div style={{ display: 'flex', gap: 24, fontFamily: MN, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: INK_3 }}>
+            <span>{from?.code} → {to?.code}</span>
+            <span>© PointPilot</span>
+          </div>
+        </div>
+      </footer>
 
       {showModal && !isPro && <UpgradeModal />}
     </div>
