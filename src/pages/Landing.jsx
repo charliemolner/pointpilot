@@ -108,24 +108,6 @@ function GhostBtn({ children, onClick }) {
 }
 
 // ── Data ───────────────────────────────────────────────────
-const STEPS = [
-  {
-    n: '01',
-    title: 'Enter your card',
-    body: 'Select your rewards card and enter your current point or mile balance.',
-  },
-  {
-    n: '02',
-    title: 'Choose your route',
-    body: 'Any origin, any destination, domestic hop or transatlantic upgrade.',
-  },
-  {
-    n: '03',
-    title: 'See your redemption',
-    body: 'We surface the highest-value transfer partner for your exact card and route.',
-  },
-]
-
 const STATS = [
   { value: '20+',     label: 'Transfer partners' },
   { value: '8.8¢',    label: 'Peak value/point' },
@@ -270,80 +252,6 @@ export default function Landing() {
           </div>
         </div>
       </div>
-
-      {/* ── How it works ─────────────────────────────────── */}
-      <Section id="how-it-works" style={{ paddingTop: '48px', paddingBottom: '48px' }}>
-        <p style={{
-          fontSize: '11px', fontWeight: '600',
-          letterSpacing: '0.1em', textTransform: 'uppercase',
-          color: SUBTLE, marginBottom: '10px',
-        }}>
-          How it works
-        </p>
-
-        <h2 style={{
-          fontSize: 'clamp(24px, 3.5vw, 38px)',
-          fontWeight: '700',
-          letterSpacing: '-0.035em',
-          lineHeight: '1.08',
-          color: TEXT,
-          marginBottom: '16px',
-          maxWidth: '480px',
-        }}>
-          From card to cabin
-          in three steps.
-        </h2>
-
-        {/* Steps - hairline bordered grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-          border: `1px solid ${BORDER}`,
-          borderRadius: '16px',
-          overflow: 'hidden',
-        }}>
-          {STEPS.map(({ n, title, body }, i) => (
-            <div
-              key={n}
-              style={{
-                padding: '24px 22px',
-                borderRight: i < STEPS.length - 1 ? `1px solid ${BORDER}` : 'none',
-                background: ELEVATED,
-                transition: 'background 0.2s',
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = '#1a2540'}
-              onMouseLeave={e => e.currentTarget.style.background = ELEVATED}
-            >
-              <div style={{
-                fontSize: '11px', fontWeight: '600',
-                color: ACCENT, letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                marginBottom: '16px',
-              }}>
-                {n}
-              </div>
-              <h3 style={{
-                fontSize: '17px',
-                fontWeight: '600',
-                letterSpacing: '-0.3px',
-                color: TEXT,
-                marginBottom: '10px',
-                lineHeight: '1.25',
-              }}>
-                {title}
-              </h3>
-              <p style={{
-                fontSize: '14px',
-                color: MUTED,
-                lineHeight: '1.6',
-                letterSpacing: '-0.1px',
-              }}>
-                {body}
-              </p>
-            </div>
-          ))}
-        </div>
-      </Section>
 
       {/* ── Supported cards band ─────────────────────────── */}
       <div style={{ borderTop: `1px solid ${BORDER}`, background: SURFACE }}>
