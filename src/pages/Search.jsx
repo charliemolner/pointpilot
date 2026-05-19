@@ -43,8 +43,8 @@ const CARD_ART = {
     overlay:    'linear-gradient(120deg, transparent 30%, rgba(180,200,255,0.22) 50%, transparent 65%)',
   },
   venture: {
-    background: 'linear-gradient(135deg, #0a1f1a 0%, #1f4a3a 45%, #3e7a5e 60%, #0c1d18 100%)',
-    overlay:    'repeating-radial-gradient(circle at 30% 70%, rgba(255,255,255,0.06) 0 8px, transparent 8px 16px)',
+    background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+    overlay:    'linear-gradient(120deg, transparent 30%, rgba(180,200,255,0.15) 50%, transparent 65%)',
   },
   strata: {
     background: 'linear-gradient(140deg, #08122a 0%, #1a2960 45%, #3a4ea0 60%, #0a1432 100%)',
@@ -781,21 +781,6 @@ export default function Search() {
 
         {/* ── STEP 1 ── */}
         <section>
-          {/* Masthead metadata */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 10,
-            paddingBottom: 20, marginBottom: 32,
-            borderBottom: `1px solid ${LINE}`,
-            ...MONO, fontSize: 9.5, letterSpacing: '0.18em',
-            color: FG_M, textTransform: 'uppercase',
-          }}>
-            <span>May · 2026</span>
-            <span style={{ opacity: 0.4 }}>·</span>
-            <span>Card Search</span>
-            <span style={{ opacity: 0.4 }}>·</span>
-            <span>PointPilot</span>
-          </div>
-
           <Kicker step="01" label="Choose a card" />
           <StepHeadline>
             What card<br />
