@@ -640,7 +640,6 @@ function PricingSection({ navigate }) {
             '2 searches / day',
             'All transfer partners',
             'Standard award chart data',
-            'Email recap, weekly',
           ]}
           cta="Start free" primary={false} onCta={() => navigate('/search')}
         />
