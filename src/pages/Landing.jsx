@@ -13,6 +13,10 @@ const ACCENT_LT = '#818cf8'           // indigo-400 - hover / lighter
 const BORDER    = 'rgba(255,255,255,0.07)'
 const GLOW      = 'rgba(99,102,241,0.35)'
 
+// ── Hero plane pattern ─────────────────────────────────────
+// Small airplane SVG tile used as a faint repeating background
+const PLANE_TILE = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z'/%3E%3C/svg%3E")`
+
 // ── Reusable section layout ────────────────────────────────
 function Section({ children, style, id }) {
   return (
@@ -170,6 +174,19 @@ export default function Landing() {
         position: 'relative',
         overflow: 'hidden',
       }}>
+        {/* Plane pattern overlay - diagonal grid, fades out at bottom */}
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: PLANE_TILE,
+          backgroundSize: '72px 72px',
+          backgroundRepeat: 'repeat',
+          opacity: 0.055,
+          transform: 'rotate(28deg) scale(1.7)',
+          transformOrigin: 'center',
+          maskImage: 'linear-gradient(to bottom, black 0%, black 55%, transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, black 55%, transparent 100%)',
+        }} />
+
         <div style={{
           position: 'absolute', inset: 0, pointerEvents: 'none',
           background: 'radial-gradient(ellipse 70% 55% at 50% 0%, rgba(99,102,241,0.13) 0%, transparent 70%)',
